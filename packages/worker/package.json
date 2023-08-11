@@ -1,0 +1,29 @@
+{
+  "name": "@catalyze/worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/commonjs/node.js",
+  "module": "dist/module/node.js",
+  "browser": "dist/module/browser.js",
+  "types": "index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json & tsc -p tsconfig.cjs.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "debug": "^4.3.4",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@catalyze/basic": "workspace:^1.0.0",
+    "path-browserify": "^1.0.1",
+    "ts-invariant": "^0.10.3"
+  }
+}

@@ -1,0 +1,79 @@
+import path from 'path-browserify'
+import { invariant } from 'ts-invariant'
+import { ProxyPod, MainPod, PodStatus } from '@catalyze/basic'
+
+export type CompileType = 'XML' | 'CSS'
+
+export abstract class ProxyCompile extends ProxyPod {
+  // => root
+  protected _root: string | null = null
+  public get root () {
+    invariant(this._root !== null)
+    return this._root
+  }
+  public set root (root: string) {
+    this._root = root
+  }
+}
+
+export class ProxyCompilePod extends ProxyCompile {
+  /**
+   * 
+   * @param root 
+   * @param uri 
+   * @returns 
+   */
+  static boot(root: string, uri: string) {
+    const pod = super.boot<ProxyCompilePod>(uri) as ProxyCompilePod
+    pod.root = root
+
+    return pod
+  }
+
+  constructor () {
+    super()
+
+    this.command('message::connected', () => this.init())
+  }
+
+  init () {
+    return this.send({
+      command: 'message::init',
+      payload: {
+        parameters: [this.root]
+      }
+    })
+  }
+
+  /**
+   * 
+   * @param rests 
+   */
+  runTask<T>(...rests: unknown[]): Promise<T>
+  runTask<T>(parameters: string[], type: CompileType = 'XML'): Promise<T> {
+    return this.send({
+      command: 'message::compile',
+      payload: {
+        parameters: [parameters, type]
+      }
+    }).then(result => result.payload as string) as Promise<T>
+  }  
+}
+
+export class MainCompilePod extends MainPod<ProxyCompilePod> {
+  static create (...rests: unknown[])
+  static create (root: string, count: number = 5) {
+    const proxies: ProxyCompilePod[] = []
+    const uri = path.resolve(__dirname, 'boot')
+
+    for (let i = 0; i < count; i++) {
+      const proxy = ProxyCompilePod.boot(root, uri)
+      proxies.push(proxy)
+    }
+
+    const main = super.create(proxies)
+    return main
+  }
+
+  
+}

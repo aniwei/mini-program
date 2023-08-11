@@ -1,0 +1,6 @@
+{
+  "projectname": "example",
+  "setting": {
+    "compileHotReLoad": true
+  }
+}

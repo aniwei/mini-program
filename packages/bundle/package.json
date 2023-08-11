@@ -1,0 +1,25 @@
+{
+  "name": "@catalyze/bundle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/commonjs/index.js",
+  "module": "dist/module/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json & tsc -p tsconfig.cjs.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@catalyze/basic": "workspace:^",
+    "path-browserify": "^1.0.1",
+    "ts-invariant": "^0.10.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "typescript": "^5.0.2"
+  }
+}
