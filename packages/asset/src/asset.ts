@@ -1,19 +1,23 @@
 import path from 'path-browserify'
 import invariant from 'ts-invariant'
-import { Bundle, File, FileJSON } from '@catalyze/basic'
+import { Asset, AssetsBundle } from '@catalyze/basic'
 
-export interface WxFileJSON extends FileJSON { }
-
-export interface WxFileCreate<T> {
+// 微信资源类类型
+export interface WxAssetCreate<T> {
   create <T> (filename: string, root: string): T
   new (filename: string, root: string): T
 }
 
-export class WxFile extends File {
+// 微信资源对象
+// index.js 
+// index.wxml
+// index.wxss
+// app.js => WxAsset.create() 
+export class WxAsset extends Asset {
   static create (filename: string, root: string)
-  static create <T extends  WxFile> (filename: string, root: string): T {
-    const WxFileCreate = this as unknown as WxFileCreate<T>
-    return new WxFileCreate(filename, root) as unknown as T
+  static create <T extends  WxAsset> (filename: string, root: string): T {
+    const WxAssetCreate = this as unknown as WxAssetCreate<T>
+    return new WxAssetCreate(filename, root) as unknown as T
   }
 
   deserialize () {
@@ -25,22 +29,124 @@ export class WxFile extends File {
     return this.source as string | Buffer
   }
 
-  read (): Promise<void> {
-    throw new Error('Unimplemented.')
+  read () {
+    AssetsBundle.read(this.absolute).then(source => this.source)
   }
 }
 
-export enum WxBundleType {
-  Unknown,
+// 资源组类型，针对微信小程序只有两种
+export enum WxAssetSetType {
   Component,
   Page,
 }
-export interface WxBundleJSON {
-  root: string,
-  relative: string,
-  files: WxFileJSON[]
+
+// 微信资源组对象，用于表示 Page / Component 
+// index.js / index.wxml / index.wxss
+// TODO:: 后期需要支持 Typescript / Sass / Less
+export class WxAssetSet extends AssetsBundle {
+  /**
+   * 创建 资源组
+   * @param {string} relative 
+   * @param {string} root 
+   * @returns {WxAssetSet}
+   */
+  static create (relative: string, root: string) {
+    return new WxAssetSet(relative, root)
+  }
+
+  // => wxml
+  public get wxml () {
+    return this.findByExt('.wxml') ?? null
+  }
+  // => wxss
+  public get wxss () {
+    return this.findByExt('.wxss') ?? null
+  }
+  // => js
+  public get js () {
+    return this.findByExt('.js') ?? null
+  }
+  // => json
+  public get json () {
+    return this.findByExt('.json') ?? null
+  }
+
+  // 相对路径
+  // pages/index/index
+  // component/test/index
+  public relative: string
+
+  constructor (relative: string, root: string) {
+    super(root)
+    this.relative = relative
+  }
+
+  add (filename: string) {
+
+  }
+
+
 }
-export class WxBundle extends Bundle {
+
+// WxAssetSets 
+// key: 相对路径
+// value: WxAsset
+export class WxAssetSets {
+  static create (root: string) {
+    return new WxAssetSets(root)
+  }
+
+  // 根目录
+  public root: string
+  // Sets 集合
+  public sets: Map<string, WxAssetSet> = new Map()
+
+  constructor (root: string) {
+    this.root = root
+  }
+
+  /**
+   * 根据文件路径获取 WxAsset
+   * @param {string} filename 
+   * @returns {WxAssetSet | null}
+   */
+  findByFilename (filename: string) {
+    const relative = path.realtive(this.root, filename)
+    const { dir, name } = path.parse(relative)
+    const key = dir ? `${dir}/${name}` : name
+
+    return this.sets.get(key) ?? null
+  }
+
+  /**
+   * 根据 WxAsset 获取
+   * @param {WxAsset}  
+   * @returns {WxAssetSet | null}
+   */
+  findByAsset (asset: WxAsset) {
+    return this.sets.get(asset.absolute) ?? this.sets.get(asset.relative) ?? null
+  }
+
+  /**
+   * 
+   * @param {WxAsset} asset 
+   */
+  put (asset: WxAsset) {
+    let set = this.findByAsset(asset) ?? null
+
+    if (set === null) {
+      const { dir, name } = path.parse(asset.absolute)
+      const key = dir ? `${dir}/${name}` : name
+      
+      set = WxAssetSet.create(asset.relative, asset.root) as WxAssetSet
+      this.sets.set(key, set)
+    }
+
+    return set
+  }
+}
+
+export class WxAssetsBundle extends AssetsBundle {
   static fromJSON (json: WxBundleJSON) {
     const bundle = new WxBundle(json.relative, json.root)
     for (const f of json.files) {
@@ -52,55 +158,30 @@ export class WxBundle extends Bundle {
     return bundle
   }
 
-  // => wxml
-  public get wxml () {
-    return this.findBundleByExt('.wxml')
-  }
+  // => sets
+  protected _sets: WxAssetSets | null = null
+  public get sets () {
+    if (this._sets === null) {
+      const sets = WxAssetSets.create(this.root)
 
-  // => wxss
-  public get wxss () {
-    return this.findBundleByExt('.wxss') as WxFile
-  }
-
-  // => wxss
-  public get wxs () {
-    return this.findBundleByExt('.wxs') as WxFile
-  }
-
-  // => json
-  public get json () {
-    return this.findBundleByExt('.json') as WxFile
-  }
-
-  // => type
-  public get type () {
-    if (this.json && (this.json.data as { component: boolean }).component) {
-      if (
-        (this.js || this.ts) && 
-        this.wxml
-      ) {
-        return WxBundleType.Component
+      for (const asset of this.assets) {
+        
       }
+
+      this._sets = sets
     }
 
-    if (this.js || this.ts) {
-      if (this.wxml) {
-        return WxBundleType.Page
-      }
-    }
-
-    return WxBundleType.Unknown
+    return this._sets
   }
 
   read (): Promise<void> {
-   return Promise.all(this.files.map(file => file.read())).then(() => void 0)
+   return Promise.all(this.assets.map(asset => asset.read())).then(() => void 0)
   }
 
   toJSON () {
     return {
       root: this.root,
-      relative: this.relative,
-      files: this.files
+      assets: this.assets
     }
   }
 }
@@ -122,8 +203,8 @@ export interface WxBundlesCreate {
   create (...rests: unknown[])
   new (...rests: unknown[])
 }
-export function MixinWxBundles (BaseContext) {
-  abstract class WxBundles extends BaseContext {
+export function MixinWxAssetsBundle (BaseContext) {
+  abstract class WxAssetsBundle extends BaseContext {
     static create <T extends WxBundles> (...rests: unknown[])
     static create <T extends WxBundles> (root: string, ...rests: unknown[]): T {
       const bundles =  super.create(root, ...rests) as WxBundles
@@ -135,16 +216,6 @@ export function MixinWxBundles (BaseContext) {
       const wx = WxBundles.create(root)
       wx.bundles = new Map(bundles.map(([key, json]) => [key, WxBundle.fromJSON(json)]))
       return wx
-    }
-
-    // => components
-    public get components () {
-      return this.findByType(WxBundleType.Component)
-    }
-
-    // => pages
-    public get pages () {
-      return this.findByType(WxBundleType.Component)
     }
 
     // => root
