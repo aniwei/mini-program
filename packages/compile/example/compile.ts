@@ -13,16 +13,16 @@ import path from 'path'
 //   })
 // })
 
-import { WxBundles } from '../src/bundle'
+import { WxAssetsBundle } from '../src/asset'
 
-const bundles = WxBundles.create(path.resolve(__dirname, 'vant'), 2)
+const bundle = WxAssetsBundle.create(path.resolve(__dirname, 'vant'), 2)
 
-bundles.on('inited', async () => {
-  await bundles.mount()
-  bundles.runTask(bundles.xmlsExecArgs, 'XML').then(result => {
+bundle.on('booted', async () => {
+  await bundle.mount()
+  bundle.runTask(bundle.xmlsExecArgs, 'XML').then(result => {
     debugger
   })
-  bundles.runTask(bundles.cssesExecArgs, 'CSS').then(result => {
+  bundle.runTask(bundle.cssesExecArgs, 'CSS').then(result => {
     debugger
   })
 })

@@ -59,7 +59,7 @@
     }, {
       "name": "Program",
       "commands": [{
-        "name": "getWxAppBundles",
+        "name": "getWxAssetsBundle",
         "description": "获取项目文件包",
         "parameters": []
       }, {

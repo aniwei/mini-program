@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/asset",
+  "name": "@catalyze/wx-asset",
   "version": "1.0.0",
   "description": "",
   "main": "dist/commonjs/index.js",

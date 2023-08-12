@@ -2,7 +2,8 @@ import invariant from 'ts-invariant'
 import { 
   MessageOwner, 
   PodStatus, 
-  WorkPort, 
+  WorkPort,
+  tryCatch, 
 } from '@catalyze/basic'
 import { ProxyCompile } from './proxy'
 import { WxWCC } from '../wx/wcc'
@@ -22,6 +23,7 @@ class WorkerCompilePod extends ProxyCompile {
   }
   protected set wcc (wcc: WxWCC) {
     this._wcc = wcc
+    this.isContextReady()
   }
 
   // => wcsc
@@ -32,6 +34,7 @@ class WorkerCompilePod extends ProxyCompile {
   }
   protected set wcsc (wcsc: WxWCSC) {
     this._wcsc = wcsc
+    this.isContextReady()
   }
 
   constructor () {
@@ -45,8 +48,6 @@ class WorkerCompilePod extends ProxyCompile {
       this.root = root
       this.wcc = new WxWCC(this.root)  
       this.wcsc = new WxWCSC(this.root)
-
-      this.status |= PodStatus.Inited
     })
 
     this.command('message::compile', async (message: MessageOwner) => {
@@ -64,6 +65,18 @@ class WorkerCompilePod extends ProxyCompile {
         return result
       }).finally(() => this.idle())
     })
+  }
+
+  isContextReady () {
+    if (tryCatch<boolean>(() => {
+      return (
+        this.root !== null &&
+        this.wcc !== null &&
+        this.wcsc !== null 
+      )
+    })) {
+      this.status |= PodStatus.Inited
+    }
   }
 
   runTask<T> (...rests: unknown[]): Promise<T>

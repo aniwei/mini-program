@@ -1,5 +1,5 @@
 import { ApiJSON, BaseApi, MessageTransport } from '@catalyze/basic'
-import { WxBundlesJSON } from '@catalyze/bundle'
+import { WxAssetsBundle } from '@catalyze/wx-asset'
 import { WxApiTransport } from './transport'
 import WxApiJSON from './wx-api.json'
 
@@ -77,7 +77,7 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
   }, 
   Program: {
     commands: {
-      getWxAppBundles (): Promise<WxBundlesJSON>
+      getWxAssetsBundle (): Promise<WxAssetsBundle>
       compile (): Promise<string[]>
       invoke (name: string, data: unknown, id: number): Promise<unknown>
       login (): Promise<WxUserLogin>

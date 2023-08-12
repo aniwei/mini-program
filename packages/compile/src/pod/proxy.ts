@@ -1,6 +1,6 @@
 import path from 'path-browserify'
 import { invariant } from 'ts-invariant'
-import { ProxyPod, MainPod, PodStatus } from '@catalyze/basic'
+import { ProxyPod, MainPod, PodStatus, tryCatch } from '@catalyze/basic'
 
 export type CompileType = 'XML' | 'CSS'
 
@@ -12,7 +12,21 @@ export abstract class ProxyCompile extends ProxyPod {
     return this._root
   }
   public set root (root: string) {
-    this._root = root
+    if (this._root !== root) {
+      this._root = root
+      this.isContextReady()
+    }
+  }
+
+  isContextReady () {
+    if (tryCatch<boolean>(() => {
+      return (
+        this.root !== null &&
+        (this.status & PodStatus.Booted) === PodStatus.Booted
+      )
+    })) {
+      this.status |= PodStatus.Inited
+    }
   }
 }
 
@@ -42,7 +56,7 @@ export class ProxyCompilePod extends ProxyCompile {
       payload: {
         parameters: [this.root]
       }
-    })
+    }).then(() => { this.status |= PodStatus.Booted })
   }
 
   /**

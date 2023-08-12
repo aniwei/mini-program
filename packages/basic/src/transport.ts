@@ -175,7 +175,7 @@ export abstract class MessageTransport<
   /**
    * 注册基本指令
    */
-  protected registerCommands () {
+  registerCommands () {
     [
       'message::received', 
       'message::callback', 
@@ -218,7 +218,7 @@ export abstract class MessageTransport<
    * 终端描述
    * @returns {{}} 
    */
-  toJSON () {
+  toJSON (): unknown {
     return {
       state: this.state
     }

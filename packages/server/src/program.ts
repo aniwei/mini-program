@@ -3,20 +3,15 @@ import fs from 'fs-extra'
 import path from 'path'
 import invariant from 'ts-invariant'
 import { Axios } from 'axios'
-import { WxBundles } from '@catalyze/compile'
 import { WxProjJSON } from '@catalyze/wx-api'
-import { FileType, PodStatus } from '@catalyze/basic'
-import { WxFile } from '@catalyze/bundle'
+import { WxAsset } from '@catalyze/wx-asset'
+import { WxAssetsBundle } from '@catalyze/wx-compile'
+import { AssetStoreType, PodStatus } from '@catalyze/basic'
 
 const mini_debug = debug(`wx:program`)
 
-class WxVirt extends WxFile {
-  read () {
-    return Promise.resolve(void 0)
-  }
-}
 
-class WxMiniBundles extends WxBundles {
+class MiniAssetsBundle extends WxAssetsBundle {
   async mount () {
     const relative = path.join(__dirname, '../wx')
     const files: { filename: string, source: Buffer | string}[] = await Promise.all([
@@ -25,10 +20,9 @@ class WxMiniBundles extends WxBundles {
     ].map(filename => fs.readFile(path.join(relative, filename)).then(source => ({ filename, source }))))
 
     for (const file of files) {
-      const virt = WxVirt.create(file.filename, '@wx')
-      virt.source = file.source
-      virt.type = FileType.Memory
-      this.findByFilename(file.filename).push(virt)
+      const asset = WxAsset.create(file.filename, '@wx', file.source)
+      asset.type = AssetStoreType.Memory
+      this.put(asset)
     }
 
     return super.mount()
@@ -40,7 +34,7 @@ export class MiniProgram extends Axios {
   protected _appid: string | null = null
   public get appid () {
     if (this._appid === null) {
-      const proj = this.bundles.findByFilename('project.config')?.json ?? null
+      const proj = this.bundle.findByFilename('project.config')?.json ?? null
       invariant(proj !== null)
 
       this._appid = (proj.data as WxProjJSON).appid
@@ -50,14 +44,14 @@ export class MiniProgram extends Axios {
   }
 
   protected root: string
-  protected bundles: WxMiniBundles
+  protected bundle: MiniAssetsBundle
 
   constructor (root: string) {
     super({ baseURL: `https://servicewechat.com` })
-    const bundles = WxMiniBundles.create<WxMiniBundles>(root, 4)
+    
 
     this.root = root
-    this.bundles = bundles
+    this.bundle = MiniAssetsBundle.create<MiniAssetsBundle>(root, 4)
   }
 
   async ensure () {
@@ -66,7 +60,7 @@ export class MiniProgram extends Axios {
   }
 
   getWxAppBundles () {
-    return this.bundles.toJSON()
+    return this.bundle.toJSON()
   }
 
   login () {
@@ -89,10 +83,10 @@ export class MiniProgram extends Axios {
   }
 
   start () {
-    if (this.bundles.status & PodStatus.Inited) {
-      return this.bundles.mount()
+    if (this.bundle.status & PodStatus.Booted) {
+      return this.bundle.mount()
     }
 
-    return new Promise(resolve => resolve(this.bundles.mount()))
+    return new Promise(resolve => this.bundle.on('booted', () => resolve(this.bundle.mount())))
   }
 }

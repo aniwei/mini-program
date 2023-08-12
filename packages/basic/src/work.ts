@@ -49,13 +49,14 @@ export class WorkPort<T extends string = string> extends EventEmitter<'open' | '
   close () {
     this.port.onmessage = null
     this.port.onmessageerror = null
+    this.port.onopen = null
     this.port.close()
   }
 }
 
 export class WorkTransport<T extends string = string> extends MessageTransport<WorkPort<T>> {
-  protected index: number = 0
-  protected count: number = 0
+  public index: number = 0
+  public count: number = 0
 
   /**
    * 

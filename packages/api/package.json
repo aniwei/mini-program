@@ -16,8 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@catalyze/basic": "workspace:^1.0.0",
-    "@catalyze/bundle": "workspace:^",
-    "@catalyze/compile": "workspace:^1.0.0",
+    "@catalyze/wx-asset": "workspace:^",
     "debug": "^4.3.4"
   },
   "devDependencies": {

@@ -17,6 +17,6 @@ export const tryCatch = <T> (handle: TryCatchHandle<T>): T | void => {
 
     return result
   } catch (error: any) {
-    try_debug(`Catching a error about &o`, error)
+    try_debug(`Catching a error about %o`, error)
   }
 }

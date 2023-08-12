@@ -4,17 +4,19 @@ import Worker from '@catalyze/worker'
 import { EventEmitter } from './events'
 import { WorkPort, WorkTransport } from './work'
 import { MessageOwner } from './transport'
+import { tick } from './helpers'
 
 const pod_debug = debug('basic:pod')
 
 export type Passage = Worker & HTMLIFrameElement
 
+// Worker 运行状态
 export enum PodStatus {
   Created = 1,
   Connected = 2,
   Prepared = 4,
-  Inited = 8,
-  Ready = 16,
+  Booted = 8,
+  Inited = 16,
   On = 32,
   Off = 64,
   Destroy = 128,
@@ -29,6 +31,7 @@ export type CreatePod<T> = {
   create <T> (...rests: unknown[]): T, 
   new (...rests: unknown[]): T 
 }
+// Worker 运行容器
 export abstract class Pod extends WorkTransport {
   /**
    * 
@@ -54,8 +57,7 @@ export abstract class Pod extends WorkTransport {
       const old = this._status
       this._status = status
       pod_debug('Pod 状态变更 <old: %s -> new: %s>', old, status)
-
-      this.emit('status', this._status, old)
+      tick(() => this.emit('status', this._status, old))
     }
   }
 
@@ -64,7 +66,6 @@ export abstract class Pod extends WorkTransport {
     super()
 
     this.once('inited', () => this.status |= PodStatus.On)
-
     this.on('status', (...parameters: PodStatus[]) => {
       const [status, old] = parameters
       const v = status &~ PodStatus.Inited
@@ -91,6 +92,9 @@ export abstract class Pod extends WorkTransport {
           break
         case PodStatus.Inited:
           this.emit('inited')
+          break
+        case PodStatus.Booted:
+          this.emit('booted')
           break
         case PodStatus.On: 
           this.emit('active')
@@ -124,6 +128,7 @@ export abstract class Pod extends WorkTransport {
   }
 }
 
+// Worker 主线程容器代理
 export abstract class ProxyPod extends Pod {
   static boot(...rests: unknown[])
   static boot<T extends ProxyPod>(...rests: unknown[]): T
@@ -143,7 +148,7 @@ export abstract class ProxyPod extends Pod {
   }
 
   // => passage
-  protected _passage: Passage | null = null
+  public _passage: Passage | null = null
   public get passage () {
     invariant(this._passage)
     return this._passage
@@ -160,14 +165,33 @@ export abstract class ProxyPod extends Pod {
     }
   }
 
-  protected _onmessage = (event: MessageEvent<{ status: 'connected' }>) => {
+  constructor (...rests: unknown[])
+  constructor () {
+    super()
+
+    this.once('booted', () => this.status |= PodStatus.On)
+  }
+
+  public _onmessage = (event: MessageEvent<{ status: 'connected' }>) => {
     if (event.data.status === 'connected') {
       this.emit('connected')
     }
   }
 
+
   runTask <T> (...rests: unknown[]): Promise<T> {
     throw new Error('')
+  }
+
+  init (...rests: unknown[]) {
+    return this.send({
+      command: 'message::init',
+      payload: {
+        parameters: [...rests]
+      }
+    }).then(() => { 
+      this.status |= PodStatus.Booted 
+    })
   }
 }
 
@@ -178,7 +202,7 @@ export type MainPodCreate<T> = {
   create <P extends ProxyPod, T extends MainPod<P>> (proxies: P[]): T,
   new (...rests: unknown[]): T 
 }
-export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'inited' | 'connected'> {
+export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'booted' | 'connected'> {
   static create (...rests: unknown[])
   static create <
     P extends ProxyPod, 
@@ -206,16 +230,15 @@ export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'inited' 
   }
   public set proxies (proxies: P[]) {
     if (this._proxies !== proxies) {
+      this._proxies = proxies
 
       Promise.all(proxies.map(proxy => {
         return new Promise(resolve => proxy.once('connected', () => resolve(proxy)))
       })).then(() => this.emit('connected'))
 
       Promise.all(proxies.map(proxy => {
-        return new Promise(resolve => proxy.once('inited', () => resolve(proxy)))
-      })).then(() => this.emit('inited'))
-
-      this._proxies = proxies
+        return new Promise(resolve => proxy.status & PodStatus.Booted ? resolve(proxy) : proxy.once('booted', () => resolve(proxy)))
+      })).then(() => this.emit('booted'))
     }
   }
 

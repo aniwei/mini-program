@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/compile",
+  "name": "@catalyze/wx-compile",
   "version": "1.0.0",
   "description": "",
   "main": "dist/commonjs/index.js",
@@ -29,8 +29,7 @@
   },
   "dependencies": {
     "@catalyze/basic": "workspace:^1.0.0",
-    "@catalyze/bundle": "workspace:^",
-    "@catalyze/wx": "workspace:^",
+    "@catalyze/wx-asset": "workspace:^",
     "chokidar": "^3.5.3",
     "fs-extra": "^11.1.1",
     "glob": "^10.3.0",

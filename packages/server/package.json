@@ -18,11 +18,11 @@
   "license": "ISC",
   "dependencies": {
     "@catalyze/basic": "workspace:^1.0.0",
-    "@catalyze/bundle": "workspace:^",
-    "@catalyze/compile": "workspace:^1.0.0",
     "@catalyze/view": "workspace:^",
     "@catalyze/wx": "workspace:^",
     "@catalyze/wx-api": "workspace:^",
+    "@catalyze/wx-asset": "workspace:^",
+    "@catalyze/wx-compile": "workspace:^",
     "@koa/router": "^12.0.0",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/drawer": "^6.6.2",
