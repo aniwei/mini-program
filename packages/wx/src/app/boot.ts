@@ -1,7 +1,7 @@
 import debug from 'debug'
 import { MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
 import { defineReadAndWriteWxProperty, tick } from '@catalyze/basic'
-import { MixinWxBundles } from '@catalyze/bundle'
+import { MixinWxAssetsBundle } from '@catalyze/wx-asset'
 import { WxLibs } from './libs'
 import { WxInit } from '../context'
 
@@ -17,16 +17,15 @@ type MessagePayload = {
 const worker_debug = debug('wx:app:worker')
 
 
-export class WxApp extends MixinWxBundles(WxLibs) {
+export class WxApp extends MixinWxAssetsBundle(WxLibs) {
   constructor () {
     super()
 
     this.command('message::init', async (message: MessageOwner) => {
       const payload = message.payload as unknown as MessagePayload
-      const { settings, bundles } = payload.parameters[0] as unknown as WxInit
+      const { settings, assets } = payload.parameters[0] as unknown as WxInit
 
-      this.settings = settings
-      this.from(bundles)
+      await this.fromAssetsBundleAndSettings(assets, settings)
     })
 
     this.once('inited', () => {
@@ -86,5 +85,4 @@ const main = async (event: MessageEvent<ConnectionPayload>) => {
   self.postMessage({ status: 'connected' })
 }
 
-debug.enable('*')
 self.addEventListener('message', main)

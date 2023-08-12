@@ -2,8 +2,8 @@ import debug from 'debug'
 import invariant from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
 import { PodStatus, WorkPort } from '@catalyze/basic'
+import { MixinWxAssetsBundle } from '@catalyze/wx-asset'
 import { WxContext } from '../context'
-import { MixinWxBundles } from '@catalyze/bundle'
 
 const view_debug = debug(`wx:view:delegate`)
 
@@ -14,7 +14,7 @@ export enum WxViewEvents {
 
 export type NavigationEventSubscriber = () => void
 
-export class ProxyView extends MixinWxBundles(WxContext) {
+export class ProxyView extends MixinWxAssetsBundle(WxContext) {
   static boot (root: string, iframe: HTMLIFrameElement) {
     view_debug(`开始启动 Wx View Service`)
     const channel = new MessageChannel()

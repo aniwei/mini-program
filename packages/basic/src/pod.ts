@@ -202,7 +202,7 @@ export type MainPodCreate<T> = {
   create <P extends ProxyPod, T extends MainPod<P>> (proxies: P[]): T,
   new (...rests: unknown[]): T 
 }
-export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'booted' | 'connected'> {
+export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'booted' | 'connected' | string> {
   static create (...rests: unknown[])
   static create <
     P extends ProxyPod, 
@@ -224,7 +224,7 @@ export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'booted' 
   }
 
   // => proxies
-  protected _proxies: P[] = []
+  public _proxies: P[] = []
   public get proxies () {
     return this._proxies
   }

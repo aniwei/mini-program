@@ -188,7 +188,7 @@ export abstract class AssetsBundle {
 
   // 根据相对路径查找
   findByFilename (relative: string) {
-    return this.assets.filter(file => file.relative === relative)
+    return this.assets.find(file => file.relative === relative) ?? null
   }
 
   /**

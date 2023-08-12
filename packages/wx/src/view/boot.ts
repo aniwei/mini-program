@@ -7,7 +7,7 @@ import {
   defineReadAndWriteWxProperty, 
   tick 
 } from '@catalyze/basic'
-import { WxFile } from '@catalyze/bundle'
+import { WxAsset } from '@catalyze/wx-asset'
 import { ProxyView } from './proxy'
 import { WxInit } from '../context'
 
@@ -88,7 +88,7 @@ export class WxView extends ProxyView {
   boot () {
     this.inject('wxml.js', this.wxml)
     this.inject('wxss.js', `(function (window){${this.wxss}})(__proxy_window__)`)
-    this.inject('view.js', (this.findByFilename('@wx/view.js').js as WxFile).data as string)
+    this.inject('view.js', (this.findByFilename('@wx/view.js') as unknown as WxAsset).data as string)
   }
 }
 

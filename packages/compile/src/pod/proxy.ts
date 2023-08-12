@@ -51,12 +51,7 @@ export class ProxyCompilePod extends ProxyCompile {
   }
 
   init () {
-    return this.send({
-      command: 'message::init',
-      payload: {
-        parameters: [this.root]
-      }
-    }).then(() => { this.status |= PodStatus.Booted })
+    return super.init(this.root)
   }
 
   /**

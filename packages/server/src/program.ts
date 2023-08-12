@@ -59,7 +59,7 @@ export class MiniProgram extends Axios {
     await this.start()
   }
 
-  getWxAppBundles () {
+  getWxAssetsBundle () {
     return this.bundle.toJSON()
   }
 

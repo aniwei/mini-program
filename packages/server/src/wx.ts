@@ -40,9 +40,9 @@ export class WxApp extends WxAuth {
       return config
     })  
 
-    this.api.subscribe('Program.getWxAppBundles', () => this.program.getWxAppBundles())
     this.api.subscribe('Program.login', () => this.program.login())
     this.api.subscribe('Program.createRequestTask', (data: unknown) => this.program.createRequestTask(data))
+    this.api.subscribe('Program.getWxAssetsBundle', () => this.program.getWxAssetsBundle())
     
     this.use(view())
   }

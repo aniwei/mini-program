@@ -1,6 +1,6 @@
 import path from 'path-browserify'
 import invariant from 'ts-invariant'
-import { Asset, AssetsBundle, AssetsBundleJSON, ProxyPod } from '@catalyze/basic'
+import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON, MainPod, ProxyPod } from '@catalyze/basic'
 
 export type WxAssetSetJSON = {
   component?: boolean,
@@ -8,6 +8,10 @@ export type WxAssetSetJSON = {
     [key: string]: string
   },
   [key: string]: unknown
+}
+
+export type WxAssetAppJSON = {
+  pages: string[]
 }
 
 // 微信资源类类型
@@ -25,6 +29,10 @@ export class WxAsset extends Asset {
   static create <T extends  WxAsset> (filename: string, root: string, source?: Buffer | string): T {
     const WxAssetCreate = this as unknown as WxAssetCreate<T>
     return new WxAssetCreate(filename, root, source) as unknown as T
+  }
+
+  static fromJSON (json: AssetJSON) {
+    return WxAsset.create(json.relative, json.root, json.source)
   }
 }
 
@@ -239,15 +247,13 @@ export interface WxAssetsBundleCreate {
   create (...rests: unknown[])
   new (...rests: unknown[])
 }
-export interface WxAssetsBundleOwner {
-  create <T> (...rests: unknown[])
-  create <T> (root: string, ...rests: unknown[]): T
-}
-export function MixinWxAssetsBundle (BaseContext: typeof ProxyPod) {
-  abstract class WxAssetsBundleOwner extends BaseContext {
+
+export function MixinWxAssetsBundle (PodContext) {
+  // TODO
+  abstract class WxAssetsBundleOwner extends PodContext {
     static create <T extends WxAssetsBundleOwner> (...rests: unknown[])
     static create <T extends WxAssetsBundleOwner> (root: string, ...rests: unknown[]): T {
-      const wx =  super.create(root, ...rests) as WxAssetsBundleOwner
+      const wx =  super.create(root, ...rests) as unknown as  T
       wx.root = root
       return wx as T
     }
@@ -304,6 +310,11 @@ export function MixinWxAssetsBundle (BaseContext: typeof ProxyPod) {
 
     put (asset: WxAsset) {
       this.bundle.put(asset)
+    }
+
+    fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
+      this.root = root
+      return this.mount(assets.map(asset => WxAsset.fromJSON(asset)))
     }
 
     toJSON () {

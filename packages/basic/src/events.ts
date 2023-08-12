@@ -5,24 +5,25 @@ type Listener = {
   once: boolean
 }
 
-export class EventEmitter<T extends string> extends Map<T, Listener[]> {
+export class EventEmitter<T extends string> {
+  public events: Map<T, Listener[]> = new Map()
 
   eventNames () {
     return Object.entries(this).map(([event]) => event)
   }
 
   listeners (event: T) {
-    return this.get(event) ?? []
+    return this.events.get(event) ?? []
   }
 
   listenerCount (event: T) {
-    const listeners = this.get(event) ?? []
+    const listeners = this.events.get(event) ?? []
     return listeners.length
   }
 
   emit (event: T, ...args: unknown[]) {
-    if (this.has(event)) {
-      const listeners = this.get(event)?.slice()
+    if (this.events.has(event)) {
+      const listeners = this.events.get(event)?.slice()
 
       if (listeners) {
 
@@ -69,21 +70,21 @@ export class EventEmitter<T extends string> extends Map<T, Listener[]> {
       once,
     }
   
-    if (this.has(event)) {
-      this.get(event)?.push(listener)
+    if (this.events.has(event)) {
+      this.events.get(event)?.push(listener)
     } else {
-      this.set(event, [listener])
+      this.events.set(event, [listener])
     }
   
     return this
   }
 
   removeListener (event: T, handler?: ListenerHandler, context?: unknown, once?: boolean) {
-    if (this.has(event)) {
+    if (this.events.has(event)) {
       if (handler === undefined) {
-        this.delete(event)
+        this.events.delete(event)
       } else {
-        const listeners = this.get(event)
+        const listeners = this.events.get(event)
   
         if (listeners) {
           for (const listener of listeners) {
@@ -101,7 +102,7 @@ export class EventEmitter<T extends string> extends Map<T, Listener[]> {
           }
   
           if (listeners.length === 0) {
-            this.delete(event)
+            this.events.delete(event)
           }
         }
       } 
@@ -114,7 +115,7 @@ export class EventEmitter<T extends string> extends Map<T, Listener[]> {
     if (event) {
       this.removeListener(event)
     } else {
-      this.clear()
+      this.events.clear()
     }
   
     return this

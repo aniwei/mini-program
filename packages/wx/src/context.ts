@@ -1,7 +1,7 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
-import { ProxyPod, MessageOwner, tryCatch, PodStatus } from '@catalyze/basic'
-import { WxBundlesJSON } from '@catalyze/bundle'
+import { ProxyPod, MessageOwner, tryCatch, PodStatus, AssetsBundleJSON } from '@catalyze/basic'
+
 
 /*
   status 状态变化路径
@@ -59,7 +59,7 @@ export interface WxSettings {
 export interface WxInit {
   id?: string | number,
   path?: string,
-  bundles: WxBundlesJSON,
+  assets: AssetsBundleJSON,
   settings: WxSettings,
   configs: WxConfigs,
 }

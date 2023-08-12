@@ -1,10 +1,11 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
 import { 
+  AssetsBundleJSON,
   PodStatus, 
   defineReadOnlyWxProperty 
 } from '@catalyze/basic'
-import { WxBundleJSON, MixinWxBundles, WxFile } from '@catalyze/bundle'
+import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset'
 import { WxContext, WxSettings } from '../context'
 import { WxCapability, WxCapabilityCreate } from '../capability'
 import { ProxyView, WxViewEvents } from '../view'
@@ -34,7 +35,7 @@ export interface ProxyApp {
 /**
  * View 创建及持有类
  */
-export abstract class ProxyApp extends MixinWxBundles(WxContext) {
+export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
   static proxyId: number = 1
   static boot (...rests: unknown[]) {
     // @ts-ignore
@@ -52,37 +53,14 @@ export abstract class ProxyApp extends MixinWxBundles(WxContext) {
   }
   public set settings (settings: WxSettings) {
     super.settings = settings
-
-    // @ts-ignore
-    const app = this.findFile('app.json') as WxFile as { pages: string[] }
-  
-    this.configs = {
-      appLaunchInfo: {
-        scene: this.settings.scene,
-        path: this.settings.path
-      },
-      accountInfo: this.settings.account,
-      pages: app.pages,
-      env: this.settings.env,
-      entryPagePath: this.settings.entry
-    }
   }
 
-  // => builder
-  protected _builder: MainBuilder | null = null
-  public get builder () {
-    invariant(this._builder !== null)
-    return this._builder
-  }
-  public set builder (builder: MainBuilder) {
-    this._builder = builder
-  }
-
+  public builder: MainBuilder = MainBuilder.create(4)
   public capabilities: WxCapability[] = []
   public views: ProxyView[] = []
   public deps: number = 0
 
-  async register (WxCapability: WxCapabilityCreate, ...options: unknown[]) {
+  register (WxCapability: WxCapabilityCreate, ...options: unknown[]) {
     this.deps++
     WxCapability.create(this, ...options).then(capability => {
       defineReadOnlyWxProperty(this, WxCapability.kSymbol as PropertyKey, capability)
@@ -90,6 +68,25 @@ export abstract class ProxyApp extends MixinWxBundles(WxContext) {
       if (this.deps === 0) {
         this.status |= PodStatus.Prepared
       }
+    })
+  }
+
+  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
+    return this.fromAssetsBundleJSON(assets).then(() => {
+      const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
+      const configs = {
+        appLaunchInfo: {
+          scene: settings.scene,
+          path: settings.path
+        },
+        accountInfo: settings.account,
+        pages: app.pages,
+        env: settings.env,
+        entryPagePath: settings.entry
+      }
+  
+      this.configs = configs
+      this.settings = settings
     })
   }
 
@@ -188,19 +185,9 @@ export abstract class ProxyApp extends MixinWxBundles(WxContext) {
     return view
   }
  
-  async init (bundles: WxBundleJSON, settings: WxSettings) {
-    this.settings = settings
-    this.builder = MainBuilder.create(4)
-
-    return this.send({
-      command: 'message::init',
-      payload: {
-        parameters: [{ 
-          bundles: bundles, 
-          configs: this.configs,
-          settings,
-        }]
-      }
-  })
+  init (assets: AssetsBundleJSON, settings: WxSettings) {
+    return this.fromAssetsBundleAndSettings(assets, settings).then(() => {
+      super.init(this.bundle, this.config, settings)
+    })
   }
 }

@@ -1,10 +1,10 @@
 import invariant from 'ts-invariant'
 import fs from 'fs-extra'
 import { glob } from 'glob'
+import { Asset, AssetDataProcessor } from '@catalyze/basic'
 
 import * as Wx from '@catalyze/wx-asset'
 import { MainCompilePod } from './pod/proxy'
-import { Asset, AssetDataProcessor } from '@catalyze/basic'
 
 export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
   /**
