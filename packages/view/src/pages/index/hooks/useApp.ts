@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import { ProxyApp } from '@catalyze/wx'
 import { useProgram } from '@stores/program'
 import { useWx } from '@stores/wx'
-import { WxAppJSON } from '@catalyze/wx-api'
 
 const app_debug = debug(`wx:hooks:app`)
 
@@ -20,8 +19,9 @@ export const useApp = () => {
         api.Program.commands.getWxAssetsBundle().then(assets => {
           const wx = ProxyApp.boot()
           wx.on('connected', () => wx.init(assets, program.settings).then(() => {
-            const app = wx.findFile('app.json') as WxAppJSON
+            const json = wx.findByFilename('app.json').data as WxAssetAppJSON
             
+            program.set({ app: wx })
           }))
         })
       })

@@ -187,7 +187,7 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
  
   init (assets: AssetsBundleJSON, settings: WxSettings) {
     return this.fromAssetsBundleAndSettings(assets, settings).then(() => {
-      super.init(this.bundle, this.config, settings)
+      super.init({ assets: this.bundle, settings })
     })
   }
 }

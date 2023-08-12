@@ -1,9 +1,9 @@
 import debug from 'debug'
-import { MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
+import { AssetsBundleJSON, MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
 import { defineReadAndWriteWxProperty, tick } from '@catalyze/basic'
-import { MixinWxAssetsBundle } from '@catalyze/wx-asset'
+import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset'
 import { WxLibs } from './libs'
-import { WxInit } from '../context'
+import { WxInit, WxSettings } from '../context'
 
 type ConnectionPayload = {
   type: string,
@@ -62,6 +62,25 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     for (const [key, code] of this.proj.codes) {
       this.inject(`${this.proj.appid}/${key}`, code)
     }
+  }
+
+  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
+    return this.fromAssetsBundleJSON(assets).then(() => {
+      const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
+      const configs = {
+        appLaunchInfo: {
+          scene: settings.scene,
+          path: settings.path
+        },
+        accountInfo: settings.account,
+        pages: app.pages,
+        env: settings.env,
+        entryPagePath: settings.entry
+      }
+  
+      this.configs = configs
+      this.settings = settings
+    })
   }
  
   async startup () {

@@ -3,11 +3,10 @@ import { ProxyApp } from '../../app'
 import { WxCapability } from '..'
 
 export class Request extends WxCapability {
+  static kSymbol: string = 'request'
   static create (proxy: ProxyApp): Promise<Request> {
     return new Promise((resolve) => resolve(new Request(proxy)))
   }
-
-  public name: string = 'request'
 
   constructor (proxy: ProxyApp) {
     super(proxy)
