@@ -20,6 +20,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@api": ["./src/pages/index/api"],
       "@libs/*": ["./src/pages/index/libs/*"],
       "@hooks/*": ["./src/pages/index/hooks/*"],
       "@stores/*": ["./src/pages/index/stores/*"],

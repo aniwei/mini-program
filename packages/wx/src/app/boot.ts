@@ -5,6 +5,8 @@ import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset
 import { WxLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
 
+import '../asset'
+
 type ConnectionPayload = {
   type: string,
   port: MessagePort
@@ -54,8 +56,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
   }
 
   boot () {
-    this.findByFilename('@wx/service.js')
-    this.inject('boot.js', this.proj.bootJavaScript)
+    this.inject('boot.js', (this.findByFilename('@wx/app.js') as WxAsset).data as string)
   }
 
   async injectWxAppCode () {

@@ -24,10 +24,7 @@ export const Simulator = () => {
         height: size.height
     }}>
       <Capsule />
-      <View style={{
-        height: `100%`,
-        width: `100%`,
-      }}>
+      <View style={{ height: `100%`, width: `100%` }}>
         <WxMiniProgram />
       </View>
     </View>

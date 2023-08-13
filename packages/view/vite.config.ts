@@ -39,6 +39,7 @@ export default defineConfig({
     extensions: ['.web.tsx', '.web.jsx', '.web.js', '.web.ts', '.tsx', '.ts', '.js', '.jsx'],
     alias: {
       'react-native': 'react-native-web',
+      '@api': path.resolve(__dirname, `src/pages/index/api`),
       '@libs': path.resolve(__dirname, `src/pages/index/libs`),
       '@hooks': path.resolve(__dirname, `src/pages/index/hooks`),
       '@stores': path.resolve(__dirname, `src/pages/index/stores`),

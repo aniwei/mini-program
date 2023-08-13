@@ -23,31 +23,11 @@ export class WxApi extends Api.WxApi {
   }
 
   public uri: string | null = null
-  public queue: ReadyHandle[] = []
-
-  ready (readyHandle?: ReadyHandle) {
-    if (readyHandle === undefined) {
-      this.state |= Api.WxApiState.Ready
-      let readyHandle = this.queue.shift() ?? null
-
-      while (readyHandle !== null) {
-        readyHandle()
-        readyHandle = this.queue.shift() ?? null
-      }
-    } else {
-      if (this.state & Api.WxApiState.Ready) {
-        readyHandle()
-      } else {
-        this.queue.push(readyHandle)
-      }
-    }
-  }
 
   reconnect () {
     invariant(this.uri !== null, `The "uri" member value cannot be null.`)
     this.connect(this.uri)
   }
-
 
   connect (uri: unknown) {
     api_debug(`开始连接服务器 <uri:%s>`, uri)

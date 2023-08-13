@@ -14,6 +14,7 @@ import { Controller } from '../capability/proxy/controller'
 import { UI } from '../capability/proxy/ui'
 import { Request } from '../capability/proxy/request'
 
+import '../asset'
 
 const app_debug = debug(`wx:app:proxy`)
 

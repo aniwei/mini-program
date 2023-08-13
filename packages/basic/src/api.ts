@@ -1,7 +1,7 @@
 import { EventEmitter } from './events'
 import { SubscribeHandle } from './subscribable'
 import { Subscribable } from './subscribable'
-import { MessageOwner, MessageTransport } from './transport'
+import { MessageContent, MessageOwner, MessageTransport } from './transport'
 
 export interface ApiParameter {
   name: string,
@@ -113,6 +113,7 @@ export class ApiSubscribables extends Map<string, Subscribable> {
 export interface BaseApi<T extends string> {}
 
 export abstract class BaseApi<T extends string> extends EventEmitter<T> {
+  // => transport
   protected _transport: MessageTransport | null = null
   public get transport () {
     return this._transport
@@ -161,7 +162,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
     for (const command of domain.commands) {
       const func = async (...args: unknown[]) =>  {
         checkApiParametersType(args, command.parameters)
-        const result = await this.transport?.send({
+        const result = await this.send({
           command: 'message::content',
           payload: {
             type: 'Command',
@@ -199,6 +200,8 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
 
     defineProperty(this, domain.name, () => api)
   }
+
+  abstract send (content: MessageContent): Promise<MessageOwner>
 
   subscribe (name: string, subscribeHandle: SubscribeHandle) {
     this.commands.subscribe(name, subscribeHandle)

@@ -4,7 +4,7 @@ import path from 'path'
 import invariant from 'ts-invariant'
 import { Axios } from 'axios'
 import { WxProjJSON } from '@catalyze/wx-api'
-import { WxAsset } from '@catalyze/wx-asset'
+import { WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset'
 import { WxAssetsBundle } from '@catalyze/wx-compile'
 import { AssetStoreType, PodStatus } from '@catalyze/basic'
 
@@ -20,7 +20,7 @@ class MiniAssetsBundle extends WxAssetsBundle {
     ].map(filename => fs.readFile(path.join(relative, filename)).then(source => ({ filename, source }))))
 
     for (const file of files) {
-      const asset = WxAsset.create(file.filename, '@wx', file.source)
+      const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)
       asset.type = AssetStoreType.Memory
       this.put(asset)
     }
@@ -34,10 +34,10 @@ export class MiniProgram extends Axios {
   protected _appid: string | null = null
   public get appid () {
     if (this._appid === null) {
-      const proj = this.bundle.findByFilename('project.config')?.json ?? null
+      const proj = this.bundle.findByFilename('project.config')?.data ?? null
       invariant(proj !== null)
 
-      this._appid = (proj.data as WxProjJSON).appid
+      this._appid = (proj as WxAssetAppJSON).appid
     }
 
     return this._appid

@@ -105,7 +105,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
 
   mount () {
     return this.search().then(files => {
-      super.mount(files.map(filename => Wx.WxAsset.create(filename, this.root)))
+      return super.mount(files.map(filename => Wx.WxAsset.create(filename, this.root)))
     })
   }
 

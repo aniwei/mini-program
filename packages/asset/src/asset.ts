@@ -234,7 +234,7 @@ export class WxAssetsBundle extends AssetsBundle {
   
   mount (...rests: unknown[]): Promise<void>
   mount (assets: Asset[]): Promise<void> {
-    this.assets = assets
+    this.assets = this.assets.concat(assets)
     
     return Promise.all(this.assets.map(asset => {
       return AssetsBundle.decode(asset)

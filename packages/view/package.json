@@ -11,6 +11,7 @@
   "dependencies": {
     "@catalyze/basic": "workspace:^1.0.0",
     "@catalyze/wx": "workspace:^",
+    "@catalyze/wx-asset": "workspace:^",
     "@catalyze/wx-api": "workspace:^1.0.0",
     "@react-navigation/bottom-tabs": "6.5.7",
     "@react-navigation/drawer": "6.6.2",

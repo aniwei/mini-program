@@ -1,4 +1,11 @@
-import { ApiJSON, BaseApi, MessageTransport } from '@catalyze/basic'
+import invariant from 'ts-invariant'
+import { 
+  ApiJSON, 
+  BaseApi, 
+  MessageContent, 
+  MessageOwner, 
+  MessageTransport 
+} from '@catalyze/basic'
 import { WxAssetsBundle } from '@catalyze/wx-asset'
 import { WxApiTransport } from './transport'
 import WxApiJSON from './wx-api.json'
@@ -100,14 +107,44 @@ export enum WxApiState {
 
 export type ReadyHandle = () => void
 
-export class WxApiService<T extends string> extends BaseApi<WxApiEvent | T> {
+export abstract class WxApiService<T extends string> extends BaseApi<WxApiEvent | T> {
   constructor (transport?: MessageTransport) {
     super(WxApiJSON as ApiJSON, transport ?? null)
   }
 }
 
+export type WxApiQueueHandle = () => void
+
 export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'disconnected' | 'error'> {
   public state: WxApiState = WxApiState.Created
+  public queue: WxApiQueueHandle[] = []
+
+  constructor () {
+    super()
+
+    this.once('connected', () => {
+      if (this.queue.length > 0) {
+        let q = this.queue.shift() ?? null
+        while (q !== null) {
+          q()
+          q = this.queue.pop() ?? null
+        }
+      }
+    })
+  }
+
+  send (content: MessageContent): Promise<MessageOwner> {
+    if (this.state & WxApiState.Connected) {
+      invariant(this.transport)
+      return this.transport.send(content)
+    }
+
+    return new Promise((resolve, reject) => {
+      this.queue.push(() => {
+        this.send(content).then(resolve).catch(reject)
+      })
+    })
+  }
 
   connect (uri: unknown)
   connect (transport: WxApiTransport) {
