@@ -32,7 +32,7 @@ export interface WxAssetCreate<T> {
 // index.wxss
 // app.js => WxAsset.create() 
 export class WxAsset extends Asset {
-  static create (filename: string, root: string, source?: Buffer | string)
+  static create (filename: string, root: string, source?: ArrayBufferLike | ArrayBufferView | string)
   static create <T extends  WxAsset> (filename: string, root: string, source?: Buffer | string): T {
     const WxAssetCreate = this as unknown as WxAssetCreate<T>
     return new WxAssetCreate(filename, root, source) as unknown as T
@@ -167,7 +167,10 @@ export class WxAssetSets {
    * @returns {WxAssetSet | null}
    */
   findByAsset (asset: WxAsset) {
-    return this.sets.get(asset.absolute) ?? this.sets.get(asset.relative) ?? null
+    const { dir, name } = path.parse(asset.relative)
+    const key = dir ? `${dir}/${name}` : name
+
+    return this.sets.get(key) ?? null
   }
 
   /**
@@ -191,7 +194,7 @@ export class WxAssetSets {
 export class WxAssetsBundle extends AssetsBundle {
   static fromJSON (json: AssetsBundleJSON) {
     const bundle = new WxAssetsBundle(json.root)
-    bundle.mount(json.assets.map(asset => WxAsset.create(asset.relative, asset.root, asset.source)))
+    bundle.fromAssetsBundleJSON(json)
 
     return bundle
   }
@@ -233,6 +236,10 @@ export class WxAssetsBundle extends AssetsBundle {
 
     invariant(this._pages)
     return this._pages
+  }
+
+  fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
+    this.put(assets.map(asset => WxAsset.create(asset.relative, asset.root, asset.source)))
   }
 
   findSetByFilename (filename: string) {
@@ -295,8 +302,8 @@ export function MixinWxAssetsBundle (PodContext) {
     }
 
     // 添加 WxAsset
-    put (...rests: WxAsset[]) {
-      this.bundle.put(asset)
+    put (assets: WxAsset[]) {
+      this.bundle.put(assets)
     }
 
     // 挂载 WxAsset 数据
@@ -307,7 +314,7 @@ export function MixinWxAssetsBundle (PodContext) {
     // 初始化
     fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
       this.root = root
-      this.put(assets)
+      this.put(assets.map(asset => WxAsset.create(asset.relative, asset.root, asset.source)))
     }
 
     // 根据文件名查找 Set

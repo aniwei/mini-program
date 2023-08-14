@@ -1,18 +1,13 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
-import { 
-  AssetsBundleJSON,
-  PodStatus, 
-  defineReadOnlyWxProperty 
-} from '@catalyze/basic'
+import { AssetsBundleJSON } from '@catalyze/basic'
 import { 
   MixinWxAssetsBundle, 
   WxAsset, 
   WxAssetAppJSON 
 } from '@catalyze/wx-asset'
-import { WxLibs } from '../libs'
-import { WxContext, WxSettings } from '../context'
-import { WxCapability, WxCapabilityCreate } from '../capability'
+import { WxLibs } from './libs'
+import { WxSettings } from '../context'
 import { ProxyView, WxViewEvents } from '../view'
 import { MainBuilder } from '../builder'
 import { Controller } from '../capability/proxy/controller'

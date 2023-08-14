@@ -13,6 +13,7 @@ import { User } from '../capability/user'
 import { Controller } from '../capability/controller'
 import { Request } from '../capability/request'
 import { UI } from '../capability/ui'
+import { WxCapabilityCreate } from '../capability'
 
 import '../asset'
 
@@ -23,6 +24,11 @@ type ConnectionPayload = {
 
 type MessagePayload = {
   parameters: string[]
+}
+
+type InjectFile  = {
+  filename: string,
+  source: string
 }
 
 const worker_debug = debug('wx:app:worker')
@@ -105,16 +111,15 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
   // 启动逻辑层，注入代码
   async startup () {
     const sets = this.pages.concat(this.components)
-
-    const files = [
+    const files: InjectFile[] = [
       {
-        source: this.findByFilename(`@wx/wxml.js`).source,
+        source: (this.findByFilename(`@wx/wxml.js`) as WxAsset).data as string,
         filename: 'wxml.js'
       },
     ].concat(sets.map((set) => {
       return {
         filename: set.js.relative,
-        source: set.js.data
+        source: set.js.data as string
       }
     }), sets.reduce((file, set) => {
       file.source += `

@@ -1,6 +1,7 @@
+// @ts-nocheck
 import debug from 'debug'
 import initialize from '@swc/wasm-web'
-import Sass from 'sass.js'
+import sass from 'sass.js'
 import { transform }  from '@swc/wasm-web'
 import { MessageOwner, WorkPort } from '@catalyze/basic'
 import { BuildTask, BuildSource, BuildType, ProxyBuilder } from './proxy'
@@ -50,6 +51,11 @@ class Builder extends ProxyBuilder {
         } 
         resolve(result)
       })
+    }).then(result => {
+      return {
+        command: 'message::callback',
+        payload: result
+      }
     })
   }
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { ProxyApp } from '@catalyze/wx'
 import { WxSettings } from '@catalyze/wx'
+import { WxAssetAppJSON } from '@catalyze/wx-asset'
 import { api } from '../api'
 
 export interface TabItem {

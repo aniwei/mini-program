@@ -24,7 +24,7 @@ export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '
 export type AssetJSON = {
   ext: string,
   root: string,
-  source: Buffer | string,
+  source: ArrayBufferView | ArrayBufferLike | string,
   relative: string,
 }
 
@@ -69,11 +69,11 @@ export abstract class Asset {
   }
 
   // 原数据
-  public _source: Buffer | string | null = null
+  public _source: ArrayBufferLike | ArrayBufferView | string | null = null
   public get source () {
     return this._source
   }
-  public set source (source: ArrayBufferLike | string | null) {
+  public set source (source: ArrayBufferLike | ArrayBufferView | string | null) {
     if (this._source !== source) {
       this._source = source
       this.status = (this.status &~ AssetStatus.Mounted) | AssetStatus.Unmount
@@ -220,7 +220,7 @@ export abstract class AssetsBundle {
   }
 
   // 添加数据
-  put (...assets: Asset[])
+  put (assets: Asset[] | Asset)
   put (assets: Asset) {
     Array.isArray(assets)
       ? assets.forEach(asset => this.put(asset))

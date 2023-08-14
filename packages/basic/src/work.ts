@@ -60,6 +60,18 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
   public decoder: TextDecoder = new TextDecoder()
   public encoder: TextEncoder = new TextEncoder()
 
+  decode (data: unknown) {
+    if (data instanceof Blob) {
+      return data.arrayBuffer().then(buffer => this.decoder.decode(buffer))
+    } else {
+      return Promise.resolve().then(() => this.decoder.decode(data as Buffer))
+    }
+  }
+
+  encode (data: string) {
+    return Promise.resolve().then(() => this.encoder.encode(data))
+  }
+
   /**
    * 
    * @param {string} uri 
@@ -72,8 +84,8 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
       let content
 
       try {
-        const data = this.decoder.decode(event.data ?? event)
-        content = JSON.parse(data)
+        const data = await this.decode(event.data ?? event)
+        content = JSON.parse(data as string)
         transport_debug('接收信息 %o', { command: content.command, id: content.id })
 
         const messager = new MessageOwner(this, { ...content })
@@ -109,9 +121,9 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
    * @returns 
    */
   send (content: MessageContent<string | { [key: string]: unknown }, MessageTransportCommands>): Promise<MessageOwner> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const id = `message::id::${this.index++}`
-      const data = this.encoder.encode(JSON.stringify({ 
+      const data = await this.encode(JSON.stringify({ 
         ...content, 
         id, 
         count: this.count, 

@@ -99,7 +99,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
     }
   }
 
-  put (...assets: Wx.WxAsset[]) {
+  put (assets: Wx.WxAsset[]) {
     this.bundle.put(assets)
   }
 
@@ -118,7 +118,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
       'jpeg'
     ]).then((files) => {
       this.put(files.map(filename => Wx.WxAsset.create(filename, this.root)))
-      return this.mout()
+      return this.mount()
     })
   }
 }

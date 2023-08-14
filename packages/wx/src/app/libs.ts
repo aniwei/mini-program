@@ -5,6 +5,12 @@ import { WxCapability, WxCapabilityCreate } from '../capability'
 
 import { WxContext } from '../context'
 import { ProxyApp } from './proxy'
+import { Controller } from '../capability/controller'
+import { FS } from '../capability/fs'
+import { Network } from '../capability/network'
+import { System } from '../capability/system'
+import { User } from '../capability/user'
+import { UI } from '../capability/ui'
 
 const libs_debug = debug(`wx:libs`)
 

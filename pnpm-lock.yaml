@@ -609,6 +609,9 @@ importers:
       path-browserify:
         specifier: ^1.0.1
         version: r2.cnpmjs.org/path-browserify@1.0.1
+      sass.js:
+        specifier: ^0.11.1
+        version: 0.11.1
       ts-invariant:
         specifier: ^0.10.3
         version: 0.10.3
@@ -7196,6 +7199,10 @@ packages:
 
   /safe-buffer@5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
+    dev: false
+
+  /sass.js@0.11.1:
+    resolution: {integrity: sha512-X9AtzYFr/HZ+pDIxX6xN74w/H9JjnDHqZcsYY8mr/SpCyhDVN1pJ3G0Q9rb+z3pZ7obZdYuTYMbKl1ALuhbZDw==}
     dev: false
 
   /sass@1.63.6:

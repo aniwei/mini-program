@@ -37,10 +37,10 @@ export class ProxyBuilder extends ProxyPod {
 
 export class MainBuilder extends MainPod<ProxyBuilder> {
   static create (...rests: unknown[])
-  static create (count: number = 5) {
+  static create (count: number = 2) {
     const proxies: ProxyBuilder[] = []
     // @ts-ignore
-    const uri = (new URL('./boot.ts', import.meta.url)).toString()
+    const uri = (new URL('./build', import.meta.url)).toString()
 
     for (let i = 0; i < count; i++) {
       const proxy = ProxyBuilder.boot(uri)
@@ -48,6 +48,6 @@ export class MainBuilder extends MainPod<ProxyBuilder> {
     }
 
     const main = super.create(proxies)
-    return main
+    return main as MainBuilder
   }
 }

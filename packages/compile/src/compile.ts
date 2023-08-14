@@ -1,3 +1,5 @@
+import { WxAsset } from '@catalyze/wx-asset'
+import { AssetStoreType } from '@catalyze/basic'
 import { WxAssetsBundle } from './asset'
 
 export interface WxAssetCompiledFile {
@@ -11,10 +13,11 @@ export class WxAssetsCompile extends WxAssetsBundle {
       this.runTask(this.xmlsExecArgs, 'XML'),
       this.runTask(this.cssesExecArgs, 'CSS')
     ]).then((results: string[]) => {
-      results[0] = { filename: 'wxml.js', source: results[0] }
-      results[1] = { filename: 'wxss.js', source: results[1] }
+      const files: WxAssetCompiledFile[] = []
+      files[0] = { filename: 'wxml.js', source: results[0] }
+      files[1] = { filename: 'wxss.js', source: results[1] }
 
-      return results
+      return files
     }).then((files: WxAssetCompiledFile[]) => {
       this.put(files.map(file => {
         const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)

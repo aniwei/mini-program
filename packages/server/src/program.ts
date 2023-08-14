@@ -3,14 +3,13 @@ import fs from 'fs-extra'
 import path from 'path'
 import invariant from 'ts-invariant'
 import { Axios } from 'axios'
-import { WxProjJSON } from '@catalyze/wx-api'
-import { WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset'
-import { WxAssetsBundle } from '@catalyze/wx-compile'
+import { WxAsset, WxAssetProjJSON } from '@catalyze/wx-asset'
+import { WxAssetsCompile } from '@catalyze/wx-compile'
 import { AssetStoreType, PodStatus } from '@catalyze/basic'
 
 const mini_debug = debug(`wx:program`)
 
-class MiniAssetsBundle extends WxAssetsBundle {
+class MiniAssetsBundle extends WxAssetsCompile {
   async mount () {
     const relative = path.join(__dirname, '../wx')
     const files: { filename: string, source: Buffer | string}[] = await Promise.all([
@@ -36,7 +35,7 @@ export class MiniProgram extends Axios {
       const proj = this.bundle.findByFilename('project.config')?.data ?? null
       invariant(proj !== null)
 
-      this._appid = (proj as WxAssetAppJSON).appid
+      this._appid = (proj as WxAssetProjJSON).appid
     }
 
     return this._appid
