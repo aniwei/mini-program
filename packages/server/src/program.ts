@@ -10,7 +10,6 @@ import { AssetStoreType, PodStatus } from '@catalyze/basic'
 
 const mini_debug = debug(`wx:program`)
 
-
 class MiniAssetsBundle extends WxAssetsBundle {
   async mount () {
     const relative = path.join(__dirname, '../wx')
