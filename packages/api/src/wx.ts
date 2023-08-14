@@ -77,7 +77,6 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
     }
 
     events: {
-      initialed (): Promise<void>
       WxQRCodeStateChanged (status: WxQRCodeState): Promise<void>,
       signIn (user: WxUser): Promise<void>
     }

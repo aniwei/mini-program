@@ -5,7 +5,12 @@ import {
   PodStatus, 
   defineReadOnlyWxProperty 
 } from '@catalyze/basic'
-import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset'
+import { 
+  MixinWxAssetsBundle, 
+  WxAsset, 
+  WxAssetAppJSON 
+} from '@catalyze/wx-asset'
+import { WxLibs } from '../libs'
 import { WxContext, WxSettings } from '../context'
 import { WxCapability, WxCapabilityCreate } from '../capability'
 import { ProxyView, WxViewEvents } from '../view'
@@ -36,7 +41,7 @@ export interface ProxyApp {
 /**
  * View 创建及持有类
  */
-export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
+export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
   static proxyId: number = 1
   static boot (...rests: unknown[]) {
     // @ts-ignore
@@ -57,23 +62,12 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
   }
 
   public builder: MainBuilder = MainBuilder.create(4)
-  public capabilities: WxCapability[] = []
   public views: ProxyView[] = []
-  public deps: number = 0
 
-  register (WxCapability: WxCapabilityCreate, ...options: unknown[]) {
-    this.deps++
-    WxCapability.create(this, ...options).then(capability => {
-      defineReadOnlyWxProperty(this, WxCapability.kSymbol as PropertyKey, capability)
-      this.capabilities.push(capability)
-      if (this.deps === 0) {
-        this.status |= PodStatus.Prepared
-      }
-    })
-  }
 
   fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
-    return this.fromAssetsBundleJSON(assets).then(() => {
+    this.fromAssetsBundleJSON(assets)
+    return this.mount().then(() => {
       const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
       const configs = {
         appLaunchInfo: {
@@ -124,6 +118,7 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
     }
   }
 
+  // 
   async routing (
     container: HTMLIFrameElement, 
     options: WxAppRouteOptions
@@ -139,7 +134,7 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
     const view = this.create(options.path, container)
     
     view.on('publish', (name: string, data: unknown, ids: unknown[]) => {
-      app_debug('来自 View -> AppDelegate 逻辑层推送事件 <name: %s, data: %o, ids: %o>', name, data, ids)
+      app_debug('来自 View -> ProxyApp 逻辑层推送事件 <name: %s, data: %o, ids: %o>', name, data, ids)
 
       switch (name) {
         case WxViewEvents.GenerateFuncReady: {
@@ -186,9 +181,13 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxContext) {
     return view
   }
  
+  /**
+   * 初始化
+   * @param {AssetsBundleJSON} assets 
+   * @param {WxSettings} settings 
+   * @returns {Promise<void>}
+   */
   init (assets: AssetsBundleJSON, settings: WxSettings) {
-    return this.fromAssetsBundleAndSettings(assets, settings).then(() => {
-      super.init({ assets: this.bundle, settings })
-    })
+    return this.fromAssetsBundleAndSettings(assets, settings).then(() => super.init({ assets: this.bundle, settings }))
   }
 }

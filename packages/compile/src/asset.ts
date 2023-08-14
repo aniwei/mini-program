@@ -99,23 +99,29 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
     }
   }
 
-  put (asset: Wx.WxAsset) {
-    this.bundle.put(asset)
+  put (...assets: Wx.WxAsset[]) {
+    this.bundle.put(assets)
   }
 
-  mount () {
-    return this.search().then(files => {
-      return super.mount(files.map(filename => Wx.WxAsset.create(filename, this.root)))
+  search () {
+    return WxAssetsBundle.searchByExts(this.root, [ 
+      'js', 
+      'ts', 
+      'wxml', 
+      'wxss', 
+      'wxs', 
+      'json', 
+      'less', 
+      'scss', 
+      'png', 
+      'jpg', 
+      'jpeg'
+    ]).then((files) => {
+      this.put(files.map(filename => Wx.WxAsset.create(filename, this.root)))
+      return this.mout()
     })
   }
-
-  async search () {
-    return await WxAssetsBundle.searchByExts(this.root, [ 
-      'js', 'ts', 'wxml', 'wxss', 'wxs', 'json', 'less', 'scss'
-    ])
-  }
 }
-
 
 // JSON
 class AssetJSONProcessor extends AssetDataProcessor {

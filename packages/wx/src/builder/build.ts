@@ -1,5 +1,6 @@
 import debug from 'debug'
 import initialize from '@swc/wasm-web'
+import Sass from 'sass.js'
 import { transform }  from '@swc/wasm-web'
 import { MessageOwner, WorkPort } from '@catalyze/basic'
 import { BuildTask, BuildSource, BuildType, ProxyBuilder } from './proxy'
@@ -31,12 +32,24 @@ class Builder extends ProxyBuilder {
           break
 
         case BuildType.Sass:
-          throw new Error('Unsupport')
-          break
+          return message.reply(this.sass(buildTask.source))
 
         case BuildType.JS: 
-          //return message.reply(this.js(buildTask.source))
+          return message.reply(this.js(buildTask.source))
       }
+    })
+  }
+
+  sass (source: BuildSource) {
+    return new Promise((resolve, reject) => {
+      sass.render({
+        data: source.content
+      }, (error: any, result) => {
+        if (error !== null) {
+          reject(error)
+        } 
+        resolve(result)
+      })
     })
   }
 
@@ -64,7 +77,7 @@ class Builder extends ProxyBuilder {
 }
 
 
-const boot = async (event: MessageEvent<ConnectionPayload>) => {
+self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) => {
   const payload = event.data
   if (payload.type === 'connection') {
     await Promise.all([
@@ -75,6 +88,4 @@ const boot = async (event: MessageEvent<ConnectionPayload>) => {
   }
 
   self.postMessage({ status: 'connected' })
-}
-
-self.addEventListener('message', boot)
+})

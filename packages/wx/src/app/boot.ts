@@ -5,6 +5,15 @@ import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset
 import { WxLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
 
+import { FS } from '../capability/fs'
+import { Network } from '../capability/network'
+import { System } from '../capability/system'
+import { Storage } from '../capability/storage'
+import { User } from '../capability/user'
+import { Controller } from '../capability/controller'
+import { Request } from '../capability/request'
+import { UI } from '../capability/ui'
+
 import '../asset'
 
 type ConnectionPayload = {
@@ -20,6 +29,21 @@ const worker_debug = debug('wx:app:worker')
 
 
 export class WxApp extends MixinWxAssetsBundle(WxLibs) {
+  static create (...rests: unknown[]) {
+    const wx = super.create(...rests)
+
+    wx.register(FS as WxCapabilityCreate, {})
+    wx.register(Network)
+    wx.register(System)
+    wx.register(Storage)
+    wx.register(User)
+    wx.register(Controller)
+    wx.register(Request)
+    wx.register(UI)
+
+    return wx
+  }
+
   constructor () {
     super()
 
@@ -34,6 +58,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
       defineReadAndWriteWxProperty(globalThis, 'window', globalThis)
       defineReadAndWriteWxProperty(globalThis, '__wxConfig', this.configs)
       defineReadAndWriteWxProperty(globalThis, 'WeixinJSCore', this)
+      defineReadAndWriteWxProperty<string>(globalThis, 'decodePathName', '')
       defineReadAndWriteWxProperty<string>(globalThis, '__wxRoute', '')
       defineReadAndWriteWxProperty<boolean>(globalThis, '__wxRouteBegin', false)
       defineReadAndWriteWxProperty<string>(globalThis, '__wxAppCurrentFile__', '')
@@ -55,18 +80,11 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     }
   }
 
-  boot () {
-    this.inject('boot.js', (this.findByFilename('@wx/app.js') as WxAsset).data as string)
-  }
-
-  async injectWxAppCode () {
-    for (const [key, code] of this.proj.codes) {
-      this.inject(`${this.proj.appid}/${key}`, code)
-    }
-  }
-
+  // 初始化
   fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
-    return this.fromAssetsBundleJSON(assets).then(() => {
+    this.fromAssetsBundleJSON(assets)
+    return this.mount().then(() => {
+      const proj = (this.findByFilename('project.config.json') as WxAsset).data as WxAssetAppJSON 
       const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
       const configs = {
         appLaunchInfo: {
@@ -84,18 +102,48 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     })
   }
  
+  // 启动逻辑层，注入代码
   async startup () {
-    this.boot()
-    this.injectWxAppCode()
+    const sets = this.pages.concat(this.components)
 
-    this.inject('start.js', this.proj.startJavaScript)
+    const files = [
+      {
+        source: this.findByFilename(`@wx/wxml.js`).source,
+        filename: 'wxml.js'
+      },
+    ].concat(sets.map((set) => {
+      return {
+        filename: set.js.relative,
+        source: set.js.data
+      }
+    }), sets.reduce((file, set) => {
+      file.source += `
+        decodePathName = decodeURI('${set.relative}');
+        __wxAppCode__[decodePathName + '.json'] = {};
+        __wxAppCode__[decodePathName + '.wxml'] = $gwx(decodePathName + '.wxml');
+        __wxRoute = decodePathName;
+        __wxRouteBegin = true;
+        __wxAppCurrentFile__ = decodePathName + '.js';
+        require(__wxAppCurrentFile__);
+      `
+      return file
+    }, {
+      filename: 'boot.js',
+      source: ''
+    }))
 
+    for (const file of files) {
+      this.inject(`wx://app/${file.filename}`, file.source)
+    }
+    
     this.status |= PodStatus.On
   }
 }
 
-const main = async (event: MessageEvent<ConnectionPayload>) => {
+// 监听 Connection 请求
+self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) => {
   const payload = event.data
+
   if (payload.type === 'connection') {
     worker_debug('开始链接 Worker')
     const wx = WxApp.create(new WorkPort(payload.port)) as unknown as WxApp
@@ -103,6 +151,4 @@ const main = async (event: MessageEvent<ConnectionPayload>) => {
   }
   
   self.postMessage({ status: 'connected' })
-}
-
-self.addEventListener('message', main)
+})

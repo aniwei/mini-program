@@ -2,7 +2,8 @@ import path from 'path-browserify'
 import invariant from 'ts-invariant'
 import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON, MainPod, ProxyPod } from '@catalyze/basic'
 
-export type WxAssetSetJSON = {
+// component / page .json
+export interface WxAssetSetJSON {
   component?: boolean,
   usingComponents: {
     [key: string]: string
@@ -10,8 +11,14 @@ export type WxAssetSetJSON = {
   [key: string]: unknown
 }
 
-export type WxAssetAppJSON = {
+// app.json
+export interface WxAssetAppJSON {
   pages: string[]
+}
+
+// project.config.json
+export interface WxAssetProjJSON {
+  appid: string
 }
 
 // 微信资源类类型
@@ -231,15 +238,6 @@ export class WxAssetsBundle extends AssetsBundle {
   findSetByFilename (filename: string) {
     return this.sets.findByFilename(filename)
   }
-  
-  mount (...rests: unknown[]): Promise<void>
-  mount (assets: Asset[]): Promise<void> {
-    this.assets = this.assets.concat(assets)
-    
-    return Promise.all(this.assets.map(asset => {
-      return AssetsBundle.decode(asset)
-    })).then(() => void 0)
-  }
 }
 
 
@@ -296,25 +294,30 @@ export function MixinWxAssetsBundle (PodContext) {
       return this.bundle.pages
     }
 
+    // 添加 WxAsset
+    put (...rests: WxAsset[]) {
+      this.bundle.put(asset)
+    }
+
+    // 挂载 WxAsset 数据
+    mount () {
+      return this.bundle.mount()
+    }
+
+    // 初始化
+    fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
+      this.root = root
+      this.put(assets)
+    }
+
+    // 根据文件名查找 Set
     findSetByFilename (filename: string) {
       return this.bundle.findSetByFilename(filename) ?? null
     }
 
+    // 根据文件名查找 WxAsset
     findByFilename (filename: string) {
       return this.bundle.findByFilename(filename)
-    }
-
-    mount (...rests: unknown[]) {
-      return this.bundle.mount(...rests)
-    }
-
-    put (asset: WxAsset) {
-      this.bundle.put(asset)
-    }
-
-    fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
-      this.root = root
-      return this.mount(assets.map(asset => WxAsset.fromJSON(asset)))
     }
 
     toJSON () {

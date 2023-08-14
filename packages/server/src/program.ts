@@ -58,10 +58,12 @@ export class MiniProgram extends Axios {
     await this.start()
   }
 
+  ////// API 方法
   getWxAssetsBundle () {
-    return this.bundle.toJSON()
+    return this.bundle.compile().then(() => this.bundle.toJSON())
   }
 
+  // 登陆
   login () {
     return this.post('/wxa-dev-logic/jslogin?', {
       scope: ['snsapi_base']
@@ -77,15 +79,17 @@ export class MiniProgram extends Axios {
     })
   }
 
+  // 创建请求
   createRequestTask (data: unknown) {
     debugger
   }
 
+  // 启动
   start () {
     if (this.bundle.status & PodStatus.Booted) {
-      return this.bundle.mount()
+      return this.bundle.search()
     }
 
-    return new Promise(resolve => this.bundle.on('booted', () => resolve(this.bundle.mount())))
+    return new Promise(resolve => this.bundle.on('booted', () => resolve(this.bundle.search())))
   }
 }

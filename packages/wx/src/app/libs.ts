@@ -2,14 +2,6 @@
 import debug from 'debug'
 import { PodStatus, defineReadOnlyWxProperty } from '@catalyze/basic'
 import { WxCapability, WxCapabilityCreate } from '../capability'
-import { FS } from '../capability/fs'
-import { Network } from '../capability/network'
-import { System } from '../capability/system'
-import { Storage } from '../capability/storage'
-import { User } from '../capability/user'
-import { Controller } from '../capability/controller'
-import { Request } from '../capability/request'
-import { UI } from '../capability/ui'
 
 import { WxContext } from '../context'
 import { ProxyApp } from './proxy'
@@ -28,21 +20,6 @@ export interface WxLibs {
 }
 
 export abstract class WxLibs extends WxContext {
-  static create (...rests: unknown[]) {
-    const wx = super.create<WxLibs>(...rests)
-    
-    wx.register(FS as WxCapabilityCreate, {})
-    wx.register(Network)
-    wx.register(System)
-    wx.register(Storage)
-    wx.register(User)
-    wx.register(Controller)
-    wx.register(Request)
-    wx.register(UI)
-
-    return wx as WxLibs
-  }
-
   public capabilities: WxCapability[] = []
   public deps: number = 0
 

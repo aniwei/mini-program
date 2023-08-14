@@ -28,6 +28,12 @@ export type AssetJSON = {
   relative: string,
 }
 
+export enum AssetStatus {
+  Created,
+  Unmount,
+  Mounted
+}
+
 export abstract class Asset {
   static fromJSON (...rests: unknown[]) {
     throw new Error('Method not implemented.')
@@ -42,8 +48,40 @@ export abstract class Asset {
   public get name () {
     return this.parsed.name
   }
+
+  // => mounted
+  public get mounted () {
+    return (this.status & AssetStatus.Mounted) === AssetStatus.Mounted
+  }
+
+  // 编码数据
+  // JSON / base64 / string
+  public _data: JSON | string | unknown | null = null
+  public get data () {
+    invariant(this.mounted)
+    return this._data
+  }
+  public set data (data: JSON | string | unknown) {
+    if (this._data !== data) {
+      this._data = data
+      this.status = (this.status &~ AssetStatus.Unmount) | AssetStatus.Mounted
+    }
+  }
+
+  // 原数据
+  public _source: Buffer | string | null = null
+  public get source () {
+    return this._source
+  }
+  public set source (source: ArrayBufferLike | string | null) {
+    if (this._source !== source) {
+      this._source = source
+      this.status = (this.status &~ AssetStatus.Mounted) | AssetStatus.Unmount
+    }
+  }
   
-  
+  // 状态
+  public status: AssetStatus = AssetStatus.Created
   // 文件根目录
   public root: string
   // 路径解析对象
@@ -54,11 +92,6 @@ export abstract class Asset {
   public relative: string
   // 文件存储类型 内存 / 本地
   public type: AssetStoreType = AssetStoreType.Locale
-  // 原数据
-  public source: Buffer | string | null = null
-  // 编码数据
-  // JSON / base64 / string
-  public data: JSON | string | unknown | null = null
   
   /**
    * 构造函数
@@ -75,8 +108,14 @@ export abstract class Asset {
     this.parsed = path.parse(relative)
   }
 
+  // 挂载数据 source > data
+  mount () {
+    return AssetsBundle.decode(this)
+  }
+
   toJSON (): AssetJSON {
     invariant(this.source !== null)
+    invariant(this.mounted)
 
     return {
       ext: this.ext,
@@ -129,18 +168,21 @@ export class AssetDataProcessores {
     this.exts.set('*', AssetDataProcessor.create('*'))
   }
 
+  // 注册数据转换器
+  // image / json
   register (processor: AssetDataProcessor) {
     for (const ext of processor.exts) {
       this.exts.set(ext, processor)
     }
   }
 
+  // 数据转换
+  // string -> JSON / base64url / ...
   decode (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetDataProcessor
     return processor.decode(asset)
   }
 }
-
 
 // 包结构
 export type AssetsBundleJSON = {
@@ -158,7 +200,7 @@ export abstract class AssetsBundle {
     return AssetsBundle.processor.decode(asset)
   }
 
-  // 
+  // 根据 JSON
   static fromJSON (bundle: AssetsBundleJSON) {
     throw new Error('Method not implemented.')
   }
@@ -177,8 +219,18 @@ export abstract class AssetsBundle {
     this.root = root
   }
 
-  put (asset: Asset) {
-    this.assets.push(asset)
+  // 添加数据
+  put (...assets: Asset[])
+  put (assets: Asset) {
+    Array.isArray(assets)
+      ? assets.forEach(asset => this.put(asset))
+      : this.assets.push(assets)
+  }
+
+  // 挂载数据
+  // source > JSON / base64url / ...
+  mount () {
+    return Promise.all(this.assets.filter(asset => !asset.mounted).map(asset => asset.mount())).then(() => void 0)
   }
 
   // 文件类型查找文件

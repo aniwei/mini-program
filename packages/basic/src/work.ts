@@ -57,10 +57,13 @@ export class WorkPort<T extends string = string> extends EventEmitter<'open' | '
 export class WorkTransport<T extends string = string> extends MessageTransport<WorkPort<T>> {
   public index: number = 0
   public count: number = 0
+  public decoder: TextDecoder = new TextDecoder()
+  public encoder: TextEncoder = new TextEncoder()
 
   /**
    * 
-   * @param port 
+   * @param {string} uri 
+   * @param {WorkPort} port 
    */
   connect (uri: unknown)
   connect (port: WorkPort) {
@@ -69,7 +72,8 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
       let content
 
       try {
-        content = JSON.parse(event.data ?? event)
+        const data = this.decoder.decode(event.data ?? event)
+        content = JSON.parse(data)
         transport_debug('接收信息 %o', { command: content.command, id: content.id })
 
         const messager = new MessageOwner(this, { ...content })
@@ -106,16 +110,16 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
    */
   send (content: MessageContent<string | { [key: string]: unknown }, MessageTransportCommands>): Promise<MessageOwner> {
     return new Promise((resolve, reject) => {
-      const id = `_message_id_${this.index++}`
+      const id = `message::id::${this.index++}`
+      const data = this.encoder.encode(JSON.stringify({ 
+        ...content, 
+        id, 
+        count: this.count, 
+        state: this.state 
+      }))
 
       try {        
-        this.transport?.send(JSON.stringify({ 
-          ...content, 
-          id, 
-          count: this.count, 
-          state: this.state 
-        }))
-        
+        this.transport?.send(data)
         this.once(id, (messager: MessageOwner) => {
           messager.command === 'message::except' 
             ? reject(new MessageError(messager)) 
