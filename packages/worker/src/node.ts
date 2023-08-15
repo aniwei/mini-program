@@ -192,6 +192,7 @@ const workerThread = () => {
 	].forEach(key => prototype[key] = prototype[key].bind(global))
 	
 	Reflect.defineProperty(global, 'name', { value: name })
+	Reflect.defineProperty(global, 'self', { value: global })
 	
 	const isDataURL = /^data:/.test(mode)
 	if (type === 'module') {

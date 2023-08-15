@@ -17,7 +17,7 @@ import { WxAssetsBundle } from '../src/asset'
 
 const bundle = WxAssetsBundle.create(path.resolve(__dirname, 'vant'), 2)
 
-bundle.on('booted', async () => {
+bundle.init().then(async () => {
   await bundle.mount()
   bundle.runTask(bundle.xmlsExecArgs, 'XML').then(result => {
     debugger

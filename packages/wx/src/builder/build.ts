@@ -3,26 +3,30 @@ import debug from 'debug'
 import initialize from '@swc/wasm-web'
 import sass from 'sass.js'
 import { transform }  from '@swc/wasm-web'
-import { MessageOwner, WorkPort } from '@catalyze/basic'
+import { MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
 import { BuildTask, BuildSource, BuildType, ProxyBuilder } from './proxy'
 
+const builder_debug = debug('wx:builder')
 
 type ConnectionPayload = {
   type: 'connections' | string,
-  port: MessagePort
+  port: MessagePort,
+  env: {
+    DEBUG: string,
+    [key: string]: string
+  }
 }
-
 
 type MessagePayload = {
   parameters: BuildTask[]
 }
 
-const worker_debug = debug('compile:worker')
-
 class Builder extends ProxyBuilder {
   constructor () {
     super()
 
+    
+    this.command('message::init', () => this.status |= PodStatus.Inited)
     this.command('message::build', async (message: MessageOwner) => {
       const payload = message.payload as unknown as MessagePayload
       const buildTask = payload.parameters[0]
@@ -30,13 +34,12 @@ class Builder extends ProxyBuilder {
       switch (buildTask.type) {
         case BuildType.Less:
           throw new Error('Unsupport')
-          break
 
         case BuildType.Sass:
-          return message.reply(this.sass(buildTask.source))
+          return message.reply(await this.sass(buildTask.source))
 
         case BuildType.JS: 
-          return message.reply(this.js(buildTask.source))
+          return message.reply(await this.js(buildTask.source))
       }
     })
   }
@@ -53,13 +56,16 @@ class Builder extends ProxyBuilder {
       })
     }).then(result => {
       return {
-        command: 'message::callback',
         payload: result
       }
     })
   }
 
   js (source: BuildSource) {
+    builder_debug('编译文件名 <filename: %s>', source.name)
+
+    
+
     return transform(source.content, {
       filename: source.name,
       jsc: {
@@ -74,10 +80,15 @@ class Builder extends ProxyBuilder {
       sourceMaps: source.sourceMaps,
       inlineSourcesContent: true
     }).then(result => {
+      const code = `define('${source.name}', function (require, module, exports, window, document, frames, self, location, navigator, localStorage, history, Caches, screen, alert, confirm, prompt, fetch, XMLHttpRequest, WebSocket, webkit, WeixinJSCore, Reporter, print, URL, DOMParser, upload, preview, build, showDecryptedInfo, cleanAppCache, syncMessage, checkProxy, showSystemInfo, openVendor, openToolsLog, showRequestInfo, help, showDebugInfoTable, closeDebug, showDebugInfo, __global, loadBabelMod, WeixinJSBridge){\n${result.code}\n})`
       return {
-        command: 'message::callback',
-        payload: result
+        payload: {
+          code,
+          map: result.code
+        }
       }
+    }).catch((error: any) => {
+      builder_debug('编译文件错误 <filename: %s, error: %o>', error)
     })
   }
 }
@@ -86,12 +97,12 @@ class Builder extends ProxyBuilder {
 self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) => {
   const payload = event.data
   if (payload.type === 'connection') {
-    await Promise.all([
+    
       Builder.create(new WorkPort(payload.port)),
       // @ts-ignore
-      initialize(new URL('/wasm-web_bg.wasm', import.meta.url).toString())
-    ])
+      initialize(new URL('/wasm-web_bg.wasm', import.meta.url).toString()).then(() => self.postMessage({ status: 'connected' }))
   }
 
-  self.postMessage({ status: 'connected' })
+  // debug.enable(payload.env?.DEBUG)
+  // debug.enable('*')
 })

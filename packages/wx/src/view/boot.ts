@@ -22,6 +22,11 @@ type MessagePayload = {
   
 }
 
+type InjectFile  = {
+  filename: string,
+  source: string
+}
+
 export class WxView extends ProxyView {
   constructor () {
     super()
@@ -74,33 +79,43 @@ export class WxView extends ProxyView {
   }
 
   startup () {
-    this.boot()
-    this.inject('start.js', `CSSRegistry.inject();\nvar generateFunc = $gwx('${this.path}.wxml');\nif (generateFunc) {document.dispatchEvent(new CustomEvent('generateFuncReady', { detail: { generateFunc: generateFunc }}));} else { document.body.innerText = 'Page "${this.path}" Not Found.';throw new Error('Page "${this.path}" Not Found.')}`)
+    const files: InjectFile[] = [
+      {
+        source: (this.findByFilename(`@wx/wxml.js`) as WxAsset).data as string,
+        filename: 'wxml.js'
+      }, {
+        source: (this.findByFilename(`@wx/wxss.js`) as WxAsset).data as string,
+        filename: 'wxss.js'
+      }, {
+        source: (this.findByFilename(`@wx/view.js`) as WxAsset).data as string,
+        filename: 'view.js'
+      }, {
+        source: `
+          var generateFunc = $gwx('${this.path}.wxml');
+          if (generateFunc) {
+            document.dispatchEvent(new CustomEvent('generateFuncReady', { 
+              detail: { generateFunc: generateFunc }
+            }));
+          } else { 
+            document.body.innerText = 'Page "${this.path}" Not Found.';throw new Error('Page "${this.path}" Not Found.')
+          }`,
+        filename: 'boot.js'
+      }
+    ]
 
-    this.send({
-      command: 'message::ready',
-      payload: { parameters: [] }
-    })
-
+    for (const file of files) {
+      this.inject(file.filename, file.source)
+    }
+    
     this.status |= PodStatus.On
-  }
-
-  boot () {
-    this.inject('wxml.js', this.wxml)
-    this.inject('wxss.js', `(function (window){${this.wxss}})(__proxy_window__)`)
-    this.inject('view.js', (this.findByFilename('@wx/view.js') as unknown as WxAsset).data as string)
   }
 }
 
-const main = async (event: MessageEvent<ConnectionPayload>) => {
+window.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) => {
   const payload = event.data
 
   if (payload.type === 'connection') {
-    const wx = await WxView.create(new WorkPort(payload.port)) as unknown as WxView
-    wx.emit('connected')
+    WxView.create(new WorkPort(payload.port)) as unknown as WxView
   }
-  
   window.parent.postMessage({ status: 'connected' })
-}
-
-window.addEventListener('message', main)
+})

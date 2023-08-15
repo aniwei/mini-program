@@ -327,6 +327,10 @@ export function MixinWxAssetsBundle (PodContext) {
       return this.bundle.findByFilename(filename)
     }
 
+    findByExt (ext: string) {
+      return this.bundle.findByExt(ext)
+    }
+
     toJSON () {
       return this.bundle.toJSON()
     }

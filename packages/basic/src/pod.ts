@@ -178,19 +178,20 @@ export abstract class ProxyPod extends Pod {
     }
   }
 
-
   runTask <T> (...rests: unknown[]): Promise<T> {
     throw new Error('')
   }
 
-  init (...rests: unknown[]) {
-    return this.send({
-      command: 'message::init',
-      payload: {
-        parameters: [...rests]
-      }
-    }).then(() => { 
-      this.status |= PodStatus.Booted 
+  init (...rests: unknown[]): Promise<void> {
+    return new Promise((resolve) => {
+      this.once('connected', () => this.send({
+        command: 'message::init',
+        payload: {
+          parameters: [...rests]
+        }
+      }).then(() => this.status |= PodStatus.Booted))
+
+      this.once('booted', () => resolve())
     })
   }
 }
@@ -266,5 +267,9 @@ export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'booted' 
       
       this.queue.push(() => this.runTask<R>(...parameters).then(resolve).catch(reject))
     })
+  }
+
+  init (...rests: unknown[]) {
+    return Promise.all(this.proxies.map(proxy => proxy.init(...rests)))
   }
 }

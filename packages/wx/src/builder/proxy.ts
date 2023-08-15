@@ -1,5 +1,10 @@
-import path from 'path-browserify'
-import { MainPod, ProxyPod } from '@catalyze/basic'
+
+import { MainPod, PodStatus, ProxyPod } from '@catalyze/basic'
+
+type BuildPayload = {
+  code: string,
+  map: string
+}
 
 export enum BuildType {
   Less,
@@ -27,11 +32,23 @@ export class ProxyBuilder extends ProxyPod {
       payload: {
         parameters: [{ source, type }]
       }
-    }).then(() => Promise.resolve(''))
+    }).then((result) => { 
+      const payload = result.payload as BuildPayload
+      return Promise.resolve(payload.code)
+    }) as Promise<string>
+  }
+
+  constructor () {
+    super()
+    this.once('booted', () => this.status |= PodStatus.On)
   }
 
   runTask <T> (...rests: unknown[]): Promise<T> {
     return this.build(...rests) as Promise<T>
+  }
+
+  init (): Promise<void> {
+    return super.init()
   }
 }
 

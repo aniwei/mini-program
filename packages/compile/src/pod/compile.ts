@@ -89,14 +89,11 @@ class WorkerCompilePod extends ProxyCompile {
         return this.wcc.compile(parameters) as Promise<T>
     }
   }
-
-  establish () {
-    return this.send({ command: 'message::connected' }).then(() => this.status |= PodStatus.Connected)
-  }
 }
 
 global.addEventListener('message', async (event: MessageEvent<{ type: 'connection', port: MessagePort }>) => {
   if (event.data.type === 'connection') {
-    WorkerCompilePod.create<WorkerCompilePod>(new WorkPort(event.data.port)).establish()
+    WorkerCompilePod.create<WorkerCompilePod>(new WorkPort(event.data.port))
+    self.postMessage({ status: 'connected' })
   }
 })

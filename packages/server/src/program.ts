@@ -15,7 +15,7 @@ class MiniAssetsBundle extends WxAssetsCompile {
     const files: { filename: string, source: Buffer | string}[] = await Promise.all([
       'app.js',
       'view.js'
-    ].map(filename => fs.readFile(path.join(relative, filename)).then(source => ({ filename, source }))))
+    ].map(filename => fs.readFile(path.join(relative, filename)).then(source => ({ filename, source: source.toString() }))))
 
     for (const file of files) {
       const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)
@@ -89,6 +89,6 @@ export class MiniProgram extends Axios {
       return this.bundle.search()
     }
 
-    return new Promise(resolve => this.bundle.on('booted', () => resolve(this.bundle.search())))
+    return this.bundle.init().then(() => this.bundle.search())
   }
 }

@@ -47,7 +47,7 @@ export class ProxyCompilePod extends ProxyCompile {
   constructor () {
     super()
 
-    this.command('message::connected', () => this.init())
+    this.once('booted', () => this.status |= PodStatus.On)
   }
 
   init () {
@@ -73,7 +73,7 @@ export class MainCompilePod extends MainPod<ProxyCompilePod> {
   static create (...rests: unknown[])
   static create (root: string, count: number = 5) {
     const proxies: ProxyCompilePod[] = []
-    const uri = path.resolve(__dirname, 'boot')
+    const uri = path.resolve(__dirname, 'compile')
 
     for (let i = 0; i < count; i++) {
       const proxy = ProxyCompilePod.boot(root, uri)
@@ -83,6 +83,4 @@ export class MainCompilePod extends MainPod<ProxyCompilePod> {
     const main = super.create(proxies)
     return main
   }
-
-  
 }

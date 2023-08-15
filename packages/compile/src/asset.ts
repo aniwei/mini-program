@@ -73,22 +73,23 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
       const csses = Array.from(this.assets).filter(file => file.ext === '.wxss')
   
       let count: number = 0
-      const cssesExecArgs = csses.reduce((args, file) => {
+      let cssesExecArgs: (string | number)[] = csses.reduce((args, file) => {
         const set = this.findSetByFilename(file.relative)
 
         if (set && set.json) {
+          count++
           args.unshift(file.relative)
         } else {
           args.push(file.relative)
         }
         return args
-      }, [] as Array<string | number>)
+      }, [] as (string | number)[])
   
       if (count > 0) {
-        cssesExecArgs.unshift(count)
+        cssesExecArgs.unshift(String(count))
       }
       
-      this._cssesExecArgs = cssesExecArgs
+      this._cssesExecArgs = ['-db', '-pc', ...cssesExecArgs]
     }
 
     return this._cssesExecArgs

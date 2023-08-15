@@ -1,10 +1,30 @@
 import { WxAsset } from '@catalyze/wx-asset'
-import { AssetStoreType } from '@catalyze/basic'
+import { AssetStoreType, unescape } from '@catalyze/basic'
 import { WxAssetsBundle } from './asset'
 
 export interface WxAssetCompiledFile {
   filename: string,
   source: string
+}
+
+const parse = (wxss: string) => {
+  const wxsses = wxss.split('=')
+  let ret = ''
+
+  for (let i = 0; i < wxsses.length; i++) {
+    const k = wxsses[i]
+    const v = wxsses[++i]
+
+    if (k === 'version') {
+      ret += `/// ${k}: ${unescape(v)} \n`
+    } else if (k === 'comm') {
+      ret += `${unescape(v)}\n`
+    } else if (v) {
+      ret += `${unescape(v)}()\n`
+    }
+  }
+  
+  return ret
 }
 
 export class WxAssetsCompile extends WxAssetsBundle {
@@ -13,9 +33,13 @@ export class WxAssetsCompile extends WxAssetsBundle {
       this.runTask(this.xmlsExecArgs, 'XML'),
       this.runTask(this.cssesExecArgs, 'CSS')
     ]).then((results: string[]) => {
+      const wxml = results[0]
+      const wxss = results[1]
+
       const files: WxAssetCompiledFile[] = []
-      files[0] = { filename: 'wxml.js', source: results[0] }
-      files[1] = { filename: 'wxss.js', source: results[1] }
+
+      files[0] = { filename: 'wxml.js', source: wxml }
+      files[1] = { filename: 'wxss.js', source: parse(wxss) }
 
       return files
     }).then((files: WxAssetCompiledFile[]) => {

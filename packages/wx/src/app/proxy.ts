@@ -9,7 +9,6 @@ import {
 import { WxLibs } from './libs'
 import { WxSettings } from '../context'
 import { ProxyView, WxViewEvents } from '../view'
-import { MainBuilder } from '../builder'
 import { Controller } from '../capability/proxy/controller'
 import { UI } from '../capability/proxy/ui'
 import { Request } from '../capability/proxy/request'
@@ -56,9 +55,7 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     super.settings = settings
   }
 
-  public builder: MainBuilder = MainBuilder.create(4)
   public views: ProxyView[] = []
-
 
   fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
     this.fromAssetsBundleJSON(assets)

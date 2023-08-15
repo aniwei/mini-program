@@ -1,7 +1,7 @@
 import debug from 'debug'
-import { AssetsBundleJSON, MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
+import { Asset, AssetDataProcessor, AssetsBundleJSON, MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
 import { defineReadAndWriteWxProperty, tick } from '@catalyze/basic'
-import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON } from '@catalyze/wx-asset'
+import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON, WxAssetsBundle } from '@catalyze/wx-asset'
 import { WxLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
 
@@ -14,8 +14,46 @@ import { Controller } from '../capability/controller'
 import { Request } from '../capability/request'
 import { UI } from '../capability/ui'
 import { WxCapabilityCreate } from '../capability'
+import { BuildType, MainBuilder } from '../builder'
 
 import '../asset'
+import invariant from 'ts-invariant'
+
+class AssetJSProcessor extends AssetDataProcessor {
+  static create () {
+    return super.create('.js', [
+      '@wx/view.js',
+      '@wx/wxss.js',
+      '@wx/wxml.js',
+      '@wx/app.js'
+    ])
+  }
+
+  public _builder: MainBuilder | null = null
+  public get builder () {
+    invariant(this._builder)
+    return this._builder
+  }
+  public set builder (builder: MainBuilder) {
+    if (this._builder !== builder) {
+      this._builder = builder
+    }
+  }
+
+  decode (asset: Asset): Promise<void> {
+    return Promise.resolve().then(() => {
+      invariant(asset.source !== null && asset.source !== undefined)
+      return this.builder.runTask({
+        name: asset.relative,
+        content: asset.source,
+        sourceMaps: true
+      }, BuildType.JS).then((result) => {
+        asset.data = result
+      })
+    })
+  }
+}
+
 
 type ConnectionPayload = {
   type: string,
@@ -115,12 +153,17 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
       {
         source: (this.findByFilename(`@wx/wxml.js`) as WxAsset).data as string,
         filename: 'wxml.js'
+      }, {
+        source: (this.findByFilename(`@wx/app.js`) as WxAsset).data as string,
+        filename: 'app.js'
       },
-    ].concat(sets.map((set) => {
+    ].concat(this.findByExt('.js').filter(asset => {
+      return !asset.relative.startsWith('@wx')
+    }).map(asset => {
       return {
-        filename: set.js.relative,
-        source: set.js.data as string
-      }
+        filename: asset.relative,
+        source: asset.data as string
+      }    
     }), sets.reduce((file, set) => {
       file.source += `
         decodePathName = decodeURI('${set.relative}');
@@ -134,11 +177,14 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
       return file
     }, {
       filename: 'boot.js',
-      source: ''
+      source: `
+        __wxAppCurrentFile__ = 'app.js';
+        require(__wxAppCurrentFile__)
+      `
     }))
 
     for (const file of files) {
-      this.inject(`wx://app/${file.filename}`, file.source)
+      this.inject(file.filename, file.source)
     }
     
     this.status |= PodStatus.On
@@ -151,9 +197,14 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
 
   if (payload.type === 'connection') {
     worker_debug('开始链接 Worker')
-    const wx = WxApp.create(new WorkPort(payload.port)) as unknown as WxApp
-    wx.emit('connected')
+    WxApp.create(new WorkPort(payload.port)) as unknown as WxApp
+
+    
+    const processor = AssetJSProcessor.create()
+    const builder = MainBuilder.create(2)
+    processor.builder = builder
+
+    WxAssetsBundle.processor.register(processor)
+    builder.init().then(() => self.postMessage({ status: 'connected' }))
   }
-  
-  self.postMessage({ status: 'connected' })
 })

@@ -59,7 +59,7 @@ export abstract class Asset {
   public _data: JSON | string | unknown | null = null
   public get data () {
     invariant(this.mounted)
-    return this._data
+    return this._data ?? this._source
   }
   public set data (data: JSON | string | unknown) {
     if (this._data !== data) {
@@ -136,18 +136,20 @@ export interface AssetDataProcessorCreate<T> {
 // 资源数据处理抽象类
 export class AssetDataProcessor {
   static create <T extends AssetDataProcessor> (...rests: unknown[])
-  static create <T extends AssetDataProcessor> (...exts: string[]): T {
+  static create <T extends AssetDataProcessor> (exts: string[] | string, exclude: (string | RegExp)[]): T {
     const AssetDataProcessorCreate = this as unknown as AssetDataProcessorCreate<T>
-    const process = new AssetDataProcessorCreate(exts)
+    const process = new AssetDataProcessorCreate(exts, exclude)
 
     return process as T
   }
 
   // 扩展名
   public exts: string[]
+  public exclude: (string | RegExp)[] 
 
-  constructor (exts: string[]) {
-    this.exts = exts
+  constructor (exts: string[] | string, exclude: (string | RegExp)[] = []) {
+    this.exts = typeof exts === 'string' ? [exts] : exts
+    this.exclude = exclude
   }
 
   decode <T> (data: unknown) {
@@ -180,7 +182,18 @@ export class AssetDataProcessores {
   // string -> JSON / base64url / ...
   decode (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetDataProcessor
-    return processor.decode(asset)
+
+    if (processor.exclude.some(exclude => {
+      if (exclude instanceof RegExp) {
+        return exclude.test(asset.relative)
+      } else if (typeof exclude === 'string') {
+        return exclude === asset.relative
+      }
+    })) {
+      asset.status |= AssetStatus.Mounted
+    } else {
+      return processor.decode(asset)
+    }
   }
 }
 
