@@ -12,7 +12,7 @@ export interface TabItem {
 }
 
 export interface ProgramState {
-  app: ProxyApp | null,
+  wx: ProxyApp | null,
   isLoading: boolean,
   tabItems: TabItem[],
   settings: WxSettings,
@@ -29,6 +29,7 @@ export const useProgram = create<ProgramState>((set) => {
       const app = wx.findByFilename('app.json').data as WxAssetAppJSON
 
       const state: Partial<ProgramState> = {
+        wx: wx,
         settings: {
           ...settings,
           entry: app.pages[0],
@@ -53,7 +54,7 @@ export const useProgram = create<ProgramState>((set) => {
 
 
   return {
-    app: null,
+    wx: null,
     isLoading: false,
     tabItems: [],
     settings: {

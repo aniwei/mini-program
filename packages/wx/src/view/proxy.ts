@@ -1,7 +1,7 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
-import { PodStatus, WorkPort } from '@catalyze/basic'
+import { AssetsBundleJSON, PodStatus, WorkPort } from '@catalyze/basic'
 import { MixinWxAssetsBundle } from '@catalyze/wx-asset'
 import { WxContext } from '../context'
 
@@ -27,13 +27,13 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     const script = document.createElement('script')
     script.type = 'module'
     // @ts-ignore
-    script.src = (new URL('./boot.ts', import.meta.url)).toString()
+    script.src = (new URL('./boot', import.meta.url)).toString()
     script.onload = () => {
       invariant(iframe.contentWindow)
       iframe.contentWindow.postMessage({ type: 'connection', port: port2 }, `http://${location.host}/view.html`, [port2])
     }
     document.head.appendChild(script)
-    pod.passage = iframe
+    pod.passage = window
     
     return pod
   }
@@ -110,17 +110,17 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     super.publishHandler(name, data, viewIds)
   }
 
+  fromAssetsBundleAndSettings (assets: AssetsBundleJSON) {
+    this.fromAssetsBundleJSON(assets)
+    return this.mount()
+  }
+
   async init () {    
-    await this.send({
-      command: 'message::init',
-      payload: {
-        parameters: [{
-          id: this.id,
-          path: this.path, 
-          configs: this.configs,
-          settings: this.settings
-        }]
-      }
+    return super.init({
+      id: this.id,
+      path: this.path, 
+      configs: this.configs,
+      settings: this.settings
     })
   }
 }

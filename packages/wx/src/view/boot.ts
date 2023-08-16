@@ -19,7 +19,7 @@ type ConnectionPayload = {
 }
 
 type MessagePayload = {
-  
+  parameters: unknown[]
 }
 
 type InjectFile  = {
@@ -31,14 +31,16 @@ export class WxView extends ProxyView {
   constructor () {
     super()
 
-    this.command('message::init', (message: MessageOwner) => {
+    this.command('message::init', async (message: MessageOwner) => {
       const payload = message.payload as MessagePayload
-      const { id, path, settings, configs } = payload[0] as WxInit
+      const { id, path, settings, configs, assets } = payload.parameters[0] as WxInit
 
       this.id = id as number
       this.path = path as string
       this.configs = configs
       this.settings = settings
+
+      await this.fromAssetsBundleAndSettings(assets)
     })
 
     this.once('inited', async () => {
@@ -115,7 +117,7 @@ window.addEventListener('message', async (event: MessageEvent<ConnectionPayload>
   const payload = event.data
 
   if (payload.type === 'connection') {
-    WxView.create(new WorkPort(payload.port)) as unknown as WxView
+    WxView.create('/', new WorkPort(payload.port)) as unknown as WxView
   }
   window.parent.postMessage({ status: 'connected' })
 })

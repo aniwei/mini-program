@@ -197,7 +197,7 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
 
   if (payload.type === 'connection') {
     worker_debug('开始链接 Worker')
-    WxApp.create(new WorkPort(payload.port)) as unknown as WxApp
+    WxApp.create('/', new WorkPort(payload.port)) as unknown as WxApp
 
     
     const processor = AssetJSProcessor.create()

@@ -1,6 +1,6 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
-import { AssetsBundleJSON } from '@catalyze/basic'
+import { AssetsBundleJSON, PodStatus } from '@catalyze/basic'
 import { 
   MixinWxAssetsBundle, 
   WxAsset, 
@@ -55,6 +55,11 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     super.settings = settings
   }
 
+  // => booted 
+  public get booted () {
+    return this.status & PodStatus.Booted
+  }
+
   public views: ProxyView[] = []
 
   fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
@@ -87,12 +92,12 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     path: string, 
     container: HTMLIFrameElement
   ) {
-    const view = ProxyView.create(container)
+    const view = ProxyView.boot(path, container)
     invariant(this.proj !== null)
 
     view.path = path
     view.id = ProxyApp.proxyId++
-    view.config = this.config
+    view.configs = this.configs
     view.settings = this.settings
 
     this.views.push(view)
@@ -124,6 +129,8 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     }
 
     const view = this.create(options.path, container)
+
+    view.init()
     
     view.on('publish', (name: string, data: unknown, ids: unknown[]) => {
       app_debug('来自 View -> ProxyApp 逻辑层推送事件 <name: %s, data: %o, ids: %o>', name, data, ids)
@@ -157,17 +164,17 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     })
 
     view.on('active', () => {
-      this.subscribe('onAppRoute', {
-        ...options,
-        openType: 'navigateBack',
-        webviewId: view.id,
-      }, view.id)
+      // this.subscribe('onAppRoute', {
+      //   ...options,
+      //   openType: 'navigateBack',
+      //   webviewId: view.id,
+      // }, view.id)
 
-      this.subscribe('onAppRouteDone', {
-        ...options,
-        openType: 'navigateBack',
-        webviewId: view.id,
-      }, view.id)
+      // this.subscribe('onAppRouteDone', {
+      //   ...options,
+      //   openType: 'navigateBack',
+      //   webviewId: view.id,
+      // }, view.id)
     })
     
     return view

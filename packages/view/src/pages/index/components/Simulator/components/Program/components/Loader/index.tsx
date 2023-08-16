@@ -91,7 +91,7 @@ export const WxLoader: React.FC<WxLoaderProps> = (props) => {
       height: `100%`,
       backgroundColor: `rgba(255, 255, 255, 1)` 
     }}>
-      { program.app?.isStarted ? children :<Loading name={''} uri={''} {...props} /> }
+      { program.wx?.booted ? children :<Loading name={''} uri={''} {...props} /> }
     </View>
   )
 }

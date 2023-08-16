@@ -4,8 +4,6 @@ import { useProgram } from '@stores/program'
 import { SyntheticEvent, useCallback } from 'react'
 import { NavigationProp } from '@react-navigation/native'
 
-type ListenerHandle = () => void
-
 const view_debug = debug(`app:hooks:wxview`)
 
 export const useView = (path: string, navigation: NavigationProp<{}>) => {
@@ -16,10 +14,10 @@ export const useView = (path: string, navigation: NavigationProp<{}>) => {
 
     view_debug('创建 WxView %s', path)
 
-    invariant(program.app !== null)
+    invariant(program.wx !== null)
     invariant(path !== null)
 
-    const view = await program.app?.routing(event.currentTarget, {
+    const view = await program.wx?.routing(event.currentTarget, {
       path,
     }) ?? null
 
