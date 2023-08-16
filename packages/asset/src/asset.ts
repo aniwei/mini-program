@@ -258,7 +258,7 @@ export function MixinWxAssetsBundle (PodContext) {
   abstract class WxAssetsBundleOwner extends PodContext {
     static create <T extends WxAssetsBundleOwner> (...rests: unknown[])
     static create <T extends WxAssetsBundleOwner> (root: string, ...rests: unknown[]): T {
-      const wx =  super.create(root, ...rests) as unknown as  T
+      const wx =  super.create(...rests) as unknown as  T
       wx.root = root
       return wx as T
     }
