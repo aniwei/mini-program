@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@catalyze/worker": "workspace:^1.0.0",
+    "bytes": "^3.1.2",
     "path-browserify": "^1.0.1",
     "ts-invariant": "^0.10.3"
   }

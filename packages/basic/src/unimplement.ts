@@ -1,4 +1,4 @@
-export class Unimplement extends Error {
+export class UnimplementError extends Error {
   constructor (method: string) {
     super(`Unimplement this method "${method}".`)
   }

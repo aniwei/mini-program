@@ -71,6 +71,9 @@ importers:
       '@catalyze/worker':
         specifier: workspace:^1.0.0
         version: link:../worker
+      bytes:
+        specifier: ^3.1.2
+        version: 3.1.2
       path-browserify:
         specifier: ^1.0.1
         version: r2.cnpmjs.org/path-browserify@1.0.1
@@ -3867,6 +3870,11 @@ packages:
 
   /bytes@3.0.0:
     resolution: {integrity: sha512-pMhOfFDPiv9t5jjIXkHosWmkSyQbvsgEVNkz0ERHbuLh2T/7j4Mqqpz523Fe8MVY89KC6Sh/QfS2sM+SjgFDcw==}
+    engines: {node: '>= 0.8'}
+    dev: false
+
+  /bytes@3.1.2:
+    resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
     dev: false
 

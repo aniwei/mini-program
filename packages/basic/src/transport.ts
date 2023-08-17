@@ -14,7 +14,6 @@ export type MessageContent<T = {
   id?: string,
   sid?: string
   command?: C,
-  count?: number,
   payload?: T,
 }
 

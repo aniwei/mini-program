@@ -174,7 +174,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
         return result?.payload
       }
 
-      define(commands, command.name, () => func)
+      defineReadOnlyProperty(commands, command.name, () => func)
     }
 
     for (const event of domain.events) {

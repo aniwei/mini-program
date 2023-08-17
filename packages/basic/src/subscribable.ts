@@ -81,7 +81,7 @@ export class Subscribable<E extends string = string, T extends SubscribeHandle =
           this.unsubscribe(listener.handler, listener.context)
         }
 
-        const result = Reflect.apply(listener.handler, listener.context, args) ?? null
+        const result = Reflect.apply(listener.handler, listener.context, rests) ?? null
         return Promise.resolve(result).then(result => result as R)
 
       } catch (error: any) {
