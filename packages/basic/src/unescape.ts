@@ -16,7 +16,7 @@ const usualEscapeSequences = {
 const fromHex = (str: string) => String.fromCodePoint(parseInt(str, 16))
 const fromOct = (str: string) => String.fromCodePoint(parseInt(str, 8))
 
-export const unescape = (string: string) => {
+export const unescape = (string: string = '') => {
   return string.replace(jsEscapeRegex, (
     _: string, 
     __: string, 

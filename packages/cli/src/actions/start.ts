@@ -14,7 +14,7 @@ export const start = async (port: number) => {
   start_debug(`执行路径 <dir: ${proj}>`)
   start_debug(`执行参数 <port: ${port}>`)
 
-  const filename = path.resolve(proj, `project.config.json`)
+  const filename = path.resolve(proj, 'project.config.json')
 
   if (await fs.exists(filename)) {
     start_debug(`读取小程序配置文件 <config: ${filename}>`)

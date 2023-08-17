@@ -40,12 +40,14 @@ export class WorkPort<T extends string = string> extends EventEmitter<'open' | '
   handleError = (error: unknown) => this.emit('error', error)
   handleOpen = (...args: unknown[]) => this.emit('open', ...args)
   
+  // 发送数据
   send (message: unknown) {
     return this.port.postMessage 
       ? this.port.postMessage(message as string) 
       : this.port.send ? this.port.send(message as string) : null
   }
 
+  // 关闭连接
   close () {
     this.port.onmessage = null
     this.port.onmessageerror = null
@@ -73,7 +75,7 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
   }
 
   /**
-   * 
+   * 连接
    * @param {string} uri 
    * @param {WorkPort} port 
    */
@@ -116,13 +118,22 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
   }
 
   /**
-   * 
-   * @param content 
-   * @returns 
+   * 发送数据
+   * @param {MessageContent} content 
+   * @returns {Promise<unknown>}
    */
   send (content: MessageContent<string | { [key: string]: unknown }, MessageTransportCommands>): Promise<MessageOwner> {
     return new Promise(async (resolve, reject) => {
       const id = `message::id::${this.index++}`
+
+      // TODO supoort batch data
+      // const sender = new MessageSender(id, this.transport)
+
+      // sender.on('error', (error) => reject(error))
+      // sender.on('progress', () => {})
+      // sender.post(content)
+      
+
       const data = await this.encode(JSON.stringify({ 
         ...content, 
         id, 
@@ -142,5 +153,26 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
         reject(error)
       }
     })
+  }
+}
+
+// TODO
+class MessageSender extends EventEmitter<string> {
+  public id: string
+  public transport: WorkTransport
+  public payload: MessageContent<unknown> | MessageContent<unknown>[]
+
+  constructor (
+    id: string, 
+    payload: MessageContent<unknown> | MessageContent<unknown>[],
+    transport: WorkTransport, 
+  ) {
+    this.id = id
+    this.payload = payload
+    this.transport = transport
+  }
+
+  send () {
+
   }
 }

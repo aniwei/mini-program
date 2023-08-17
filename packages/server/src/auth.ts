@@ -39,6 +39,11 @@ export class WxAuth extends WxStore {
     this.api.Auth.events.initialed()
   }
 
+  /**
+   * 获取用户信息及票据
+   * @param {string} code 
+   * @returns {WxUser}
+   */
   getUser (code: string): Promise<WxUser & {
     ticket: string,
     signature: string
@@ -67,6 +72,7 @@ export class WxAuth extends WxStore {
     })
   }
 
+  // 获取授权二维码
   getAuthenticateWxQRCode (): Promise<string> {
     return new Promise((resolve, reject) => {
       return Axios.get(`https://open.weixin.qq.com/connect/qrconnect?${qs.stringify({

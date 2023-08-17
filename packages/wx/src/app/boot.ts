@@ -1,10 +1,22 @@
 import debug from 'debug'
-import { Asset, AssetDataProcessor, AssetsBundleJSON, MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
-import { defineReadAndWriteWxProperty, tick } from '@catalyze/basic'
-import { MixinWxAssetsBundle, WxAsset, WxAssetAppJSON, WxAssetsBundle } from '@catalyze/wx-asset'
+import invariant from 'ts-invariant'
+import { defineReadAndWriteProperty, tick } from '@catalyze/basic'
+import { 
+  Asset, 
+  AssetDataProcessor, 
+  AssetsBundleJSON, 
+  MessageOwner, 
+  PodStatus, 
+  WorkPort 
+} from '@catalyze/basic'
+import { 
+  MixinWxAssetsBundle, 
+  WxAsset, 
+  WxAssetAppJSON, 
+  WxAssetsBundle 
+} from '@catalyze/wx-asset'
 import { WxLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
-
 import { FS } from '../capability/fs'
 import { Network } from '../capability/network'
 import { System } from '../capability/system'
@@ -17,43 +29,6 @@ import { WxCapabilityCreate } from '../capability'
 import { BuildType, MainBuilder } from '../builder'
 
 import '../asset'
-import invariant from 'ts-invariant'
-
-class AssetJSProcessor extends AssetDataProcessor {
-  static create () {
-    return super.create('.js', [
-      '@wx/view.js',
-      '@wx/wxss.js',
-      '@wx/wxml.js',
-      '@wx/app.js'
-    ])
-  }
-
-  public _builder: MainBuilder | null = null
-  public get builder () {
-    invariant(this._builder)
-    return this._builder
-  }
-  public set builder (builder: MainBuilder) {
-    if (this._builder !== builder) {
-      this._builder = builder
-    }
-  }
-
-  decode (asset: Asset): Promise<void> {
-    return Promise.resolve().then(() => {
-      invariant(asset.source !== null && asset.source !== undefined)
-      return this.builder.runTask({
-        name: asset.relative,
-        content: asset.source,
-        sourceMaps: true
-      }, BuildType.JS).then((result) => {
-        asset.data = result
-      })
-    })
-  }
-}
-
 
 type ConnectionPayload = {
   type: string,
@@ -71,7 +46,56 @@ type InjectFile  = {
 
 const worker_debug = debug('wx:app:worker')
 
+// JS 文件处理器
+class AssetJSProcessor extends AssetDataProcessor {
+  static create () {
+    return super.create('.js', [
+      '@wx/view.js',
+      '@wx/wxss.js',
+      '@wx/wxml.js',
+      '@wx/app.js'
+    ])
+  }
 
+  // => builder
+  // JS compile
+  public _builder: MainBuilder | null = null
+  public get builder () {
+    invariant(this._builder)
+    return this._builder
+  }
+  public set builder (builder: MainBuilder) {
+    if (this._builder !== builder) {
+      this._builder = builder
+    }
+  }
+
+  /**
+   * 
+   * @param {Asset} asset 
+   * @returns {Promise<void>}
+   */
+  decode (asset: Asset): Promise<void> {
+    return Promise.resolve().then(() => {
+      invariant(asset.source !== null && asset.source !== undefined)
+      return this.builder.runTask({
+        name: asset.relative,
+        content: asset.source,
+        sourceMaps: true
+      }, BuildType.JS).then((result) => {
+        asset.data = result
+      })
+    })
+  }
+}
+
+// Sass 文件处理器
+class AssetSassProcessor extends AssetDataProcessor {}
+
+// Less 文件处理器
+class AssetLessProcessor extends AssetDataProcessor {}
+
+// 
 export class WxApp extends MixinWxAssetsBundle(WxLibs) {
   static create (...rests: unknown[]) {
     const wx = super.create(...rests)
@@ -99,15 +123,15 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     })
 
     this.once('inited', () => {
-      defineReadAndWriteWxProperty(globalThis, 'window', globalThis)
-      defineReadAndWriteWxProperty(globalThis, '__wxConfig', this.configs)
-      defineReadAndWriteWxProperty(globalThis, 'WeixinJSCore', this)
-      defineReadAndWriteWxProperty<string>(globalThis, 'decodePathName', '')
-      defineReadAndWriteWxProperty<string>(globalThis, '__wxRoute', '')
-      defineReadAndWriteWxProperty<boolean>(globalThis, '__wxRouteBegin', false)
-      defineReadAndWriteWxProperty<string>(globalThis, '__wxAppCurrentFile__', '')
-      defineReadAndWriteWxProperty<object>(globalThis, '__wxAppData', {})
-      defineReadAndWriteWxProperty<object>(globalThis, '__wxAppCode__', {})
+      defineReadAndWriteProperty(globalThis, 'window', globalThis)
+      defineReadAndWriteProperty(globalThis, '__wxConfig', this.configs)
+      defineReadAndWriteProperty(globalThis, 'WeixinJSCore', this)
+      defineReadAndWriteProperty<string>(globalThis, 'decodePathName', '')
+      defineReadAndWriteProperty<string>(globalThis, '__wxRoute', '')
+      defineReadAndWriteProperty<boolean>(globalThis, '__wxRouteBegin', false)
+      defineReadAndWriteProperty<string>(globalThis, '__wxAppCurrentFile__', '')
+      defineReadAndWriteProperty<object>(globalThis, '__wxAppData', {})
+      defineReadAndWriteProperty<object>(globalThis, '__wxAppCode__', {})
       
       tick(() => this.startup())
     })
@@ -198,7 +222,6 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
   if (payload.type === 'connection') {
     worker_debug('开始链接 Worker')
     WxApp.create('/', new WorkPort(payload.port)) as unknown as WxApp
-
     
     const processor = AssetJSProcessor.create()
     const builder = MainBuilder.create(2)

@@ -1,6 +1,7 @@
 import { EventEmitter } from './events'
 import { SubscribeHandle } from './subscribable'
 import { Subscribable } from './subscribable'
+import { defineReadOnlyProperty } from './helpers'
 import { MessageContent, MessageOwner, MessageTransport } from './transport'
 
 export interface ApiParameter {
@@ -36,7 +37,6 @@ export interface ApiJSON {
   domains: ApiDomain[]
 }
 
-const defineProperty = (target: object, name: string, get: () => unknown) => Reflect.defineProperty(target, name, { get })
 
 const checkApiParametersType = (args: unknown[], parameters: ApiParameter[]) => {
   if (args.length !== parameters.length) {
@@ -44,7 +44,7 @@ const checkApiParametersType = (args: unknown[], parameters: ApiParameter[]) => 
   }
 
   let i = 0
-  for (i ; i < args.length; i++) {
+  for (i; i < args.length; i++) {
     const parameter = parameters[i]
     const type = parameter.type
     switch (type.toLowerCase()) {
@@ -174,7 +174,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
         return result?.payload
       }
 
-      defineProperty(commands, command.name, () => func)
+      define(commands, command.name, () => func)
     }
 
     for (const event of domain.events) {
@@ -190,15 +190,11 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
         })
       }
 
-      defineProperty(events, event.name, () => func)
+      defineReadOnlyProperty(events, event.name, () => func)
     }
 
-    const api = {
-      commands,
-      events
-    }
-
-    defineProperty(this, domain.name, () => api)
+    const api = { commands, events }
+    defineReadOnlyProperty(this, domain.name, () => api)
   }
 
   abstract send (content: MessageContent): Promise<MessageOwner>

@@ -14,6 +14,12 @@ export class Subscribable<E extends string = string, T extends SubscribeHandle =
     return this.subscribers.length
   }
 
+  /**
+   * 订阅消息
+   * @param {T} handler 
+   * @param {unknown} context 
+   * @param {boolean} once 
+   */
   subscribe (
     handler: T, 
     context?: unknown, 
@@ -39,6 +45,11 @@ export class Subscribable<E extends string = string, T extends SubscribeHandle =
   //   this.subscribe(handler, context, true)
   // }
 
+  /**
+   * 取消订阅
+   * @param {T} handler 
+   * @param {unknown} context 
+   */
   unsubscribe (
     handler?: T, 
     context?: unknown
@@ -56,11 +67,14 @@ export class Subscribable<E extends string = string, T extends SubscribeHandle =
         this.subscribers.splice(index, 1)
       }
     }
-
-    
   }
 
-  async publish <R> (...args: unknown[]) {
+  /**
+   * 发布消息
+   * @param {unknown[]} rests 
+   * @returns 
+   */
+  async publish <R> (...rests: unknown[]) {
     for (const listener of this.subscribers) {
       try {
         if (listener.once) {
@@ -76,6 +90,7 @@ export class Subscribable<E extends string = string, T extends SubscribeHandle =
     }
   }
 
+  // 清除订阅
   clear () {
     this.subscribers = []
   }

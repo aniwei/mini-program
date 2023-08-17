@@ -1,5 +1,5 @@
-// => defineReadOnlyWxProperty
-export const defineReadAndWriteWxProperty = <T>(target: {
+// => defineReadOnlyProperty
+export const defineReadAndWriteProperty = <T>(target: {
   hasOwnProperty: (name: string) => boolean
 }, name: PropertyKey, defaultValue: T, force: boolean = false) => {
   let value: T = defaultValue
@@ -15,8 +15,8 @@ export const defineReadAndWriteWxProperty = <T>(target: {
   }
 }
 
-// => defineReadOnlyWxProperty
-export const defineReadOnlyWxProperty = <T>(target: {
+// => defineReadOnlyProperty
+export const defineReadOnlyProperty = <T>(target: {
   hasOwnProperty: (name: string) => boolean
 }, name: PropertyKey, value: T) => {
   if (!target.hasOwnProperty(name as string)) {

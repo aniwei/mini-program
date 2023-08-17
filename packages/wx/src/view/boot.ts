@@ -4,7 +4,7 @@ import {
   MessageOwner,
   PodStatus, 
   WorkPort, 
-  defineReadAndWriteWxProperty, 
+  defineReadAndWriteProperty, 
   tick 
 } from '@catalyze/basic'
 import { WxAsset } from '@catalyze/wx-asset'
@@ -46,15 +46,16 @@ export class WxView extends ProxyView {
     this.once('inited', async () => {
       invariant(this.settings !== null)
       
-      defineReadAndWriteWxProperty(globalThis, 'WeixinJSCore', this)
-      defineReadAndWriteWxProperty(globalThis, '__wxConfig', this.configs)
-      defineReadAndWriteWxProperty(globalThis, '__proxy_window__', {
+      defineReadAndWriteProperty(globalThis, 'WeixinJSCore', this)
+      defineReadAndWriteProperty(globalThis, '__wxConfig', this.configs)
+      defineReadAndWriteProperty(globalThis, '__proxy_window__', {
         screen: {
           width: this.settings.size.width,
           height: this.settings.size.height,
-        }
+        },
+        devicePixelRatio: this.settings.devicePixelRatio
       })
-      defineReadAndWriteWxProperty(globalThis, '__webviewId__', this.id)
+      defineReadAndWriteProperty(globalThis, '__webviewId__', this.id)
 
       tick(() => this.startup())
     })

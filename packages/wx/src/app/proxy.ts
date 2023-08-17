@@ -115,7 +115,6 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     }
   }
 
-  // 
   async routing (
     container: HTMLIFrameElement, 
     options: WxAppRouteOptions

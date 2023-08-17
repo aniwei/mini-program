@@ -3,7 +3,6 @@ import { EventEmitter } from './events'
 
 export type MessageTransportCommands = 'message::received' | 'message::callback' | 'message::except' | 'message::content' | 'endpoint::connect' | 'endpoint::authenticate' | string
 
-
 /**
  * 指令处理函数
  */
@@ -183,6 +182,7 @@ export abstract class MessageTransport<
     ].forEach(command => this.command(command as Command, async messager => { this.emit(messager.sid as string, messager)}))
   }
   
+  // 连接
   connect (transport: unknown): void {
     this.transport = transport as T
     this.registerCommands()
@@ -190,8 +190,8 @@ export abstract class MessageTransport<
 
   /**
    * 指令异常
-   * @param sid 
-   * @param error 
+   * @param {string} sid 
+   * @param {any} error 
    */
   except (sid: string, error: any) {
     this.send({
@@ -205,7 +205,6 @@ export abstract class MessageTransport<
   }
 
   abstract send (content: MessageContent): Promise<MessageOwner>
-
 
   /**
    * 关闭终端

@@ -1,5 +1,5 @@
-import invariant from 'ts-invariant'
 import debug from 'debug'
+import invariant from 'ts-invariant'
 import Worker from '@catalyze/worker'
 import { EventEmitter } from './events'
 import { WorkPort, WorkTransport } from './work'

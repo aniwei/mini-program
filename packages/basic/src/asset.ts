@@ -158,7 +158,6 @@ export class AssetDataProcessor {
 }
 
 // 资源数据解析器 
-// 
 export class AssetDataProcessores {
   static create () {
     return new AssetDataProcessores()

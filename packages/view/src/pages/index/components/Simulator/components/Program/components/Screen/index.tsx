@@ -6,7 +6,6 @@ import { useProgram } from '@stores/program'
 
 const screen_debug = debug(`app:screen`)
 
-
 export interface ScreenProps {
   path: string,
   navigation: NavigationProp<{}>
