@@ -15,6 +15,7 @@ import { UnsupportError } from './unsupport'
 
 const transport_debug = debug('work')
 
+
 export type MessagePort = {
   onmessage: null | ((data: MessageEvent<unknown>) => void)
   onmessageerror?: null | ((error: any) => void),
@@ -59,10 +60,87 @@ export class WorkPort<T extends string = string> extends EventEmitter<'open' | '
   }
 }
 
-export class WorkTransport<T extends string = string> extends MessageTransport<WorkPort<T>> {
+export class MessageConv {
+  static conv = new MessageConv()
+  
+  static decode (data: unknown) {
+    return MessageConv.conv.decode(data)
+  }
+
+  static encode (data: string) {
+    return MessageConv.conv.encode(data)
+  }
+
+  public decoder: TextDecoder = new TextDecoder()
+  public encoder: TextEncoder = new TextEncoder()
+  
+  decode (data: unknown) {
+    if (data instanceof Blob) {
+      return data.arrayBuffer().then(buffer => this.decoder.decode(buffer))
+    } else {
+      return Promise.resolve().then(() => this.decoder.decode(data as Buffer))
+    }
+  }
+  
+  encode (data: string) {
+    return Promise.resolve().then(() => this.encoder.encode(data))
+  }
+}
+
+export class MessageData {
   static LIMIT: number = bytes.parse('2mb')
   
-  public index: number = 0
+  static ID_LENGTH = String(Number.MAX_SAFE_INTEGER).length
+  static MESSAGE_ID_LENGTH = String('message::id::').length + MessageData.ID_LENGTH
+  static INDEX_LENGTH = 1
+  static COUNT_LENGTH = 1
+  static HEADER_LENGTH = MessageData.MESSAGE_ID_LENGTH + MessageData.INDEX_LENGTH + MessageData.COUNT_LENGTH
+
+  static encode (
+    id: string, 
+    index: number, 
+    count: number, 
+    chunk: Uint8Array
+  ) {
+    return Promise.all([
+      MessageConv.encode(id),
+      MessageConv.encode(String(index)),
+      MessageConv.encode(String(count))
+    ]).then(buffers => {
+      const view = new Uint8Array(MessageData.HEADER_LENGTH + chunk.length)
+      let offset = 0
+      for (const buffer of buffers) {
+        view.set(buffer, offset)
+        offset += buffer.byteLength
+      }
+      view.set(chunk, offset)
+
+      return view
+    })
+  }
+
+  static decode (content: Uint8Array) {
+    let offset = 0
+    return Promise.all([
+      MessageConv.decode(content.subarray(0, offset = MessageData.MESSAGE_ID_LENGTH)),
+      MessageConv.decode(content.subarray(offset, offset = offset + MessageData.INDEX_LENGTH)),
+      MessageConv.decode(content.subarray(offset, offset = offset + MessageData.COUNT_LENGTH)),
+      content.subarray(offset, content.length)
+    ]).then(data => data)
+  }
+}
+
+export class WorkTransport<T extends string = string> extends MessageTransport<WorkPort<T>> {
+  public _index: number = 0
+  public get index () {
+    let index = (this._index++)
+    if (index >= Number.MAX_SAFE_INTEGER) {
+      index = this._index = 0
+    }
+    
+    const value = String(index)
+    return Array(MessageData.ID_LENGTH - value.length).fill(0).join('') + value
+  }
 
   /**
    * 连接
@@ -71,7 +149,9 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
    */
   connect (uri: unknown)
   connect (port: WorkPort) {
-    ;(port as WorkPort).on('message', async (event: MessageEvent) => MessageReceivers.receive(event, async (message: MessageOwner) => {
+    ;(port as WorkPort).on('message', async (event: MessageEvent) => MessageReceivers.receive(event, async (data) => {
+
+      const message = new MessageOwner(this, data as MessageContent<{ [key: string]: unknown} >)
       try {
         const handle = this.commands?.get(message.command as string)
 
@@ -106,7 +186,7 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
    */
   send (content: MessageContent<string | { [key: string]: unknown }, MessageTransportCommands>): Promise<MessageOwner> {
     return new Promise(async (resolve, reject) => {
-      const id = `message::id::${this.index++}`
+      const id = `message::id::${this.index}`
 
       this.once(id, (messager: MessageOwner) => {
         messager.command === 'message::except' 
@@ -130,44 +210,37 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
   }
 }
 
-export class MessageConv {
-  static conv = new MessageConv()
-  
-  static decode (data: unknown) {
-    return MessageConv.conv.decode(data)
-  }
-
-  static encode (data: string) {
-    return MessageConv.conv.encode(data)
-  }
-
-  public decoder: TextDecoder = new TextDecoder()
-  public encoder: TextEncoder = new TextEncoder()
-  
-  decode (data: unknown) {
-    if (data instanceof Blob) {
-      return data.arrayBuffer().then(buffer => this.decoder.decode(buffer))
-    } else {
-      return Promise.resolve().then(() => this.decoder.decode(data as Buffer))
-    }
-  }
-  
-  encode (data: string) {
-    return Promise.resolve().then(() => this.encoder.encode(data))
-  }
-}
-
-export class MessageReceiver extends EventEmitter<'data' | 'end'> {
+export class MessageReceiver extends EventEmitter<'finished' | 'progress'> {
   public id:  string
-  public chunks: ArrayBufferLike[] = []
+  public index: number
+  public count: number
+  public byteLength: number = 0
+  public chunks: Uint8Array[] = []
 
-  constructor (id: string) {
+  constructor (id: string, index: number, count: number) {
     super()
     this.id = id
+    this.index = index
+    this.count = count
   }
 
-  receive (content) {
-    debugger
+  receive (chunk: Uint8Array) {
+    this.chunks.push(chunk)
+    this.byteLength += chunk.byteLength
+    
+    if (this.count > this.chunks.length) {
+      this.emit('progress', this.chunks.length / this.count)
+    } else {
+      let offset = 0
+      const view = new Uint8Array(this.byteLength)
+
+      for (const chunk of this.chunks) {
+        view.set(chunk, offset)
+        offset = offset + chunk.byteLength
+      }
+
+      MessageConv.decode(view.buffer).then(data => this.emit('finished', JSON.parse(data)))
+    }
   }
 }
 
@@ -190,30 +263,31 @@ export class MessageReceivers {
     return this.receivers.delete(id)
   }
   
-  static async receive (event: MessageEvent, OnEndHandle: (message: MessageOwner) => void) {
-    const data = await MessageConv.decode(event.data ?? event)
-    const content = JSON.parse(data as string)
+  static async receive (event: MessageEvent, OnEndHandle: (data: MessageContent<unknown>) => void) {
+    const [id, index, count, chunk] = await MessageData.decode(new Uint8Array(event.data ?? event))
     
-    if (content.command !== 'message::content') {
-      throw new UnsupportError(`Unsupport this command "${content.command}".`)
+    if (!id || !index || !count || !chunk) {
+      throw new UnsupportError(`Unsupport this message.`)
     }
 
-    let receiver = MessageReceivers.get(content.id) as MessageReceiver ?? null
+    let receiver = MessageReceivers.get(id) as MessageReceiver ?? null
 
     if (receiver === null) {
-      receiver = new MessageReceiver(content.id)
-      receiver.once('end', OnEndHandle)
-      MessageReceivers.set(content.id, receiver) 
+      receiver = new MessageReceiver(id, parseInt(index), parseInt(count))
+      receiver.once('finished', (data) => {
+        OnEndHandle(data)
+        MessageReceivers.delete(id)
+      })
+      MessageReceivers.set(id, receiver) 
     }
 
-    receiver.receive(content)
+    receiver.receive(chunk)
     return receiver
   }
 
 }
 
 export class MessageSender extends EventEmitter<string> {
-  
   public id: string
   public transport: WorkPort
 
@@ -227,16 +301,16 @@ export class MessageSender extends EventEmitter<string> {
     this.transport = transport
   }
 
-  createFibers (content: ArrayBufferLike) {
-    if (content.byteLength <= WorkTransport.LIMIT) {
+  createFibers (content: Uint8Array) {
+    if (content.byteLength <= MessageData.LIMIT) {
       return [content]
     }
 
-    const filbers: ArrayBuffer[] = []
-    let count = Math.ceil(content.byteLength / WorkTransport.LIMIT)
+    const filbers: Uint8Array[] = []
+    let count = Math.ceil(content.byteLength / MessageData.LIMIT)
     while (count > 0) {
-      const offset = count * WorkTransport.LIMIT
-      filbers.push(content.slice(offset, offset + WorkTransport.LIMIT))
+      const offset = count * MessageData.LIMIT
+      filbers.push(content.subarray(offset, offset + MessageData.LIMIT))
       count--
     }
 
@@ -244,18 +318,10 @@ export class MessageSender extends EventEmitter<string> {
   }
 
   send (content: unknown) {
-    return MessageConv.encode(JSON.stringify({ content })).then(content => {
+    return MessageConv.encode(JSON.stringify(content)).then(content => {
       const fibers = this.createFibers(content)
       return Promise.all(fibers.map((chunk, index) => {
-        return MessageConv.encode(JSON.stringify({
-          id: this.id,
-          command: 'message::content',
-          payload: {
-            index,
-            chunk,
-            count: fibers.length,
-          }
-        })).then(data => this.transport.send(data))
+        return MessageData.encode(this.id, index, fibers.length, chunk).then(data => this.transport.send(data.buffer))
       }))
     })
   }
