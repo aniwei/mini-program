@@ -110,7 +110,7 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     super.publishHandler(name, data, viewIds)
   }
 
-  fromAssetsBundleAndSettings (assets: AssetsBundleJSON) {
+  fromAssetsBundle (assets: AssetsBundleJSON) {
     this.fromAssetsBundleJSON(assets)
     return this.mount()
   }
@@ -119,6 +119,7 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     return super.init({
       id: this.id,
       path: this.path, 
+      assets: super.toJSON(),
       configs: this.configs,
       settings: this.settings
     })

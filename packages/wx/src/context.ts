@@ -27,6 +27,7 @@ export abstract class WxJS extends ProxyPod {
   invokeHandler (name: string, data: string, id: number): void {}
 
   publishHandler (name: string, data: string, ids: string) {
+    context_debug('发布消息 <name: %s, data: %o, parameters: %o>', name, data, ids)
     this.send({
       command: 'message::publish',
       payload: {
@@ -135,7 +136,7 @@ export abstract class WxContext extends WxJS {
   }
 
   subscribe (name: string, data: unknown, ids: number): void {
-    context_debug('发布订阅消息 <name: %s, data: %o, parameters: %o>', name, data, ids)
+    context_debug('订阅消息 <name: %s, data: %o, parameters: %o>', name, data, ids)
     this.send({
       command: 'message::subscribe',
       payload: {

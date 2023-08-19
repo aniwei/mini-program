@@ -149,7 +149,7 @@ export class AssetDataProcessor {
 
   constructor (exts: string[] | string, exclude: (string | RegExp)[] = []) {
     this.exts = typeof exts === 'string' ? [exts] : exts
-    this.exclude = exclude
+    this.exclude = exclude ?? []
   }
 
   decode <T> (data: unknown) {
@@ -182,7 +182,7 @@ export class AssetDataProcessores {
   decode (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetDataProcessor
 
-    if (processor.exclude.some(exclude => {
+    if (processor && processor.exclude.some(exclude => {
       if (exclude instanceof RegExp) {
         return exclude.test(asset.relative)
       } else if (typeof exclude === 'string') {
@@ -199,7 +199,6 @@ export class AssetDataProcessores {
 // 包结构
 export type AssetsBundleJSON = {
   root: string,
-  relative: string,
   assets: AssetJSON[],
 }
 

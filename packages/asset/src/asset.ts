@@ -88,11 +88,11 @@ export class WxAssetSet extends AssetsBundle {
     if (this.json) {
       if ((this.json.data as WxAssetSetJSON).component) {
         return WxAssetSetType.Component
-      // TODO 
-      // 需要支持 ts
-      } else if (this.wxml && this.js) {
-        return WxAssetSetType.Page
-      }
+      } 
+    } 
+    
+    if (this.wxml && this.js) {
+      return WxAssetSetType.Page
     }
 
     return WxAssetSetType.Unknown

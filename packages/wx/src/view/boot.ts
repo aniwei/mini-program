@@ -11,6 +11,8 @@ import { WxAsset } from '@catalyze/wx-asset'
 import { ProxyView } from './proxy'
 import { WxInit } from '../context'
 
+import '../asset'
+
 const view_debug = debug('wx:view:iframe')
 
 type ConnectionPayload = {
@@ -35,12 +37,13 @@ export class WxView extends ProxyView {
       const payload = message.payload as MessagePayload
       const { id, path, settings, configs, assets } = payload.parameters[0] as WxInit
 
+      await this.fromAssetsBundle(assets)
+
       this.id = id as number
       this.path = path as string
       this.configs = configs
       this.settings = settings
 
-      await this.fromAssetsBundleAndSettings(assets)
     })
 
     this.once('inited', async () => {
@@ -56,6 +59,11 @@ export class WxView extends ProxyView {
         devicePixelRatio: this.settings.devicePixelRatio
       })
       defineReadAndWriteProperty(globalThis, '__webviewId__', this.id)
+      defineReadAndWriteProperty(globalThis, '__wxAppCode__', {})
+
+      defineReadAndWriteProperty(globalThis, 'decodeJsonPathName', '')
+      defineReadAndWriteProperty(globalThis, 'decodeWxmlPathName', '')
+      defineReadAndWriteProperty(globalThis, 'decodeWxssPathName', '')
 
       tick(() => this.startup())
     })
@@ -82,6 +90,7 @@ export class WxView extends ProxyView {
   }
 
   startup () {
+    const sets = this.pages.concat(this.components)
     const files: InjectFile[] = [
       {
         source: (this.findByFilename(`@wx/wxml.js`) as WxAsset).data as string,
@@ -89,22 +98,35 @@ export class WxView extends ProxyView {
       }, {
         source: (this.findByFilename(`@wx/wxss.js`) as WxAsset).data as string,
         filename: 'wxss.js'
-      }, {
-        source: (this.findByFilename(`@wx/view.js`) as WxAsset).data as string,
-        filename: 'view.js'
-      }, {
-        source: `
-          var generateFunc = $gwx('${this.path}.wxml');
-          if (generateFunc) {
-            document.dispatchEvent(new CustomEvent('generateFuncReady', { 
-              detail: { generateFunc: generateFunc }
-            }));
-          } else { 
-            document.body.innerText = 'Page "${this.path}" Not Found.';throw new Error('Page "${this.path}" Not Found.')
-          }`,
-        filename: 'boot.js'
       }
-    ]
+    ].concat(sets.reduce((file, set) => {
+      file.source += `
+        decodeJsonPathName = decodeURI('${set.relative}')
+        __wxAppCode__[decodeJsonPathName + '.json'] = ${JSON.stringify(set.json ? set.json.data : {})}
+        decodeWxmlPathName = decodeURI('${set.relative}')
+        __wxAppCode__[decodeWxmlPathName + '.wxml'] = $gwx(decodeWxmlPathName + '.wxml')
+        decodeWxssPathName = decodeURI('${set.relative}')
+        __wxAppCode__[decodeWxssPathName + '.wxss'] = function () {}
+      `
+      return file
+    }, {
+      filename: 'code.js',
+      source: ``
+    }), {
+      source: (this.findByFilename(`@wx/view.js`) as WxAsset).data as string,
+      filename: 'view.js'
+    }, {
+      source: `
+        var generateFunc = $gwx('${this.path}.wxml');
+        if (generateFunc) {
+          document.dispatchEvent(new CustomEvent('generateFuncReady', { 
+            detail: { generateFunc: generateFunc }
+          }));
+        } else { 
+          document.body.innerText = 'Page "${this.path}" Not Found.';throw new Error('Page "${this.path}" Not Found.')
+        }`,
+      filename: 'boot.js'
+    }, )
 
     for (const file of files) {
       this.inject(file.filename, file.source)

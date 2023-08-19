@@ -65,6 +65,8 @@ export const useProgram = create<ProgramState>((set) => {
       scene: 1001,
       path: 'pages/dashboard/index',
       entry: 'pages/dashboard/index',
+      // path: 'example/index',
+      // entry: 'example/index',
       size: {
         width: 375,
         height: 814

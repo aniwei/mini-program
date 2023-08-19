@@ -39,7 +39,7 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
   static proxyId: number = 1
   static boot (...rests: unknown[]) {
     // @ts-ignore
-    const wx = super.boot((new URL('./boot', import.meta.url)).toString(), ...rests)
+    const wx = super.boot((new URL('./boot.js', import.meta.url)).toString(), ...rests)
     wx.register(Controller),
     wx.register(Request),
     wx.register(UI)
@@ -62,47 +62,25 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
 
   public views: ProxyView[] = []
 
-  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
-    this.fromAssetsBundleJSON(assets)
-    return this.mount().then(() => {
-      const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
-      const configs = {
-        appLaunchInfo: {
-          scene: settings.scene,
-          path: settings.path
-        },
-        accountInfo: settings.account,
-        pages: app.pages,
-        env: settings.env,
-        entryPagePath: settings.entry
+  constructor () {
+    super()
+
+    this.on('publish', (name: string, data: unknown, ids: unknown[]) => {
+      if (ids.length > 0) {
+        for (const id of ids) {
+          for (const view of this.views) {
+            if (view.id === id) {
+              view.subscribe(name, data, view.id)
+            }
+          }
+        }
+      } else {
+        for (const view of this.views) {
+          view.subscribe(name, data, view.id)
+        }
       }
-  
-      this.configs = configs
-      this.settings = settings
+      
     })
-  }
-
-  /**
-   * 创建 View
-   * @param path 
-   * @param container 
-   * @returns 
-   */
-  create (
-    path: string, 
-    container: HTMLIFrameElement
-  ) {
-    const view = ProxyView.boot(path, container)
-    invariant(this.proj !== null)
-
-    view.path = path
-    view.id = ProxyApp.proxyId++
-    view.configs = this.configs
-    view.settings = this.settings
-
-    this.views.push(view)
-
-    return view
   }
 
   invokeHandler (name: string, data: unknown, id: number) {
@@ -162,21 +140,73 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
       }
     })
 
-    view.on('active', () => {
-      // this.subscribe('onAppRoute', {
-      //   ...options,
-      //   openType: 'navigateBack',
-      //   webviewId: view.id,
-      // }, view.id)
+    // view.on('active', () => {
+    //   this.subscribe('onAppRoute', {
+    //     ...options,
+    //     openType: 'navigateBack',
+    //     webviewId: view.id,
+    //   }, view.id)
 
-      // this.subscribe('onAppRouteDone', {
-      //   ...options,
-      //   openType: 'navigateBack',
-      //   webviewId: view.id,
-      // }, view.id)
-    })
+    //   this.subscribe('onAppRouteDone', {
+    //     ...options,
+    //     openType: 'navigateBack',
+    //     webviewId: view.id,
+    //   }, view.id)
+    // })
     
     return view
+  }
+
+  /**
+   * 创建 View
+   * @param path 
+   * @param container 
+   * @returns 
+   */
+  create (
+    path: string, 
+    container: HTMLIFrameElement
+  ) {
+    const view = ProxyView.boot(path, container)
+    invariant(this.proj !== null)
+
+    view.path = path
+    view.id = ProxyApp.proxyId++
+    view.configs = this.configs
+    view.settings = this.settings
+    view.fromAssetsBundle({
+      root: this.bundle.root,
+      assets: this.bundle.assets.filter(asset => {
+        if (asset.relative !== '@wx/app.js') {
+          return true
+        }
+      }).map(asset => asset.toJSON())
+    })
+
+    this.views.push(view)
+
+    return view
+  }
+
+  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
+    this.fromAssetsBundleJSON(assets)
+    
+    return this.mount().then(() => {
+      const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
+      const configs = {
+        appLaunchInfo: {
+          scene: settings.scene,
+          path: settings.path
+        },
+        accountInfo: settings.account,
+        pages: app.pages,
+        env: settings.env,
+        entryPagePath: settings.entry
+      }
+  
+      this.configs = configs
+      this.settings = settings
+    })
   }
  
   /**

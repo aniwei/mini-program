@@ -93,7 +93,7 @@ class WorkerCompilePod extends ProxyCompile {
 
 global.addEventListener('message', async (event: MessageEvent<{ type: 'connection', port: MessagePort }>) => {
   if (event.data.type === 'connection') {
-    WorkerCompilePod.create<WorkerCompilePod>(new WorkPort(event.data.port))
+    WorkerCompilePod.create<WorkerCompilePod>(new WorkPort(event.data.port), '/')
     self.postMessage({ status: 'connected' })
   }
 })

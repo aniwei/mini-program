@@ -148,19 +148,19 @@ class AssetJSONProcessor extends AssetDataProcessor {
 // Image
 class AssetImageProcessor extends AssetDataProcessor {
   static create () {
-    return super.create('.png', '.jpg', 'jpeg')
+    return super.create(['.png', '.jpg', 'jpeg'])
   }
 
   decode (asset: Asset): Promise<void> {
     if (asset.source === null) {
       return fs.readFile(asset.absolute).then(source => {
-        asset.source = source.toJSON('base64url')
-        asset.data = JSON.parse(asset.source as string)
+        asset.source = source.toString('base64url')
+        asset.data = asset.source
       })
     } else {
       return Promise.resolve().then(() => {
         invariant(asset.source)
-        asset.data = JSON.parse(asset.source.toString())
+        asset.data = asset.source
       })
     }
   }

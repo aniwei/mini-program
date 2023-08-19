@@ -148,28 +148,6 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     }
   }
 
-  // 初始化
-  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
-    this.fromAssetsBundleJSON(assets)
-    return this.mount().then(() => {
-      const proj = (this.findByFilename('project.config.json') as WxAsset).data as WxAssetAppJSON 
-      const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
-      const configs = {
-        appLaunchInfo: {
-          scene: settings.scene,
-          path: settings.path
-        },
-        accountInfo: settings.account,
-        pages: app.pages,
-        env: settings.env,
-        entryPagePath: settings.entry
-      }
-  
-      this.configs = configs
-      this.settings = settings
-    })
-  }
- 
   // 启动逻辑层，注入代码
   async startup () {
     const sets = this.pages.concat(this.components)
@@ -191,7 +169,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     }), sets.reduce((file, set) => {
       file.source += `
         decodePathName = decodeURI('${set.relative}');
-        __wxAppCode__[decodePathName + '.json'] = {};
+        __wxAppCode__[decodePathName + '.json'] = ${JSON.stringify(set.json ? set.json.data : {})};
         __wxAppCode__[decodePathName + '.wxml'] = $gwx(decodePathName + '.wxml');
         __wxRoute = decodePathName;
         __wxRouteBegin = true;
@@ -213,6 +191,27 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     
     this.status |= PodStatus.On
   }
+
+  // 初始化
+  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
+    this.fromAssetsBundleJSON(assets)
+    return this.mount().then(() => {
+      const app = (this.findByFilename('app.json') as WxAsset).data as WxAssetAppJSON
+      const configs = {
+        appLaunchInfo: {
+          scene: settings.scene,
+          path: settings.path
+        },
+        accountInfo: settings.account,
+        pages: app.pages,
+        env: settings.env,
+        entryPagePath: settings.entry
+      }
+  
+      this.configs = configs
+      this.settings = settings
+    })
+  }
 }
 
 // 监听 Connection 请求
@@ -231,3 +230,5 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
     builder.init().then(() => self.postMessage({ status: 'connected' }))
   }
 })
+
+debug.enable('*')

@@ -49,7 +49,7 @@ export class MiniProgram extends Axios {
     
 
     this.root = root
-    this.bundle = MiniAssetsBundle.create<MiniAssetsBundle>(root, 4)
+    this.bundle = MiniAssetsBundle.create(4, root)
   }
 
   async ensure () {

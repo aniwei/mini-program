@@ -71,7 +71,7 @@ export class ProxyCompilePod extends ProxyCompile {
 
 export class MainCompilePod extends MainPod<ProxyCompilePod> {
   static create (...rests: unknown[])
-  static create (root: string, count: number = 5) {
+  static create (count: number = 5, root: string) {
     const proxies: ProxyCompilePod[] = []
     const uri = path.resolve(__dirname, 'compile')
 
