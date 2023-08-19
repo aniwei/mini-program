@@ -1,6 +1,6 @@
 
 import debug from 'debug'
-import { PodStatus, defineReadOnlyWxProperty } from '@catalyze/basic'
+import { PodStatus, defineReadOnlyProperty } from '@catalyze/basic'
 import { WxCapability, WxCapabilityCreate } from '../capability'
 
 import { WxContext } from '../context'
@@ -33,7 +33,7 @@ export abstract class WxLibs extends WxContext {
     this.deps++
 
     WxCapability.create(this as unknown as  ProxyApp, ...options).then(capability => {
-      defineReadOnlyWxProperty(this, WxCapability.kSymbol as PropertyKey, capability)
+      defineReadOnlyProperty(this, WxCapability.kSymbol as PropertyKey, capability)
       this.capabilities.push(capability)
       this.deps--
 

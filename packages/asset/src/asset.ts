@@ -256,11 +256,11 @@ export interface WxAssetsBundleCreate {
 export function MixinWxAssetsBundle (PodContext) {
   // TODO
   abstract class WxAssetsBundleOwner extends PodContext {
-    static create <T extends WxAssetsBundleOwner> (...rests: unknown[])
-    static create <T extends WxAssetsBundleOwner> (root: string, ...rests: unknown[]): T {
-      const wx =  super.create(...rests) as unknown as  T
-      wx.root = root
-      return wx as T
+    static create (...rests: unknown[]) {
+      const wx =  super.create(...rests)
+      const root = rests[rests.length - 1]
+      wx.root = root as string
+      return wx 
     }
 
     // => root
@@ -327,6 +327,12 @@ export function MixinWxAssetsBundle (PodContext) {
       return this.bundle.findByFilename(filename)
     }
 
+    // 根据文件名判断 WxAsset 是否存在
+    exists (filename: string) {
+      return this.bundle.exists(filename)
+    }
+
+    // 根据后缀名查找
     findByExt (ext: string) {
       return this.bundle.findByExt(ext)
     }

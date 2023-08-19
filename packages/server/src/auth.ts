@@ -33,10 +33,7 @@ export class WxAuth extends WxStore {
         }
 
         return null
-      })
-      .subscribe(`Auth.getAuthenticateWxQRCode`, async () => this.getAuthenticateWxQRCode().then(code => qrcode.toDataURL(`https://open.weixin.qq.com/connect/confirm?uuid=${code}`)))
-
-    this.api.Auth.events.initialed()
+      }).subscribe(`Auth.getAuthenticateWxQRCode`, async () => this.getAuthenticateWxQRCode().then(code => qrcode.toDataURL(`https://open.weixin.qq.com/connect/confirm?uuid=${code}`)))
   }
 
   /**

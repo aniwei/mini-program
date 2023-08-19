@@ -10,7 +10,7 @@ import { AssetStoreType, PodStatus } from '@catalyze/basic'
 const mini_debug = debug(`wx:program`)
 
 class MiniAssetsBundle extends WxAssetsCompile {
-  async mount () {
+  async search () {
     const relative = path.join(__dirname, '../wx')
     const files: { filename: string, source: Buffer | string}[] = await Promise.all([
       'app.js',
@@ -23,7 +23,7 @@ class MiniAssetsBundle extends WxAssetsCompile {
       this.put(asset)
     }
 
-    return super.mount()
+    return super.search()
   }
 }
 

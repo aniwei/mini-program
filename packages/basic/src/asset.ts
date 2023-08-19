@@ -245,6 +245,10 @@ export abstract class AssetsBundle {
     return Promise.all(this.assets.filter(asset => !asset.mounted).map(asset => asset.mount())).then(() => void 0)
   }
 
+  exists (filename: string) {
+    return !!this.findByFilename(filename)
+  }
+
   // 文件类型查找文件
   findByExt (ext: AssetExt) {
     return this.assets.filter(file => file.ext === ext)

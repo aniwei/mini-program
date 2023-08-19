@@ -21,7 +21,7 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     const port1 = channel.port1
     const port2 = channel.port2
 
-    const pod = super.create(root, new WorkPort(port1))
+    const pod = super.create(new WorkPort(port1), root)
 
     const document = iframe.contentDocument as Document
     const script = document.createElement('script')
@@ -35,7 +35,7 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     document.head.appendChild(script)
     pod.passage = window
     
-    return pod
+    return pod as ProxyView
   }
 
   // => navigation

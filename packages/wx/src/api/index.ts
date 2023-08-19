@@ -11,6 +11,7 @@ export type ReadyHandle = () => void
 export  class WxApiTransport extends Api.WxApiTransport {
   connect (uri: string) {
     const socket = new WebSocket(uri)
+    socket.binaryType = 'arraybuffer'
     const port = new WorkPort(socket as unknown as MessagePort)
 
     super.connect(port)

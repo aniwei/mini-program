@@ -120,7 +120,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
   }
   public set transport (transport: MessageTransport | null) {
     if (this._transport === null || this._transport !== transport) {
-      transport?.command('message::content', async (message: MessageOwner) => {
+      transport?.command('message::api', async (message: MessageOwner) => {
         const payload = message.payload as unknown as ApiPayload
         
         switch (payload.type) {
@@ -137,10 +137,14 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
     }
   }
 
-
   public version: string
   public commands: ApiSubscribables = new ApiSubscribables()
 
+  /**
+   * 
+   * @param {ApiJSON} api 
+   * @param {MessageTransport | null} transport 
+   */
   constructor (api: ApiJSON, transport: MessageTransport | null = null) {
     super()
     this.transport = transport
@@ -149,21 +153,29 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
     this.registerApi(api.domains)
   }
 
+  /**
+   * 
+   * @param {ApiDomain[]} domains 
+   */
   private registerApi (domains: ApiDomain[]) {
     for (const domain of domains) {
       this.defineApi(domain)
     }
   }
 
+  /**
+   * 
+   * @param {ApiDomain} domain 
+   */
   private defineApi (domain: ApiDomain) {
-    const commands = Object.create(null)
-    const events = Object.create(null)
+    const commands = {}
+    const events = {}
 
     for (const command of domain.commands) {
       const func = async (...args: unknown[]) =>  {
         checkApiParametersType(args, command.parameters)
         const result = await this.send({
-          command: 'message::content',
+          command: 'message::api',
           payload: {
             type: 'Command',
             name: `${domain.name}.${command.name}`,
@@ -174,14 +186,14 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
         return result?.payload
       }
 
-      defineReadOnlyProperty(commands, command.name, () => func)
+      defineReadOnlyProperty(commands, command.name, func)
     }
 
     for (const event of domain.events) {
       const func = async (...args: unknown[]) =>  {
         checkApiParametersType(args, event.parameters)
         return this.transport?.send({
-          command: 'message::content',
+          command: 'message::api',
           payload: {
             type: 'Event',
             name: `${domain.name}.${event.name}`,
@@ -190,11 +202,11 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
         })
       }
 
-      defineReadOnlyProperty(events, event.name, () => func)
+      defineReadOnlyProperty(events, event.name, func)
     }
 
     const api = { commands, events }
-    defineReadOnlyProperty(this, domain.name, () => api)
+    defineReadOnlyProperty(this, domain.name, api)
   }
 
   abstract send (content: MessageContent): Promise<MessageOwner>

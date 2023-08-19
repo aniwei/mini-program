@@ -120,6 +120,8 @@ export class MessageData {
   }
 
   static decode (content: Uint8Array) {
+
+
     let offset = 0
     return Promise.all([
       MessageConv.decode(content.subarray(0, offset = MessageData.MESSAGE_ID_LENGTH)),
@@ -150,7 +152,6 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
   connect (uri: unknown)
   connect (port: WorkPort) {
     ;(port as WorkPort).on('message', async (event: MessageEvent) => MessageReceivers.receive(event, async (data) => {
-
       const message = new MessageOwner(this, data as MessageContent<{ [key: string]: unknown} >)
       try {
         const handle = this.commands?.get(message.command as string)
@@ -210,22 +211,25 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
   }
 }
 
+export interface MessageChunk {
+  index: number,
+  data: Uint8Array
+}
+
 export class MessageReceiver extends EventEmitter<'finished' | 'progress'> {
   public id:  string
-  public index: number
   public count: number
   public byteLength: number = 0
-  public chunks: Uint8Array[] = []
+  public chunks: MessageChunk[] = []
 
-  constructor (id: string, index: number, count: number) {
+  constructor (id: string, count: number) {
     super()
     this.id = id
-    this.index = index
     this.count = count
   }
 
-  receive (chunk: Uint8Array) {
-    this.chunks.push(chunk)
+  receive (index: number, chunk: Uint8Array) {
+    this.chunks.push({ index, data: chunk })
     this.byteLength += chunk.byteLength
     
     if (this.count > this.chunks.length) {
@@ -234,9 +238,11 @@ export class MessageReceiver extends EventEmitter<'finished' | 'progress'> {
       let offset = 0
       const view = new Uint8Array(this.byteLength)
 
-      for (const chunk of this.chunks) {
-        view.set(chunk, offset)
-        offset = offset + chunk.byteLength
+      for (const chunk of this.chunks.sort((chunkA, chunkdB) => {
+        return chunkA.index > chunkdB.index ? 1 : 1
+      })) {
+        view.set(chunk.data, offset)
+        offset = offset + chunk.data.byteLength
       }
 
       MessageConv.decode(view.buffer).then(data => this.emit('finished', JSON.parse(data)))
@@ -273,7 +279,7 @@ export class MessageReceivers {
     let receiver = MessageReceivers.get(id) as MessageReceiver ?? null
 
     if (receiver === null) {
-      receiver = new MessageReceiver(id, parseInt(index), parseInt(count))
+      receiver = new MessageReceiver(id, parseInt(count))
       receiver.once('finished', (data) => {
         OnEndHandle(data)
         MessageReceivers.delete(id)
@@ -281,7 +287,7 @@ export class MessageReceivers {
       MessageReceivers.set(id, receiver) 
     }
 
-    receiver.receive(chunk)
+    receiver.receive(parseInt(index), chunk)
     return receiver
   }
 
@@ -307,11 +313,12 @@ export class MessageSender extends EventEmitter<string> {
     }
 
     const filbers: Uint8Array[] = []
-    let count = Math.ceil(content.byteLength / MessageData.LIMIT)
-    while (count > 0) {
-      const offset = count * MessageData.LIMIT
+    const count = Math.ceil(content.byteLength / MessageData.LIMIT)
+    let index = 0
+    while (index < count) {
+      const offset = index * MessageData.LIMIT
       filbers.push(content.subarray(offset, offset + MessageData.LIMIT))
-      count--
+      index++
     }
 
     return filbers

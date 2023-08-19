@@ -118,7 +118,7 @@ window.addEventListener('message', async (event: MessageEvent<ConnectionPayload>
   const payload = event.data
 
   if (payload.type === 'connection') {
-    WxView.create('/', new WorkPort(payload.port)) as unknown as WxView
+    WxView.create(new WorkPort(payload.port), '/') as unknown as WxView
   }
   window.parent.postMessage({ status: 'connected' })
 })
