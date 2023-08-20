@@ -85,12 +85,14 @@ export class WxAssetSet extends AssetsBundle {
   }
   // => type
   public get type (): WxAssetSetType {
+    // 有 JSON 文件
     if (this.json) {
       if ((this.json.data as WxAssetSetJSON).component) {
         return WxAssetSetType.Component
       } 
     } 
     
+    // 无 JSON 文件，但有 wxml & js 文件
     if (this.wxml && this.js) {
       return WxAssetSetType.Page
     }
@@ -254,7 +256,7 @@ export interface WxAssetsBundleCreate {
 }
 
 export function MixinWxAssetsBundle (PodContext) {
-  // TODO
+  // TODO 类型推断
   abstract class WxAssetsBundleOwner extends PodContext {
     static create (...rests: unknown[]) {
       const wx =  super.create(...rests)
