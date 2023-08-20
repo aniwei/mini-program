@@ -79,6 +79,8 @@ export abstract class Asset {
       this.status = (this.status &~ AssetStatus.Mounted) | AssetStatus.Unmount
     }
   }
+
+  public type: AssetStoreType = AssetStoreType.Locale
   
   // 状态
   public status: AssetStatus = AssetStatus.Created
@@ -91,7 +93,7 @@ export abstract class Asset {
   // 文件相对路径
   public relative: string
   // 文件存储类型 内存 / 本地
-  public type: AssetStoreType = AssetStoreType.Locale
+  
   
   /**
    * 构造函数
@@ -152,7 +154,7 @@ export class AssetDataProcessor {
     this.exclude = exclude ?? []
   }
 
-  decode <T> (data: unknown) {
+  decode (data: unknown): Promise<void> {
     throw new UnimplementedError('decode')
   }
 }
@@ -182,13 +184,10 @@ export class AssetDataProcessores {
   decode (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetDataProcessor
 
-    if (processor && processor.exclude.some(exclude => {
-      if (exclude instanceof RegExp) {
-        return exclude.test(asset.relative)
-      } else if (typeof exclude === 'string') {
-        return exclude === asset.relative
-      }
-    })) {
+    if (processor && processor.exclude.some(exclude => exclude instanceof RegExp
+        ? exclude.test(asset.relative)
+        : exclude === asset.relative
+    )) {
       asset.status |= AssetStatus.Mounted
     } else {
       return processor.decode(asset)

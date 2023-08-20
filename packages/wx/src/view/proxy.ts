@@ -2,10 +2,10 @@ import debug from 'debug'
 import invariant from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
 import { AssetsBundleJSON, PodStatus, WorkPort } from '@catalyze/basic'
-import { MixinWxAssetsBundle } from '@catalyze/wx-asset'
+import { MixinWxAssetsBundle, WxAssetSet } from '@catalyze/wx-asset'
 import { WxContext } from '../context'
 
-const view_debug = debug(`wx:view:delegate`)
+const view_debug = debug(`wx:view:proxy`)
 
 export enum WxViewEvents {
   GenerateFuncReady = 'custom_event_GenerateFuncReady',
@@ -15,6 +15,12 @@ export enum WxViewEvents {
 export type NavigationEventSubscriber = () => void
 
 export class ProxyView extends MixinWxAssetsBundle(WxContext) {
+  /**
+   * 启动 View 渲染层
+   * @param {string} root 
+   * @param {HTMLIFrameElement} iframe 
+   * @returns {ProxView}
+   */
   static boot (root: string, iframe: HTMLIFrameElement) {
     view_debug(`开始启动 Wx View Service`)
     const channel = new MessageChannel()
@@ -48,17 +54,41 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
     invariant(navigation !== null, `The argument "navigation" cannot be null.`)
 
     if (navigation !== this._navigation) {
-      this._navigation?.removeListener('blur', this.busy.bind(this))
-      this._navigation?.removeListener('focus', this.idle.bind(this))
+      this._navigation?.removeListener('blur', this.unactive)
+      this._navigation?.removeListener('focus', this.active)
       this._navigation?.removeListener('beforeRemove', this.onRemove)
 
-      navigation.addListener('blur', this.busy)
-      navigation.addListener('focus', this.idle)
-      navigation.addListener('beforeRemove', this.onRemove)
+      navigation.addListener('blur', this.unactive)
+      navigation.addListener('focus', this.active)
+      navigation.addListener('beforeRemove', this.remove)
+
+      if (this.set) {
+        navigation.setOptions({
+          title: this.set.window?.navigationBarTitleText ?? 'weixin',
+          headerStyle: {
+            
+          }
+        })
+      }
   
       this._navigation = navigation
     }
+  }
 
+  // => set
+  protected _set: WxAssetSet | null = null
+  public get set () {
+    if (this._set === null) {
+      const set = this.findSetByFilename(this.path)
+      this._set = set
+    }
+
+    return this._set
+  }
+  public set set (set: WxAssetSet | null) {
+    if (this._set !== set) {
+      this._set = set
+    }
   }
 
   // => id
@@ -83,21 +113,36 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
 
   // => isActive 
   public get isActive () {
-    return this.status & PodStatus.On
+    return this.status & PodStatus.Active
   }
 
   // => isInactive
   public get isInactive () {
-    return this.status & PodStatus.Off
+    return this.status & PodStatus.Unactive
   }
 
   constructor () {
     super()
 
     this.once('connected', () => this.init())
+    this.once('on',() => this.status |= PodStatus.Unactive)
   }
 
-  onRemove = () => {
+  active = () => {
+    if (this.status & PodStatus.Unactive) {
+      const status = this.status &~ PodStatus.Unactive
+      this.status = status | PodStatus.Active
+    }
+  }
+
+  unactive = () => {
+    if (this.status & PodStatus.Inited) {
+      const status = this.status &~ PodStatus.On
+      this.status = status | PodStatus.Off
+    }
+  }
+
+  remove = () => {
     this.status = PodStatus.Destroy
   }
 

@@ -1,8 +1,8 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
-import { useProgram } from '@stores/program'
 import { SyntheticEvent, useCallback } from 'react'
 import { NavigationProp } from '@react-navigation/native'
+import { useProgram } from '@stores/program'
 
 const view_debug = debug(`app:hooks:wxview`)
 

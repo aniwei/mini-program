@@ -19,7 +19,9 @@ export enum PodStatus {
   Inited = 16,
   On = 32,
   Off = 64,
-  Destroy = 128,
+  Active = 128,
+  Unactive = 256,
+  Destroy = 512,
 }
 
 export type PodMessagePayload<T> = {
@@ -97,9 +99,15 @@ export abstract class Pod extends WorkTransport {
           this.emit('booted')
           break
         case PodStatus.On: 
-          this.emit('active')
+          this.emit('on')
           break
         case PodStatus.Off: 
+          this.emit('off')
+          break
+        case PodStatus.Active: 
+          this.emit('active')
+          break
+        case PodStatus.Unactive: 
           this.emit('unactive')
           break
       }

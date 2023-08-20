@@ -1,19 +1,34 @@
 import path from 'path-browserify'
 import invariant from 'ts-invariant'
-import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON, MainPod, ProxyPod } from '@catalyze/basic'
+import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyze/basic'
 
-// component / page .json
-export interface WxAssetSetJSON {
-  component?: boolean,
-  usingComponents: {
-    [key: string]: string
-  },
-  [key: string]: unknown
+// window
+export interface WxAssetWindowJSON {
+  navigationBarBackgroundColor?: string,
+  navigationBarTitleText?: string,
+  navigationBarTextStyle?: string,
+  backgroundTextStyle?: string,
+  backgroundColor?: string,
 }
 
 // app.json
 export interface WxAssetAppJSON {
-  pages: string[]
+  pages: string[],
+  usingComponents?: {
+    [key: string]: string
+  },
+  window?: WxAssetWindowJSON
+}
+
+export interface WxAssetUsingComponents {
+  [key: string]: string
+}
+
+// component / page .json
+export interface WxAssetSetJSON extends WxAssetWindowJSON {
+  component?: boolean,
+  usingComponents?: WxAssetUsingComponents,
+  [key: string]: unknown
 }
 
 // project.config.json
@@ -60,11 +75,68 @@ export class WxAssetSet extends AssetsBundle {
    * @param {string} root 
    * @returns {WxAssetSet}
    */
-  static create (relative: string, root: string) {
+  static create (app: WxAsset, relative: string, root: string) {
     const { dir, name } = path.parse(relative)
     const key = dir ? `${dir}/${name}` : name
 
-    return new WxAssetSet(key, root)
+    return new WxAssetSet(app, key, root)
+  }
+
+  // => window
+  protected _window: WxAssetWindowJSON | null = null
+  public get window () {
+    if (this.type === WxAssetSetType.Component || this.type === WxAssetSetType.Page) {
+      if (this._window === null) {
+        const app = this.app.data as WxAssetAppJSON
+        const window: WxAssetWindowJSON = {}
+
+        const dir = path.parse(this.relative).dir
+
+        for (const key in app.window) {
+          const value = path.relative(dir,  app.window[key])
+          window[key] = value
+        }
+
+        const json = (this.json.data as WxAssetSetJSON) as WxAssetSetJSON
+
+        this._window = {
+          ...window,
+          navigationBarBackgroundColor: json.navigationBarBackgroundColor ?? window.navigationBarBackgroundColor,
+          navigationBarTitleText: json.navigationBarTitleText ?? window.navigationBarTitleText,
+          navigationBarTextStyle: json.navigationBarTextStyle ?? window.navigationBarTextStyle,
+          backgroundTextStyle: json.backgroundTextStyle ?? window.backgroundTextStyle,
+          backgroundColor: json.backgroundColor ?? window.backgroundColor,
+        }
+      }
+    }
+
+    return this._window
+  }
+
+  // => usingComponent
+  protected _usingComponents: WxAssetUsingComponents | null = null
+  public get usingComponents () {
+    if (this.type === WxAssetSetType.Component || this.type === WxAssetSetType.Page) {
+      if (this._usingComponents === null) {
+        const app = this.app.data as WxAssetAppJSON
+        const usingComponents: WxAssetUsingComponents = {}
+
+        const dir = path.parse(this.relative).dir
+
+        for (const key in app.usingComponents) {
+          const value = path.relative(dir,  app.usingComponents[key])
+          usingComponents[key] = value
+        }
+
+        const components = (this.json.data as WxAssetSetJSON).usingComponents as WxAssetUsingComponents
+        this._usingComponents = {
+          ...usingComponents,
+          ...components
+        }
+      }
+    }
+
+    return this._usingComponents
   }
 
   // => wxml
@@ -100,13 +172,16 @@ export class WxAssetSet extends AssetsBundle {
     return WxAssetSetType.Unknown
   }
 
+  // app 配置
+  public app: WxAsset
   // 相对路径
   // pages/index/index
   // component/test/index
   public relative: string
 
-  constructor (relative: string, root: string) {
+  constructor (app: WxAsset, relative: string, root: string) {
     super(root)
+    this.app = app
     this.relative = relative
   }
 
@@ -124,8 +199,8 @@ export class WxAssetSet extends AssetsBundle {
 // key: 相对路径
 // value: WxAsset
 export class WxAssetSets {
-  static create (root: string) {
-    return new WxAssetSets(root)
+  static create (app: WxAsset, root: string) {
+    return new WxAssetSets(app, root)
   }
 
   // => pages
@@ -142,12 +217,15 @@ export class WxAssetSets {
       .map(([key, set]) => set)
   }
 
+  // app 配置
+  public app: WxAsset
   // 根目录
   public root: string
   // Sets 集合
   public sets: Map<string, WxAssetSet> = new Map()
 
-  constructor (root: string) {
+  constructor (app: WxAsset, root: string) {
+    this.app = app
     this.root = root
   }
 
@@ -183,7 +261,7 @@ export class WxAssetSets {
     let set = this.findByAsset(asset) ?? null
 
     if (set === null) {
-      set = WxAssetSet.create(asset.relative, asset.root) as WxAssetSet
+      set = WxAssetSet.create(this.app, asset.relative, asset.root) as WxAssetSet
       this.sets.set(set.relative, set)
     }
 
@@ -205,7 +283,7 @@ export class WxAssetsBundle extends AssetsBundle {
   protected _sets: WxAssetSets | null = null
   public get sets () {
     if (this._sets === null) {
-      const sets = WxAssetSets.create(this.root)
+      const sets = WxAssetSets.create(this.app, this.root)
       
       for (const asset of this.assets) {
         sets.put(asset)
@@ -215,6 +293,17 @@ export class WxAssetsBundle extends AssetsBundle {
     }
 
     return this._sets
+  }
+
+  // => app.json
+  protected  _app: WxAsset | null = null
+  public get app () {
+    if (this._app === null) {
+      this._app = this.findByFilename('app.json') as WxAsset
+    }
+
+    invariant(this._app)
+    return this._app
   }
 
   // => components

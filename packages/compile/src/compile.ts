@@ -7,27 +7,41 @@ export interface WxAssetCompiledFile {
   source: string
 }
 
-const parse = (wxss: string) => {
-  const wxsses = wxss.split('=')
-  let ret = ''
-
-  for (let i = 0; i < wxsses.length; i++) {
-    const k = wxsses[i]
-    const v = wxsses[++i]
-
-    if (k === 'version') {
-      ret += `/// ${k}: ${unescape(v)} \n`
-    } else if (k === 'comm') {
-      ret += `${unescape(v)}\n`
-    } else if (v) {
-      ret += `${unescape(v)}()\n`
-    }
-  }
-  
-  return ret
+export enum WxWxssAsset {
+  Version = 'version',
+  Common = 'comm'
 }
 
 export class WxAssetsCompile extends WxAssetsBundle {
+  unescape (wxss: string) {
+    const wxsses = wxss.split('=')
+    const files: WxAssetCompiledFile[] = []
+    let version = ''
+  
+    for (let i = 0; i < wxsses.length; i++) {
+      const k = wxsses[i]
+      const v = wxsses[++i]
+
+      if (k && v) {
+        if (k === WxWxssAsset.Version) {
+          version = v
+        } else if (k === WxWxssAsset.Common) {
+          files.push({
+            source: `// version - ${version}\n${unescape(v)}`,
+            filename: `wxss/${k}.wxss`
+          })
+        } else {
+          files.push({
+            source: unescape(v),
+            filename: `wxss/${k}`
+          })
+        }
+      }
+    }
+    
+    return files
+  }
+
   compile () {
     return Promise.all([
       this.runTask(this.xmlsExecArgs, 'XML'),
@@ -36,11 +50,7 @@ export class WxAssetsCompile extends WxAssetsBundle {
       const wxml = results[0]
       const wxss = results[1]
 
-      const files: WxAssetCompiledFile[] = []
-
-      files[0] = { filename: 'wxml.js', source: wxml }
-      files[1] = { filename: 'wxss.js', source: parse(wxss) }
-
+      const files: WxAssetCompiledFile[] = this.unescape(wxss).concat({ filename: 'wxml.js', source: wxml })
       return files
     }).then((files: WxAssetCompiledFile[]) => {
       this.put(files.map(file => {

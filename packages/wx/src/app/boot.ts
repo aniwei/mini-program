@@ -13,6 +13,7 @@ import {
   MixinWxAssetsBundle, 
   WxAsset, 
   WxAssetAppJSON, 
+  WxAssetSetJSON, 
   WxAssetsBundle 
 } from '@catalyze/wx-asset'
 import { WxLibs } from './libs'
@@ -167,15 +168,20 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
         source: asset.data as string
       }    
     }), sets.reduce((file, set) => {
-      file.source += `
-        decodePathName = decodeURI('${set.relative}');
-        __wxAppCode__[decodePathName + '.json'] = ${JSON.stringify(set.json ? set.json.data : {})};
-        __wxAppCode__[decodePathName + '.wxml'] = $gwx(decodePathName + '.wxml');
-        __wxRoute = decodePathName;
-        __wxRouteBegin = true;
-        __wxAppCurrentFile__ = decodePathName + '.js';
-        require(__wxAppCurrentFile__);
-      `
+      const json: WxAssetSetJSON = { 
+        ...(set.json ? set.json.data as object : {  }),
+        usingComponents: set.usingComponents ?? {}
+      }
+      
+      file.source += `///// => ${set.relative}\n`
+      file.source += `decodePathName = decodeURI('${set.relative}')\n`
+      file.source += `__wxAppCode__[decodePathName + '.json'] = ${JSON.stringify(json)}\n`
+      file.source += `__wxAppCode__[decodePathName + '.wxml'] = $gwx(decodePathName + '.wxml')\n`;
+      file.source += `__wxRoute = decodePathName\n`
+      file.source += `__wxRouteBegin = true\n`
+      file.source += `__wxAppCurrentFile__ = decodePathName + '.js'\n`
+      file.source += `require(__wxAppCurrentFile__)\n\n`
+      
       return file
     }, {
       filename: 'boot.js',

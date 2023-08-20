@@ -1,7 +1,7 @@
 import invariant from 'ts-invariant'
 import fs from 'fs-extra'
 import { glob } from 'glob'
-import { Asset, AssetDataProcessor } from '@catalyze/basic'
+import { Asset, AssetDataProcessor, AssetStoreType } from '@catalyze/basic'
 
 import * as Wx from '@catalyze/wx-asset'
 import { MainCompilePod } from './pod/proxy'
@@ -118,6 +118,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
       'jpg', 
       'jpeg'
     ]).then((files) => {
+      
       this.put(files.map(filename => Wx.WxAsset.create(filename, this.root)))
       return this.mount()
     })
@@ -173,14 +174,14 @@ class AssetDefaultProcessor extends AssetDataProcessor {
   }
 
   decode (asset: Asset): Promise<void> {
-    if (asset.source === null) {
+    if (asset.source === null && asset.type === AssetStoreType.Locale) {
       return fs.readFile(asset.absolute).then(source => {
         asset.source = source.toString()
         asset.data = asset.source as string
       })
     } else {
       return Promise.resolve().then(() => {
-        invariant(asset.source)
+        invariant(asset.source !== null)
         asset.data = asset.source as string
       })
     }

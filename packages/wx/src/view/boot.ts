@@ -7,7 +7,7 @@ import {
   defineReadAndWriteProperty, 
   tick 
 } from '@catalyze/basic'
-import { WxAsset } from '@catalyze/wx-asset'
+import { WxAsset, WxAssetSetJSON } from '@catalyze/wx-asset'
 import { ProxyView } from './proxy'
 import { WxInit } from '../context'
 
@@ -61,6 +61,8 @@ export class WxView extends ProxyView {
       defineReadAndWriteProperty(globalThis, '__webviewId__', this.id)
       defineReadAndWriteProperty(globalThis, '__wxAppCode__', {})
 
+      defineReadAndWriteProperty(globalThis, '__inject__', (rests: unknown[]) => this.inject(...rests))
+
       defineReadAndWriteProperty(globalThis, 'decodeJsonPathName', '')
       defineReadAndWriteProperty(globalThis, 'decodeWxmlPathName', '')
       defineReadAndWriteProperty(globalThis, 'decodeWxssPathName', '')
@@ -83,6 +85,7 @@ export class WxView extends ProxyView {
     super.publishHandler(name, data, viewIds)
   }
 
+  inject (...rests: unknown[])
   inject (name: string, code: string) {
     if (code !== null) {
       this.eval(code, `wx://view/${name}`)
@@ -96,28 +99,32 @@ export class WxView extends ProxyView {
         source: (this.findByFilename(`@wx/wxml.js`) as WxAsset).data as string,
         filename: 'wxml.js'
       }, {
-        source: (this.findByFilename(`@wx/wxss.js`) as WxAsset).data as string,
-        filename: 'wxss.js'
+        source: (this.findByFilename(`@wx/wxss/comm.wxss`) as WxAsset).data as string,
+        filename: 'wxss/comm.js'
       }
     ].concat(sets.reduce((file, set) => {
-      file.source += `
-        decodeJsonPathName = decodeURI('${set.relative}')
-        __wxAppCode__[decodeJsonPathName + '.json'] = ${JSON.stringify(set.json ? set.json.data : {})}
-        decodeWxmlPathName = decodeURI('${set.relative}')
-        __wxAppCode__[decodeWxmlPathName + '.wxml'] = $gwx(decodeWxmlPathName + '.wxml')
-        decodeWxssPathName = decodeURI('${set.relative}')
-        __wxAppCode__[decodeWxssPathName + '.wxss'] = function () {}
-      `
+      const json: WxAssetSetJSON = { 
+        ...(set.json ? set.json.data as object : {  }),
+        usingComponents: set.usingComponents ?? {}
+      }
+      
+      file.source += `///// => ${set.relative}\n`
+      file.source += `decodeJsonPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeJsonPathName + '.json'] = ${JSON.stringify(json)}\n`
+      file.source += `decodeWxmlPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeWxmlPathName + '.wxml'] = $gwx(decodeWxmlPathName + '.wxml')\n`
+      if (set.wxss) {
+        file.source += `decodeWxssPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeWxssPathName + '.wxss'] = ${(this.findByFilename(`@wx/wxss/${set.relative}.wxss`) as WxAsset)?.source}\n`
+      }
+
       return file
     }, {
-      filename: 'code.js',
-      source: ``
+      filename: 'codes.js',
+      source: ''
     }), {
       source: (this.findByFilename(`@wx/view.js`) as WxAsset).data as string,
       filename: 'view.js'
     }, {
       source: `
-        var generateFunc = $gwx('${this.path}.wxml');
+        const generateFunc = $gwx('${this.path}.wxml');
         if (generateFunc) {
           document.dispatchEvent(new CustomEvent('generateFuncReady', { 
             detail: { generateFunc: generateFunc }

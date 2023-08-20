@@ -113,7 +113,7 @@
     "van-grid-demo": "./dist/grid/demo/index",
     "van-dropdown-menu-demo": "./dist/dropdown-menu/demo/index",
     "van-skeleton-demo": "./dist/skeleton/demo/index",
-    "van-calendar-demo": "./dist/calendar/demo/index",
+    "van-calendar-demo": "../../dist/calendar/demo/index",
     "van-share-sheet-demo": "./dist/share-sheet/demo/index",
     "van-config-provider-demo": "./dist/config-provider/demo/index",
     "van-cascader-demo": "./dist/cascader/demo/index"

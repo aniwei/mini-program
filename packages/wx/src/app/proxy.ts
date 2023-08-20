@@ -1,6 +1,7 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
 import { AssetsBundleJSON, PodStatus } from '@catalyze/basic'
+import { NavigationContainerRef, StackActions } from '@react-navigation/native'
 import { 
   MixinWxAssetsBundle, 
   WxAsset, 
@@ -32,6 +33,10 @@ export interface ProxyApp {
   ui: UI
 }
 
+export interface ProxyLibs {
+  navigateTo ()
+}
+
 /**
  * View 创建及持有类
  */
@@ -45,6 +50,17 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     wx.register(UI)
 
     return wx
+  }
+
+  // => navigation
+  protected _navigation: NavigationContainerRef<{}> | null = null
+  public get navigation () {
+    invariant(this._navigation !== null, `The member "navigation" cannot be null.`)
+    return this._navigation
+  }
+  public set navigation (navigation: NavigationContainerRef<{}>) {
+    invariant(navigation !== null, `The argument "navigation" cannot be null.`)
+    this._navigation = navigation
   }
 
   // => settings
@@ -83,16 +99,24 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     })
   }
 
-  invokeHandler (name: string, data: unknown, id: number) {
-    app_debug('调用 Delegate Libs 能力 <name: %s,data: %o, id: %s>', name, data, id)
-    
-    for (const capability of this.capabilities) {
-      if (capability.has(name)) {
-        return capability.invoke(name, data)
-      }
-    }
+  //// => libs interface
+  /**
+   * 
+   * @param delta 
+   */
+  navigateBack (delta: number) {
+    this.navigation.dispatch(StackActions.pop(delta))
   }
 
+  /**
+   * 
+   * @param delta 
+   */
+  navigateTo (options) {
+    this.navigation.dispatch(StackActions.push('view', options))
+  }
+
+  //// 
   async routing (
     container: HTMLIFrameElement, 
     options: WxAppRouteOptions
@@ -140,19 +164,19 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
       }
     })
 
-    // view.on('active', () => {
-    //   this.subscribe('onAppRoute', {
-    //     ...options,
-    //     openType: 'navigateBack',
-    //     webviewId: view.id,
-    //   }, view.id)
+    view.on('active', () => {
+      this.subscribe('onAppRoute', {
+        ...options,
+        openType: 'navigateBack',
+        webviewId: view.id,
+      }, view.id)
 
-    //   this.subscribe('onAppRouteDone', {
-    //     ...options,
-    //     openType: 'navigateBack',
-    //     webviewId: view.id,
-    //   }, view.id)
-    // })
+      this.subscribe('onAppRouteDone', {
+        ...options,
+        openType: 'navigateBack',
+        webviewId: view.id,
+      }, view.id)
+    })
     
     return view
   }
@@ -187,7 +211,23 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
 
     return view
   }
+ 
+  /**
+   * 初始化
+   * @param {AssetsBundleJSON} assets 
+   * @param {WxSettings} settings 
+   * @returns {Promise<void>}
+   */
+  init (assets: AssetsBundleJSON, settings: WxSettings) {
+    return this.fromAssetsBundleAndSettings(assets, settings).then(() => super.init({ assets: this.bundle, settings }))
+  }
 
+  /**
+   * 
+   * @param assets 
+   * @param settings 
+   * @returns 
+   */
   fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
     this.fromAssetsBundleJSON(assets)
     
@@ -208,14 +248,14 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
       this.settings = settings
     })
   }
- 
-  /**
-   * 初始化
-   * @param {AssetsBundleJSON} assets 
-   * @param {WxSettings} settings 
-   * @returns {Promise<void>}
-   */
-  init (assets: AssetsBundleJSON, settings: WxSettings) {
-    return this.fromAssetsBundleAndSettings(assets, settings).then(() => super.init({ assets: this.bundle, settings }))
+
+  invokeHandler (name: string, data: unknown, id: number) {
+    app_debug('调用 Delegate Libs 能力 <name: %s,data: %o, id: %s>', name, data, id)
+    
+    for (const capability of this.capabilities) {
+      if (capability.has(name)) {
+        return capability.invoke(name, data)
+      }
+    }
   }
 }
