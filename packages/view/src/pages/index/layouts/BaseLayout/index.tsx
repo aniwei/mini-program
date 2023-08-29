@@ -11,7 +11,7 @@ const SideLayout = () => {
   return (
     <View style={{
       width: 60,
-      height: '100%',
+      // height: '100%',
       paddingBottom: 12,
       shadowColor: 'rgba(33, 33, 52, 0.1)',
       shadowRadius: 4,
@@ -19,8 +19,6 @@ const SideLayout = () => {
         width: 0,
         height: 1
       },
-      // borderBottomColor: `rgba(0, 0, 0, .1)`,
-      // borderBottomWidth: 0.5,
       flexDirection: 'column',
       justifyContent: 'flex-end',
       backgroundColor: 'rgba(255, 255, 255, 1)',
@@ -43,11 +41,11 @@ export const BaseLayout = () => {
     <View style={{ 
       flex: 1, 
       justifyContent: 'center', 
-      alignItems: 'center',
-      flexDirection: `row`,
+      alignItems: 'stretch',
+      flexDirection: 'row',
       backgroundColor: 'rgb(246, 246, 246)',
       height: '100%',
-      width: '100%'
+      width: '100%',
     }}> 
       <InitLayout>
         <AuthenticateLayout>

@@ -1,7 +1,6 @@
 import Animated from 'react-native-reanimated'
 import { ReactElement } from 'react'
 import { View, Image, Text } from 'react-native'
-import { useSharedValue, useDerivedValue, useAnimatedStyle } from 'react-native-reanimated'
 import { useProgram } from '@stores/program'
 
 export interface LoadingProps {
@@ -9,18 +8,10 @@ export interface LoadingProps {
   uri: string
 }
 const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
-  const rotation = useSharedValue(0)
-  const dv = useDerivedValue(() => {
-    console.log(rotation.value)
-    return rotation.value
-  }, [rotation])
-  const animated = useAnimatedStyle(() => {
-    return {}
-  }, [dv.value])
-
+  
   return (
     <View style={{
-      position: `absolute`,
+      position: 'absolute',
       left: 0,
       right: 0,
       top: 0,
@@ -28,7 +19,7 @@ const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
       flexDirection: 'column',
       justifyContent: 'center', 
       alignItems: 'center',
-      backgroundColor: `rgba(255, 255, 255, 1)`
+      backgroundColor: 'rgba(255, 255, 255, 1)'
     }}>
       <View style={{
         height: 68,
@@ -41,9 +32,9 @@ const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
           alignItems: 'center',
           borderRadius: 68,
           borderWidth: 2,
-          borderColor: `#eeeeee`,
-          borderStyle: `solid`
-        }, animated]}>
+          borderColor: '#eeeeee',
+          borderStyle: 'solid',
+        }]}>
           <View style={{
             position: 'absolute',
             left: 31,
@@ -51,7 +42,7 @@ const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
             height: 4,
             width: 4,
             borderRadius: 5,
-            backgroundColor: `#06ae56`
+            backgroundColor: '#06ae56'
           }}></View>
         </Animated.View>
         <Image 
@@ -69,7 +60,7 @@ const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
       <Text style={{
         marginTop: 16,
         fontSize: 16,
-        fontWeight: `bold`
+        fontWeight: 'bold'
       }}>{name}</Text>
     </View>
   )
@@ -87,9 +78,9 @@ export const WxLoader: React.FC<WxLoaderProps> = (props) => {
 
   return (
     <View style={{ 
-      width: `100%`,
-      height: `100%`,
-      backgroundColor: `rgba(255, 255, 255, 1)` 
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(255, 255, 255, 1)' 
     }}>
       { program.wx?.booted ? children :<Loading name={''} uri={''} {...props} /> }
     </View>
