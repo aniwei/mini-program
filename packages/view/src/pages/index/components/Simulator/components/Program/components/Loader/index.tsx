@@ -8,7 +8,6 @@ export interface LoadingProps {
   uri: string
 }
 const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
-  
   return (
     <View style={{
       position: 'absolute',
