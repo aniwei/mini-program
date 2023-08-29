@@ -36,7 +36,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
         invariant(file.wxml !== null)
 
         if ((file.json.data as Wx.WxAssetSetJSON).usingComponents) {
-          const using = Object.keys((file.json.data as Wx.WxAssetSetJSON).usingComponents)
+          const using = Object.keys((file.json.data as Wx.WxAssetSetJSON).usingComponents as Wx.WxAssetUsingComponents)
           args.push(file.wxml.relative)
           args.push(using.length)
           args.concat(using)

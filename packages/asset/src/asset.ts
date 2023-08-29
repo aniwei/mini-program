@@ -11,13 +11,26 @@ export interface WxAssetWindowJSON {
   backgroundColor?: string,
 }
 
+
+// tabbar
+export interface WxAssetTabBarJSON {
+  custom?: boolean,
+  list: {
+    text: string,
+    pagePath: string,
+    selectedIcon?: string,
+    unselectedIcon?: string
+  }[]
+}
+
 // app.json
 export interface WxAssetAppJSON {
   pages: string[],
   usingComponents?: {
     [key: string]: string
   },
-  window?: WxAssetWindowJSON
+  window?: WxAssetWindowJSON,
+  tabBar?: WxAssetTabBarJSON
 }
 
 export interface WxAssetUsingComponents {

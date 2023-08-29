@@ -2,8 +2,9 @@ import debug from 'debug'
 import { ReactElement, ReactFragment, useCallback } from 'react'
 import { View, Text, Image } from 'react-native'
 import { WxApiState } from '@catalyze/wx-api'
-import { useWx } from '@stores/wx'
 import { WxQRCodeState } from '@catalyze/wx-api'
+import { useWx } from '@stores/wx'
+import { api } from '../../api'
 
 const auth_debug = debug(`app:layouts:auth`)
 
@@ -80,7 +81,7 @@ const WxReconnect = () => {
 
   const onPress = useCallback(() => {
     if (wx.state === WxApiState.Disconnected || wx.state === WxApiState.Error) {
-      wx.api.reconnect()
+      api.reconnect()
     }
   }, [wx.state])
 

@@ -1,4 +1,3 @@
-import invariant from 'ts-invariant'
 import { useEffect } from 'react'
 import { NavigationContainerRef, useNavigationContainerRef } from '@react-navigation/native'
 import { useProgram } from '@stores/program'

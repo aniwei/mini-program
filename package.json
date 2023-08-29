@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "pnpm --filter @catalyze/* dev",
-    "build": "pnpm --filter '@catalyze/*' build",
+    "build": "nx run-many --target=build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,7 +15,9 @@
     "@types/debug": "^4.1.8",
     "@types/node": "^20.2.5",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "nx": "16.7.4",
+    "nx-cloud": "latest"
   },
   "dependencies": {
     "@types/jest": "^29.5.2"

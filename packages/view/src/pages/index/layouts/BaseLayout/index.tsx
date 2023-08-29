@@ -1,5 +1,4 @@
 import { View } from 'react-native'
-import { useEffect } from 'react'
 import { useWx } from '@stores/wx'
 
 import { UserLayout } from '../UserLayout'

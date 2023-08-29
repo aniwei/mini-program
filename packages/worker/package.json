@@ -22,7 +22,6 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "@catalyze/basic": "workspace:^1.0.0",
     "path-browserify": "^1.0.1",
     "ts-invariant": "^0.10.3"
   }
