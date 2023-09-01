@@ -211,7 +211,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
         accountInfo: settings.account,
         pages: app.pages,
         env: settings.env,
-        entryPagePath: settings.entry
+        entryPagePath: settings.entry,
       }
   
       this.configs = configs

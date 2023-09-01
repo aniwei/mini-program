@@ -11,9 +11,7 @@ export const UserLayout = () => {
   invariant(wx.user !== null)
 
   return (
-    <View style={{
-      
-    }}>
+    <View style={{}}>
       <Avatar uri={wx.user.avatarURL} />
     </View>
   )

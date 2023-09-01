@@ -1,16 +1,21 @@
 
 import { ReactElement, ReactFragment } from 'react'
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 import { WxApiState } from '@catalyze/wx-api'
 import { useWx } from '@stores/wx'
 
 const WxState = () => {
   return (
-    <Text style={{
-      fontWeight: `500`,
-      color: `rgba(26, 115, 232, 1)`,
-      textDecorationLine: `underline`
-    }} >正在启动...</Text>
+    <View style={{
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <Text style={{
+        fontWeight: `500`,
+        color: `rgba(26, 115, 232, 1)`,
+        textDecorationLine: `underline`
+      }} >正在启动...</Text>
+    </View>
   )
 }
 
