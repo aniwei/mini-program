@@ -9,7 +9,7 @@
     "view"
   ],
   "scripts": {
-    "dev": "pnpm copy & tsc -p tsconfig.json --watch & tsc -p tsconfig.cjs.json --watch",
+    "dev": "tsc --watch -p tsconfig.json & tsc --watch -p tsconfig.cjs.json",
     "copy": "copyfiles -u 1 bin/**/* dist/bin",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "pnpm copy & tsc -p tsconfig.json & tsc -p tsconfig.cjs.json"

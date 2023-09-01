@@ -8,7 +8,8 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json & tsc -p tsconfig.cjs.json"
+    "build": "tsc -p tsconfig.json & tsc -p tsconfig.cjs.json",
+    "dev": "tsc --watch -p tsconfig.json & tsc --watch -p tsconfig.cjs.json"
   },
   "keywords": [],
   "author": "",
