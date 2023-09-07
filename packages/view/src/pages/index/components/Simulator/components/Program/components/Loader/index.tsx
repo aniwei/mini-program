@@ -1,17 +1,33 @@
-import { ReactElement, useEffect } from 'react'
-import { View, Image, Text, Animated } from 'react-native'
+import { ReactElement, useEffect, useRef } from 'react'
+import { View, Image, Text, Animated, Easing } from 'react-native'
 import { useProgram } from '@stores/program'
+
+const useAnimated = (timeout: number) => {
+  const rotation = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotation, {
+        toValue: 360 * 10,
+        duration: timeout * 1000, 
+        easing: Easing.linear, 
+        useNativeDriver: true, 
+      })
+    ).start()
+  }, [])
+
+  return rotation.interpolate({
+    inputRange: [0, 360],
+    outputRange: ['0deg', '360deg'],
+  })
+}
 
 export interface LoadingProps {
   name: string,
   uri: string
 }
 const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
-  const rotate = new Animated.Value(0)
-
-  useEffect(() => {
-    
-  }, [])
+  const rotate = useAnimated(20)
 
   return (
     <View style={{
@@ -35,9 +51,10 @@ const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
           justifyContent: 'center', 
           alignItems: 'center',
           borderRadius: 68,
-          borderWidth: 2,
+          borderWidth: 3,
           borderColor: '#eeeeee',
           borderStyle: 'solid',
+          transform: [{ rotate }],
         }]}>
           <View style={{
             position: 'absolute',
