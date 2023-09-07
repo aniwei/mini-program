@@ -24,14 +24,14 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['@react-navigation/native', 'react-native-reanimated', '@react-navigation/drawer'],
+    include: ['@react-navigation/native', '@react-navigation/drawer'],
     esbuildOptions: {
       mainFields: ['module', 'main', 'react-native'],
       resolveExtensions: ['.web.ts', '.web.js', '.js', '.ts', '.jsx'],
       loader: { '.js': 'jsx' },
       plugins: [esbuildCommonjs([
         '@react-navigation/elements',
-        'react-native-reanimated'
+        // 'react-native-reanimated'
       ])],
     },
   },

@@ -5,7 +5,7 @@ import { UserLayout } from '../UserLayout'
 import { AuthenticateLayout } from '../AuthenticateLayout'
 import { InitLayout } from '../InitLayout'
 import { SimulatorLayout } from '../SimulatorLayout'
-import { Modal } from '@components/Modal'
+// import { Modal } from '@components/Modal'
 
 
 const SideLayout = () => {

@@ -1,6 +1,5 @@
-import Animated from 'react-native-reanimated'
-import { ReactElement } from 'react'
-import { View, Image, Text } from 'react-native'
+import { ReactElement, useEffect } from 'react'
+import { View, Image, Text, Animated } from 'react-native'
 import { useProgram } from '@stores/program'
 
 export interface LoadingProps {
@@ -8,6 +7,12 @@ export interface LoadingProps {
   uri: string
 }
 const Loading: React.FC<LoadingProps> = ({ name, uri }) => {
+  const rotate = new Animated.Value(0)
+
+  useEffect(() => {
+    
+  }, [])
+
   return (
     <View style={{
       position: 'absolute',
