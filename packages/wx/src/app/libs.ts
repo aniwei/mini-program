@@ -1,6 +1,6 @@
 
 import debug from 'debug'
-import { PodStatus, defineReadOnlyProperty } from '@catalyze/basic'
+import { PodStatusKind, defineReadOnlyProperty } from '@catalyze/basic'
 import { WxCapability, WxCapabilityCreate } from '../capability'
 
 import { WxContext } from '../context'
@@ -38,14 +38,14 @@ export abstract class WxLibs extends WxContext {
       this.deps--
 
       if (this.deps === 0) {
-        this.status |= PodStatus.Prepared
+        this.status |= PodStatusKind.Prepared
       }
     })
   }
 
   invokeCallbackHandler (id: number, data: unknown) {
     libs_debug(`执行回调，返回结果 <payload: %o>`, { data, id })
-    globalThis.WeixinJSBridge.invokeCallbackHandler(id, data || {})
+    globalThis.WeixinJSBridge.invokeCallbackHandler(id, data || '{}')
   }
 
   invokeHandler (name: string, data: unknown, id: number) {

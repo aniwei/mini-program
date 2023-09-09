@@ -8,7 +8,7 @@ import {
   MessageTransport, 
   MessageTransportCommands, 
   MessageTransportPort, 
-  MessageTransportState 
+  MessageTransportStateKind 
 } from './transport'
 import invariant from 'ts-invariant'
 import { UnsupportError } from './unsupport'
@@ -168,12 +168,12 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
       }
     })).on(`error`, (error: any) => {
       this.transport = null
-      this.state = MessageTransportState.Error
+      this.state = MessageTransportStateKind.Error
 
       ;(port as WorkPort).removeAllListeners()
       this.emit('error', error)
     }).on(`open`, () => {
-      this.state = MessageTransportState.Connected
+      this.state = MessageTransportStateKind.Connected
       this.emit('open')
     })
 

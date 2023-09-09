@@ -1,12 +1,12 @@
 
-import { MainPod, PodStatus, ProxyPod } from '@catalyze/basic'
+import { MainPod, PodStatusKind, ProxyPod } from '@catalyze/basic'
 
 type BuildPayload = {
   code: string,
   map: string
 }
 
-export enum BuildType {
+export enum BuildTypeKind {
   Less,
   Sass,
   JS,
@@ -21,12 +21,12 @@ export type BuildSource = {
 
 export type BuildTask = {
   source: BuildSource,
-  type: BuildType
+  type: BuildTypeKind
 }
 
 export class ProxyBuilder extends ProxyPod {
   async build (...rests: unknown[]): Promise<string>
-  async build (source: BuildSource, type: BuildType): Promise<string> {
+  async build (source: BuildSource, type: BuildTypeKind): Promise<string> {
     return this.send({
       command: 'message::build',
       payload: {
@@ -40,7 +40,7 @@ export class ProxyBuilder extends ProxyPod {
 
   constructor () {
     super()
-    this.once('booted', () => this.status |= PodStatus.On)
+    this.once('booted', () => this.status |= PodStatusKind.On)
   }
 
   runTask <T> (...rests: unknown[]): Promise<T> {

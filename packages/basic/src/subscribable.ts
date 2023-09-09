@@ -74,7 +74,7 @@ export class Subscribable<E extends string = string, T extends SubscribeHandle =
    * @param {unknown[]} rests 
    * @returns 
    */
-  async publish <R> (...rests: unknown[]) {
+  async publish <R = unknown> (...rests: unknown[]) {
     for (const listener of this.subscribers) {
       try {
         if (listener.once) {

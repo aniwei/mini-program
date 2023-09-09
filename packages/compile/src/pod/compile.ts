@@ -1,7 +1,7 @@
 import invariant from 'ts-invariant'
 import { 
   MessageOwner, 
-  PodStatus, 
+  PodStatusKind, 
   WorkPort,
   tryCatch, 
 } from '@catalyze/basic'
@@ -75,7 +75,7 @@ class WorkerCompilePod extends ProxyCompile {
         this.wcsc !== null 
       )
     })) {
-      this.status |= PodStatus.Inited
+      this.status |= PodStatusKind.Inited
     }
   }
 

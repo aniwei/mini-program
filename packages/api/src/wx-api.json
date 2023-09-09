@@ -39,7 +39,7 @@
           }]
         },
         {
-          "name": "WxQRCodeStateChanged",
+          "name": "WxQRCodeStateKindChanged",
           "description": "微信二维码状态更新",
           "parameters": [
             {

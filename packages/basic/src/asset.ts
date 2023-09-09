@@ -1,9 +1,9 @@
 import invariant from 'ts-invariant'
 import path from 'path-browserify'
-import { UnimplementedError } from './helpers'
+import { UnimplementError } from './unimplement'
 
 // 资源类型
-export enum AssetStoreType {
+export enum AssetStoreKind {
   Memory,
   Locale
 }
@@ -28,7 +28,7 @@ export type AssetJSON = {
   relative: string,
 }
 
-export enum AssetStatus {
+export enum AssetStatusKind {
   Created,
   Unmount,
   Mounted
@@ -51,7 +51,7 @@ export abstract class Asset {
 
   // => mounted
   public get mounted () {
-    return (this.status & AssetStatus.Mounted) === AssetStatus.Mounted
+    return (this.status & AssetStatusKind.Mounted) === AssetStatusKind.Mounted
   }
 
   // 编码数据
@@ -64,7 +64,7 @@ export abstract class Asset {
   public set data (data: JSON | string | unknown) {
     if (this._data !== data) {
       this._data = data
-      this.status = (this.status &~ AssetStatus.Unmount) | AssetStatus.Mounted
+      this.status = (this.status &~ AssetStatusKind.Unmount) | AssetStatusKind.Mounted
     }
   }
 
@@ -76,14 +76,14 @@ export abstract class Asset {
   public set source (source: ArrayBufferLike | ArrayBufferView | string | null) {
     if (this._source !== source) {
       this._source = source
-      this.status = (this.status &~ AssetStatus.Mounted) | AssetStatus.Unmount
+      this.status = (this.status &~ AssetStatusKind.Mounted) | AssetStatusKind.Unmount
     }
   }
 
-  public type: AssetStoreType = AssetStoreType.Locale
+  public type: AssetStoreKind = AssetStoreKind.Locale
   
   // 状态
-  public status: AssetStatus = AssetStatus.Created
+  public status: AssetStatusKind = AssetStatusKind.Created
   // 文件根目录
   public root: string
   // 路径解析对象
@@ -155,7 +155,7 @@ export class AssetDataProcessor {
   }
 
   decode (data: unknown): Promise<void> {
-    throw new UnimplementedError('decode')
+    throw new UnimplementError('decode')
   }
 }
 
@@ -188,7 +188,7 @@ export class AssetDataProcessores {
         ? exclude.test(asset.relative)
         : exclude === asset.relative
     )) {
-      asset.status |= AssetStatus.Mounted
+      asset.status |= AssetStatusKind.Mounted
     } else {
       return processor.decode(asset)
     }

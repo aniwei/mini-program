@@ -3,8 +3,8 @@ import debug from 'debug'
 import initialize from '@swc/wasm-web'
 import sass from 'sass.js'
 import { transform }  from '@swc/wasm-web'
-import { MessageOwner, PodStatus, WorkPort } from '@catalyze/basic'
-import { BuildTask, BuildSource, BuildType, ProxyBuilder } from './proxy'
+import { MessageOwner, PodStatusKind, WorkPort } from '@catalyze/basic'
+import { BuildTask, BuildSource, BuildTypeKind, ProxyBuilder } from './proxy'
 
 const builder_debug = debug('wx:builder')
 
@@ -26,19 +26,19 @@ class Builder extends ProxyBuilder {
     super()
 
     
-    this.command('message::init', () => this.status |= PodStatus.Inited)
+    this.command('message::init', () => this.status |= PodStatusKind.Inited)
     this.command('message::build', async (message: MessageOwner) => {
       const payload = message.payload as unknown as MessagePayload
       const buildTask = payload.parameters[0]
 
       switch (buildTask.type) {
-        case BuildType.Less:
+        case BuildTypeKind.Less:
           throw new Error('Unsupport')
 
-        case BuildType.Sass:
+        case BuildTypeKind.Sass:
           return message.reply(await this.sass(buildTask.source))
 
-        case BuildType.JS: 
+        case BuildTypeKind.JS: 
           return message.reply(await this.js(buildTask.source))
       }
     })

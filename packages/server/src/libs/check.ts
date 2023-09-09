@@ -7,7 +7,7 @@ const axios = Axios.create({
   baseURL: `https://long.open.weixin.qq.com`
 })
 
-export enum WxErrorCode {
+export enum WxErrorCodeKind {
   Timeout = 402,
   Cancelled = 403,
   Scanned = 404,
@@ -41,19 +41,19 @@ export class WxScanCheck extends EventEmitter<`success` | `cancelled` | `scanned
               wx_debug(`二维码状态查询 <state: ${wx_code}>`)
       
               switch (wx_errcode) {
-                case WxErrorCode.Success: {
+                case WxErrorCodeKind.Success: {
                   clearTimeout(this.timer as NodeJS.Timeout)
                   this.emit(`success`, wx_code)
                   break
                 }
       
-                case WxErrorCode.Cancelled: {
+                case WxErrorCodeKind.Cancelled: {
                   clearTimeout(this.timer as NodeJS.Timeout)
                   this.emit(`cancelled`)
                   break
                 }
       
-                case WxErrorCode.Scanned: {
+                case WxErrorCodeKind.Scanned: {
                   this.emit(`scanned`)
                   request()
                   break

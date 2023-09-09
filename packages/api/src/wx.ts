@@ -10,13 +10,13 @@ import { WxAssetsBundle } from '@catalyze/wx-asset'
 import { WxApiTransport } from './transport'
 import WxApiJSON from './wx-api.json'
 
-export enum WxQRCodeState {
-  Uncreated = `uncreated`,
-  Created = `created`,
-  Alive = `alive`,
-  Cancelled = `cancelled`,
-  Scanned = `scanned`,
-  Timeout = `timeout`
+export enum WxQRCodeStateKind {
+  Uncreated = 'uncreated',
+  Created = 'created',
+  Alive = 'alive',
+  Cancelled = 'cancelled',
+  Scanned = 'scanned',
+  Timeout = 'timeout'
 }
 
 export interface WxUser {
@@ -45,7 +45,7 @@ export interface WxAppWindow {
 }
 
 
-export type WxApiEvent = `Auth.signIn` | `Auth.signOut` | `Auth.initialed` | `Auth.WxQRCodeStateChanged`
+export type WxApiEvent = `Auth.signIn` | `Auth.signOut` | `Auth.initialed` | `Auth.WxQRCodeStateKindChanged`
 
 export interface WxAppJSON {
   pages: string[],
@@ -77,7 +77,7 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
     }
 
     events: {
-      WxQRCodeStateChanged (status: WxQRCodeState): Promise<void>,
+      WxQRCodeStateKindChanged (status: WxQRCodeStateKind): Promise<void>,
       signIn (user: WxUser): Promise<void>
     }
   }, 
@@ -95,7 +95,7 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
   }
 }
 
-export enum WxApiState {
+export enum WxApiStateKind {
   Created = 1,
   Connecting = 2,
   Connected = 4,
@@ -115,7 +115,7 @@ export abstract class WxApiService<T extends string> extends BaseApi<WxApiEvent 
 export type WxApiQueueHandle = () => void
 
 export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'disconnected' | 'error'> {
-  public state: WxApiState = WxApiState.Created
+  public state: WxApiStateKind= WxApiStateKind.Created
   public queue: WxApiQueueHandle[] = []
 
   constructor () {
@@ -133,7 +133,7 @@ export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'discon
   }
 
   send (content: MessageContent): Promise<MessageOwner> {
-    if (this.state & WxApiState.Connected) {
+    if (this.state & WxApiStateKind.Connected) {
       invariant(this.transport)
       return this.transport.send(content)
     }
@@ -147,18 +147,18 @@ export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'discon
 
   connect (uri: unknown)
   connect (transport: WxApiTransport) {
-    this.state |= WxApiState.Created
+    this.state |= WxApiStateKind.Created
 
     transport.on('error', () => {
-      this.state &= ~WxApiState.Connecting
-      this.state = WxApiState.Error
+      this.state &= ~WxApiStateKind.Connecting
+      this.state = WxApiStateKind.Error
       this.emit('error', this.state)
     }).on('open', () => {
-      this.state &= ~WxApiState.Connecting
-      this.state = WxApiState.Connected
+      this.state &= ~WxApiStateKind.Connecting
+      this.state = WxApiStateKind.Connected
       this.emit('connected', this.state)
     }).on('close', () => {
-      this.state = WxApiState.Disconnected | WxApiState.Connected
+      this.state = WxApiStateKind.Disconnected | WxApiStateKind.Connected
       this.emit('disconnected', this.state)
     })
 

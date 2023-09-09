@@ -11,7 +11,7 @@ const pod_debug = debug('basic:pod')
 export type Passage = Worker & HTMLIFrameElement
 
 // Worker 运行状态
-export enum PodStatus {
+export enum PodStatusKind {
   Created = 1,
   Connected = 2,
   Prepared = 4,
@@ -50,11 +50,11 @@ export abstract class Pod extends WorkTransport {
   }
 
   // => status
-  public _status = PodStatus.Created
+  public _status = PodStatusKind.Created
   public get status () {
     return this._status
   }
-  public set status (status: PodStatus) {
+  public set status (status: PodStatusKind) {
     if (this._status !== status) {
       const old = this._status
       this._status = status
@@ -67,10 +67,10 @@ export abstract class Pod extends WorkTransport {
   constructor () {
     super()
 
-    this.once('inited', () => this.status |= PodStatus.On)
-    this.on('status', (...parameters: PodStatus[]) => {
+    this.once('inited', () => this.status |= PodStatusKind.On)
+    this.on('status', (...parameters: PodStatusKind[]) => {
       const [status, old] = parameters
-      const v = status &~ PodStatus.Inited
+      const v = status &~ PodStatusKind.Inited
      
       this.send({
         command: 'message::status',
@@ -80,34 +80,34 @@ export abstract class Pod extends WorkTransport {
       })
     })
 
-    this.on('status', (status: PodStatus, old: PodStatus) => {
+    this.on('status', (status: PodStatusKind, old: PodStatusKind) => {
       const v = status &~ old
       switch (v) {
-        case PodStatus.Created:
+        case PodStatusKind.Created:
           this.emit('created')
           break
-        case PodStatus.Connected:
+        case PodStatusKind.Connected:
           this.emit('connected')
           break
-        case PodStatus.Prepared:
+        case PodStatusKind.Prepared:
           this.emit('prepared')
           break
-        case PodStatus.Inited:
+        case PodStatusKind.Inited:
           this.emit('inited')
           break
-        case PodStatus.Booted:
+        case PodStatusKind.Booted:
           this.emit('booted')
           break
-        case PodStatus.On: 
+        case PodStatusKind.On: 
           this.emit('on')
           break
-        case PodStatus.Off: 
+        case PodStatusKind.Off: 
           this.emit('off')
           break
-        case PodStatus.Active: 
+        case PodStatusKind.Active: 
           this.emit('active')
           break
-        case PodStatus.Unactive: 
+        case PodStatusKind.Unactive: 
           this.emit('unactive')
           break
       }
@@ -117,21 +117,21 @@ export abstract class Pod extends WorkTransport {
       const payload = message.payload as PodMessagePayload<string>
       const parameters = payload.parameters
 
-      this.status |= parameters[0] as unknown as  PodStatus
+      this.status |= parameters[0] as unknown as  PodStatusKind
     })
   }
 
   idle () {
-    if (this.status & PodStatus.Inited) {
-      const status = this.status &~ PodStatus.Off
-      this.status = status | PodStatus.On
+    if (this.status & PodStatusKind.Inited) {
+      const status = this.status &~ PodStatusKind.Off
+      this.status = status | PodStatusKind.On
     }
   }
 
   busy () {
-    if (this.status & PodStatus.Inited) {
-      const status = this.status &~ PodStatus.On
-      this.status = status | PodStatus.Off
+    if (this.status & PodStatusKind.Inited) {
+      const status = this.status &~ PodStatusKind.On
+      this.status = status | PodStatusKind.Off
     }
   }
 }
@@ -177,7 +177,7 @@ export abstract class ProxyPod extends Pod {
   constructor () {
     super()
 
-    this.once('booted', () => this.status |= PodStatus.On)
+    this.once('booted', () => this.status |= PodStatusKind.On)
   }
 
   public _onmessage = (event: MessageEvent<{ status: 'connected' }>) => {
@@ -197,7 +197,7 @@ export abstract class ProxyPod extends Pod {
         payload: {
           parameters: [...rests]
         }
-      }).then(() => this.status |= PodStatus.Booted))
+      }).then(() => this.status |= PodStatusKind.Booted))
 
       this.once('booted', () => resolve())
     })
@@ -246,20 +246,20 @@ export abstract class MainPod<P extends ProxyPod> extends EventEmitter<'booted' 
       })).then(() => this.emit('connected'))
 
       Promise.all(proxies.map(proxy => {
-        return new Promise(resolve => proxy.status & PodStatus.Booted ? resolve(proxy) : proxy.once('booted', () => resolve(proxy)))
+        return new Promise(resolve => proxy.status & PodStatusKind.Booted ? resolve(proxy) : proxy.once('booted', () => resolve(proxy)))
       })).then(() => this.emit('booted'))
     }
   }
 
   public queue: PodQueueHandle[] = []
 
-  findByStatus (status: PodStatus = PodStatus.On) {
+  findByStatus (status: PodStatusKind = PodStatusKind.On) {
     return this.proxies.find(proxy => proxy.status & status) ?? null
   }
 
   runTask <R> (...parameters: unknown[]): Promise<R> {    
     return new Promise((resolve, reject) => {
-      const proxy = this.findByStatus(PodStatus.On) as ProxyPod
+      const proxy = this.findByStatus(PodStatusKind.On) as ProxyPod
       
       if (proxy) {
         invariant(proxy.runTask)

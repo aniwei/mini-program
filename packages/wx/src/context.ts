@@ -1,6 +1,7 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
-import { ProxyPod, MessageOwner, tryCatch, PodStatus, AssetsBundleJSON } from '@catalyze/basic'
+import { ProxyPod, MessageOwner, tryCatch, PodStatusKind, AssetsBundleJSON, UnimplementError, Subscribable } from '@catalyze/basic'
+
 
 
 /*
@@ -23,17 +24,34 @@ export interface MessagePayload {
 export type WxJSEvents = 'init' | 'connected' | 'pluginloaded' | 'inited' | 'started' | 'publish' | 'subscribe' | 'callback' | 'invoke' | 'created' | 'destroy' | 'remove' | 'active' | 'inactive' | 'status' | 'blur' | 'focus'
 
 export abstract class WxJS extends ProxyPod {
-  invokeHandler (...rests: unknown[]): void
-  invokeHandler (name: string, data: string, id: number): void {}
+  invokeHandler (...rests: unknown[])
+  invokeHandler (name: string, data: string, id: string) {
+    throw new UnimplementError('invokeHandler')
+  }
 
+  handleInvoke (...rests: unknown[])
+  handleInvoke (name: string, data: string, id: string) {
+    throw new UnimplementError('handleInvoke')
+  } 
+
+  publishHandler (...rests: unknown[])
   publishHandler (name: string, data: string, ids: string) {
-    context_debug('发布消息 <name: %s, data: %o, parameters: %o>', name, data, ids)
-    this.send({
-      command: 'message::publish',
-      payload: {
-        parameters: [name, JSON.parse(data), JSON.parse(ids)]
-      }
-    })
+    throw new UnimplementError('publishHandler')
+  }
+
+  handlePublish (...rests: unknown[])
+  handlePublish (name: string, data: string, ids: string) {
+    throw new UnimplementError('handlePublish')
+  } 
+
+  subscribeHandler (...rests: unknown[])
+  subscribeHandler (name: string, data: string, ids: string) {
+    throw new UnimplementError('subscribeHandler')
+  }
+
+  handleSubscribe (...rests: unknown[])
+  handleSubscribe (name: string, data: string, ids: string) {
+    throw new UnimplementError('handleSubscribe')
   }
 
   eval (code: string, sourceURL?: string) {
@@ -103,34 +121,41 @@ export abstract class WxContext extends WxJS {
       this.emit('start', ...payload.parameters)
     })
 
-    this.command('message::publish', (message: MessageOwner) => {
-      const payload = message.payload as unknown as  MessagePayload
-      this.emit('publish', ...payload.parameters)
-    })
-
-    this.command('message::subscribe', (message: MessageOwner) => {
-      const payload = message.payload as unknown as  MessagePayload
-      this.emit('subscribe', ...payload.parameters)
-    })
-
-    this.command('message::invoke', (message: MessageOwner) => {
+    this.command('message::publish', async (message: MessageOwner) => {
       const payload = message.payload as unknown as  MessagePayload
       message.reply({
         command: 'message::callback',
-        payload: this.invokeHandler(...payload.parameters)
+        payload: await this.handlePublish(...payload.parameters)
+      })
+    })
+
+    this.command('message::subscribe', async (message: MessageOwner) => {
+      const payload = message.payload as unknown as  MessagePayload
+
+      message.reply({
+        command: 'message::callback',
+        payload: await this.handleSubscribe(...payload.parameters)
+      })
+    })
+
+    this.command('message::invoke', async (message: MessageOwner) => {
+      const payload = message.payload as unknown as  MessagePayload
+      message.reply({
+        command: 'message::callback',
+        payload: await this.handleInvoke(...payload.parameters)
       })
     })
   }
 
   isWxContextReady () {
-    if (!(this.status & PodStatus.Inited)) {
+    if (!(this.status & PodStatusKind.Inited)) {
       if (tryCatch<boolean>(() => {
         return (
           this.configs !== null &&
           this.settings !== null
         )
       })){
-        this.status |= PodStatus.Inited
+        this.status |= PodStatusKind.Inited
       }
     }
   }

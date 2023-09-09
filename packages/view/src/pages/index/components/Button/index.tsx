@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { TouchableHighlight, Text } from 'react-native'
 
 export interface ButtonProps {
+  children: ReactNode,
   size?: 'S' | 'M' | 'L',
   variant?: 'default' | 'primary' | 'secondary' | 'tertiary'
 }

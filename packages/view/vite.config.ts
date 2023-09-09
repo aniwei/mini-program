@@ -31,7 +31,6 @@ export default defineConfig({
       loader: { '.js': 'jsx' },
       plugins: [esbuildCommonjs([
         '@react-navigation/elements',
-        // 'react-native-reanimated'
       ])],
     },
   },

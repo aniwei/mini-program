@@ -2,7 +2,7 @@ import debug from 'debug'
 import invariant from 'ts-invariant'
 import { 
   MessageOwner,
-  PodStatus, 
+  PodStatusKind, 
   WorkPort, 
   defineReadAndWriteProperty, 
   tick 
@@ -43,7 +43,6 @@ export class WxView extends ProxyView {
       this.path = path as string
       this.configs = configs
       this.settings = settings
-
     })
 
     this.once('inited', async () => {
@@ -69,20 +68,34 @@ export class WxView extends ProxyView {
 
       tick(() => this.startup())
     })
+  }
 
-    this.on('subscribe', (...rest: unknown[]) => {
-      view_debug('处理来自 App 层消息 <name: %s, data: %o, ids: %o>', rest[0], rest[1], rest[2])
-      globalThis.WeixinJSBridge.subscribeHandler(rest[0], rest[1])
+  handleSubscribe (...rest: unknown[]) {
+    globalThis.WeixinJSBridge.subscribeHandler(rest[0], rest[1])
+  }
+
+  invokeHandler (name: string, data: string, id: string) {
+    view_debug('View 层调用 Native 方法 <name: %s, data: %s, callbackId: %s>', name, data, id) 
+    this.send({
+      command: 'message::invoke',
+      payload: {
+        parameters: [
+          name, 
+          JSON.parse(data), 
+          JSON.parse(id)
+        ]
+      }
     })
   }
 
-  invokeHandler (name: string, data: string, id: number): void {
-    view_debug('View 层调用 Native 方法 <name: %s, data: %s, callbackId: %s>', name, data, id) 
-  }
-
-  publishHandler (name: string, data: string, viewIds: string): void {
-    view_debug('发布消息 <name: %s, data: %s, viewIds: %s>', name, data, viewIds)
-    super.publishHandler(name, data, viewIds)
+  publishHandler (name: string, data: string, id: string): void {
+    view_debug('发布消息 <name: %s, data: %s, viewIds: %s>', name, data, id)
+    return this.send({
+      command: 'message::publish',
+      payload: {
+        parameters: [name, JSON.parse(data), JSON.parse(id)]
+      }
+    })
   }
 
   inject (...rests: unknown[])
@@ -139,7 +152,7 @@ export class WxView extends ProxyView {
       this.inject(file.filename, file.source)
     }
     
-    this.status |= PodStatus.On
+    this.status |= PodStatusKind.On
   }
 }
 

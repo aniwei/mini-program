@@ -6,7 +6,7 @@ import {
   AssetDataProcessor, 
   AssetsBundleJSON, 
   MessageOwner, 
-  PodStatus, 
+  PodStatusKind, 
   WorkPort 
 } from '@catalyze/basic'
 import { 
@@ -27,7 +27,7 @@ import { Controller } from '../capability/controller'
 import { Request } from '../capability/request'
 import { UI } from '../capability/ui'
 import { WxCapabilityCreate } from '../capability'
-import { BuildType, MainBuilder } from '../builder'
+import { BuildTypeKind, MainBuilder } from '../builder'
 
 import '../asset'
 
@@ -83,7 +83,7 @@ class AssetJSProcessor extends AssetDataProcessor {
         name: asset.relative,
         content: asset.source,
         sourceMaps: true
-      }, BuildType.JS).then((result) => {
+      }, BuildTypeKind.JS).then((result) => {
         asset.data = result
       })
     })
@@ -136,11 +136,6 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
       
       tick(() => this.startup())
     })
-
-    this.on('subscribe', (...rest: unknown[]) => {
-      worker_debug('处理来自 View 层消息  <name: %s, data: %o, parameters: %o>', rest[0], rest[1], rest[2])
-      globalThis.WeixinJSBridge.subscribeHandler(...rest)
-    }) 
   }
 
   inject (name: string, code: string) {
@@ -164,7 +159,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
       return !asset.relative.startsWith('@wx')
     }).map(asset => {
       return {
-        filename: asset.relative,
+        filename: `resource/${asset.relative}`,
         source: asset.data as string
       }    
     }), sets.reduce((file, set) => {
@@ -195,7 +190,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
       this.inject(file.filename, file.source)
     }
     
-    this.status |= PodStatus.On
+    this.status |= PodStatusKind.On
   }
 
   // 初始化
@@ -216,6 +211,30 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
   
       this.configs = configs
       this.settings = settings
+    })
+  }
+
+  handleSubscribe (...rest: unknown[]) {
+    worker_debug('处理来自 View 层消息  「name: %s, data: %o, parameters: %o」', rest[0], rest[1], rest[2])
+    globalThis.WeixinJSBridge.subscribeHandler(...rest)
+  }
+
+  invokeHandler (name: string, data: string, id: string) {
+    worker_debug('App 层调用 「Native」 方法 「name: %s, data: %s, callbackId: %s」', name, data, id)     
+    for (const capability of this.capabilities) {
+      if (capability.has(name)) {
+        return capability.invoke(name, data)
+      }
+    }
+  }
+
+  publishHandler (name: string, data: string, id: string): void {
+    worker_debug('发布消息 「name: %s, data: %s, viewIds: %s」', name, data, id)
+    return this.send({
+      command: 'message::publish',
+      payload: {
+        parameters: [name, JSON.parse(data), JSON.parse(id)]
+      }
     })
   }
 }

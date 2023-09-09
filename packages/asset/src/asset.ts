@@ -72,7 +72,7 @@ export class WxAsset extends Asset {
 }
 
 // 资源组类型，针对微信小程序只有两种
-export enum WxAssetSetType {
+export enum WxAssetSetKind {
   Component,
   Page,
   Unknown
@@ -98,7 +98,7 @@ export class WxAssetSet extends AssetsBundle {
   // => window
   protected _window: WxAssetWindowJSON | null = null
   public get window () {
-    if (this.type === WxAssetSetType.Component || this.type === WxAssetSetType.Page) {
+    if (this.type === WxAssetSetKind.Component || this.type === WxAssetSetKind.Page) {
       if (this._window === null) {
         const app = this.app.data as WxAssetAppJSON
         const window: WxAssetWindowJSON = {}
@@ -129,7 +129,7 @@ export class WxAssetSet extends AssetsBundle {
   // => usingComponent
   protected _usingComponents: WxAssetUsingComponents | null = null
   public get usingComponents () {
-    if (this.type === WxAssetSetType.Component || this.type === WxAssetSetType.Page) {
+    if (this.type === WxAssetSetKind.Component || this.type === WxAssetSetKind.Page) {
       if (this._usingComponents === null) {
         const app = this.app.data as WxAssetAppJSON
         const usingComponents: WxAssetUsingComponents = {}
@@ -169,20 +169,20 @@ export class WxAssetSet extends AssetsBundle {
     return this.findByExt('.json')[0] ?? null
   }
   // => type
-  public get type (): WxAssetSetType {
+  public get type (): WxAssetSetKind {
     // 有 JSON 文件
     if (this.json) {
       if ((this.json.data as WxAssetSetJSON).component) {
-        return WxAssetSetType.Component
+        return WxAssetSetKind.Component
       } 
     } 
     
     // 无 JSON 文件，但有 wxml & js 文件
     if (this.wxml && this.js) {
-      return WxAssetSetType.Page
+      return WxAssetSetKind.Page
     }
 
-    return WxAssetSetType.Unknown
+    return WxAssetSetKind.Unknown
   }
 
   // app 配置
@@ -219,14 +219,14 @@ export class WxAssetSets {
   // => pages
   public get pages () {
     return Array.from(this.sets)
-      .filter(([key, set]) => set.type === WxAssetSetType.Page)
+      .filter(([key, set]) => set.type === WxAssetSetKind.Page)
       .map(([key, set]) => set)
   }
 
   // => components
   public get components () {
     return Array.from(this.sets)
-      .filter(([key, set]) => set.type === WxAssetSetType.Component)
+      .filter(([key, set]) => set.type === WxAssetSetKind.Component)
       .map(([key, set]) => set)
   }
 

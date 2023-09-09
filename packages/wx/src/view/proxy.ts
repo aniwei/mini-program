@@ -1,15 +1,19 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
-import { AssetsBundleJSON, PodStatus, WorkPort } from '@catalyze/basic'
+import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyze/basic'
 import { MixinWxAssetsBundle, WxAssetSet } from '@catalyze/wx-asset'
 import { WxContext } from '../context'
 
 const view_debug = debug(`wx:view:proxy`)
 
-export enum WxViewEvents {
+export enum WxViewEventKind {
   GenerateFuncReady = 'custom_event_GenerateFuncReady',
   PageEvent = 'custom_event_PAGE_EVENT',
+}
+
+export enum WxViewInvocationKind {
+  InsertTextArea = 'insertTextArea'
 }
 
 export type NavigationEventSubscriber = () => void
@@ -113,46 +117,37 @@ export class ProxyView extends MixinWxAssetsBundle(WxContext) {
 
   // => isActive 
   public get isActive () {
-    return this.status & PodStatus.Active
+    return this.status & PodStatusKind.Active
   }
 
   // => isInactive
   public get isInactive () {
-    return this.status & PodStatus.Unactive
+    return this.status & PodStatusKind.Unactive
   }
 
   constructor () {
     super()
 
     this.once('connected', () => this.init())
-    this.once('on',() => this.status |= PodStatus.Unactive)
+    this.once('on',() => this.status |= PodStatusKind.Unactive)
   }
 
   active = () => {
-    if (this.status & PodStatus.Unactive) {
-      const status = this.status &~ PodStatus.Unactive
-      this.status = status | PodStatus.Active
+    if (this.status & PodStatusKind.Unactive) {
+      const status = this.status &~ PodStatusKind.Unactive
+      this.status = status | PodStatusKind.Active
     }
   }
 
   unactive = () => {
-    if (this.status & PodStatus.Inited) {
-      const status = this.status &~ PodStatus.On
-      this.status = status | PodStatus.Off
+    if (this.status & PodStatusKind.Inited) {
+      const status = this.status &~ PodStatusKind.On
+      this.status = status | PodStatusKind.Off
     }
   }
 
   remove = () => {
-    this.status = PodStatus.Destroy
-  }
-
-  invokeHandler (name: string, data: string, id: number): void {
-    view_debug('View 层调用 Native 方法 <name: %s, data: %s, callbackId: %s>', name, data, id) 
-  }
-
-  publishHandler (name: string, data: string, viewIds: string): void {
-    view_debug('发布消息 <name: %s, data: %s, viewIds: %s>', name, data, viewIds)
-    super.publishHandler(name, data, viewIds)
+    this.status = PodStatusKind.Destroy
   }
 
   fromAssetsBundle (assets: AssetsBundleJSON) {

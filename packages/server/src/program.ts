@@ -5,7 +5,7 @@ import invariant from 'ts-invariant'
 import { Axios } from 'axios'
 import { WxAsset, WxAssetProjJSON } from '@catalyze/wx-asset'
 import { WxAssetsCompile } from '@catalyze/wx-compile'
-import { AssetStoreType, PodStatus } from '@catalyze/basic'
+import { AssetStoreKind, PodStatusKind } from '@catalyze/basic'
 
 const mini_debug = debug(`wx:program`)
 
@@ -19,7 +19,7 @@ class MiniAssetsBundle extends WxAssetsCompile {
 
     for (const file of files) {
       const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)
-      asset.type = AssetStoreType.Memory
+      asset.type = AssetStoreKind.Memory
       this.put(asset)
     }
 
@@ -85,7 +85,7 @@ export class MiniProgram extends Axios {
 
   // 启动
   start () {
-    if (this.bundle.status & PodStatus.Booted) {
+    if (this.bundle.status & PodStatusKind.Booted) {
       return this.bundle.search()
     }
 

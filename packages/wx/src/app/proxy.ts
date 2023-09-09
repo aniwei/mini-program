@@ -1,6 +1,6 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
-import { AssetsBundleJSON, PodStatus } from '@catalyze/basic'
+import { AssetsBundleJSON, PodStatusKind } from '@catalyze/basic'
 import { NavigationContainerRef, StackActions } from '@react-navigation/native'
 import { 
   MixinWxAssetsBundle, 
@@ -9,7 +9,7 @@ import {
 } from '@catalyze/wx-asset'
 import { WxLibs } from './libs'
 import { WxSettings } from '../context'
-import { ProxyView, WxViewEvents } from '../view'
+import { ProxyView, WxViewEventKind, WxViewInvocationKind } from '../view'
 import { Controller } from '../capability/proxy/controller'
 import { UI } from '../capability/proxy/ui'
 import { Request } from '../capability/proxy/request'
@@ -73,145 +73,11 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
 
   // => booted 
   public get booted () {
-    return this.status & PodStatus.Booted
+    return this.status & PodStatusKind.Booted
   }
 
   public views: ProxyView[] = []
 
-  constructor () {
-    super()
-
-    this.on('publish', (name: string, data: unknown, ids: unknown[]) => {
-      if (ids.length > 0) {
-        for (const id of ids) {
-          for (const view of this.views) {
-            if (view.id === id) {
-              view.subscribe(name, data, view.id)
-            }
-          }
-        }
-      } else {
-        for (const view of this.views) {
-          view.subscribe(name, data, view.id)
-        }
-      }
-      
-    })
-  }
-
-  //// => libs interface
-  /**
-   * 
-   * @param delta 
-   */
-  navigateBack (delta: number) {
-    this.navigation.dispatch(StackActions.pop(delta))
-  }
-
-  /**
-   * 
-   * @param delta 
-   */
-  navigateTo (options) {
-    this.navigation.dispatch(StackActions.push('view', options))
-  }
-
-  //// 
-  async routing (
-    container: HTMLIFrameElement, 
-    options: WxAppRouteOptions
-  ) {
-    options = {
-      scene: 1001,
-      query: {},
-      renderer: 'webview',
-      openType: 'appLaunch',
-      ...options,
-    }
-
-    const view = this.create(options.path, container)
-
-    view.init()
-    
-    view.on('publish', (name: string, data: unknown, ids: unknown[]) => {
-      app_debug('来自 View -> ProxyApp 逻辑层推送事件 <name: %s, data: %o, ids: %o>', name, data, ids)
-
-      switch (name) {
-        case WxViewEvents.GenerateFuncReady: {
-          this.subscribe('onAppRoute', {
-            ...options,
-            webviewId: view.id,
-          }, view.id)
-          break
-        }
-
-        case WxViewEvents.PageEvent: {
-          this.subscribe('onAppRouteDone', {
-            ...options,
-            webviewId: view.id,
-          }, view.id)
-          break
-        }
-      }
-
-      this.subscribe(name, data, view.id)
-    })
-
-    view.once('destroy', () => {
-      const index = this.delegates.findIndex(v => v === view)
-      if (index > -1) {
-        this.delegates.splice(index, 1)
-      }
-    })
-
-    view.on('active', () => {
-      this.subscribe('onAppRoute', {
-        ...options,
-        openType: 'navigateBack',
-        webviewId: view.id,
-      }, view.id)
-
-      this.subscribe('onAppRouteDone', {
-        ...options,
-        openType: 'navigateBack',
-        webviewId: view.id,
-      }, view.id)
-    })
-    
-    return view
-  }
-
-  /**
-   * 创建 View
-   * @param path 
-   * @param container 
-   * @returns 
-   */
-  create (
-    path: string, 
-    container: HTMLIFrameElement
-  ) {
-    const view = ProxyView.boot(path, container)
-    invariant(this.proj !== null)
-
-    view.path = path
-    view.id = ProxyApp.proxyId++
-    view.configs = this.configs
-    view.settings = this.settings
-    view.fromAssetsBundle({
-      root: this.bundle.root,
-      assets: this.bundle.assets.filter(asset => {
-        if (asset.relative !== '@wx/app.js') {
-          return true
-        }
-      }).map(asset => asset.toJSON())
-    })
-
-    this.views.push(view)
-
-    return view
-  }
- 
   /**
    * 初始化
    * @param {AssetsBundleJSON} assets 
@@ -249,13 +115,154 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     })
   }
 
-  invokeHandler (name: string, data: unknown, id: number) {
+
+  //// => libs interface
+  /**
+   * 
+   * @param delta 
+   */
+  navigateBack (delta: number) {
+    this.navigation.dispatch(StackActions.pop(delta))
+  }
+
+  /**
+   * 
+   * @param delta 
+   */
+  navigateTo (options) {
+    this.navigation.dispatch(StackActions.push('view', options))
+  }
+
+  //// => 
+  async routing (
+    container: HTMLIFrameElement, 
+    options: WxAppRouteOptions
+  ) {
+    options = {
+      scene: 1001,
+      query: {},
+      renderer: 'webview',
+      openType: 'appLaunch',
+      ...options,
+    }
+
+    const view = this.create(options.path, container)
+
+    view.init()
+    view.handleInvoke = (name: string, data: unknown, id: unknown) => {
+      app_debug('来自「 View > ProxyApp 」逻辑层「invoke」事件「name: %s, data: %o, id: %o」', name, data, id)
+      switch (name) {
+        case WxViewInvocationKind.InsertTextArea: {
+          debugger
+          break
+        }
+      }
+    }
+    view.handlePublish = (name: string, data: unknown, ids: unknown[]) => {
+      app_debug('来自「 View > ProxyApp 」逻辑层「publish」事件「name: %s, data: %o, ids: %o>」', name, data, ids)
+      switch (name) {
+        case WxViewEventKind.GenerateFuncReady: {
+          this.subscribe('onAppRoute', {
+            ...options,
+            webviewId: view.id,
+          }, view.id)
+          break
+        }
+  
+        case WxViewEventKind.PageEvent: {
+          this.subscribe('onAppRouteDone', {
+            ...options,
+            webviewId: view.id,
+          }, view.id)
+          break
+        }
+      }
+  
+      this.subscribe(name, data, view.id)
+    }
+
+    view.once('destroy', () => {
+      const index = this.delegates.findIndex(v => v === view)
+      if (index > -1) {
+        this.delegates.splice(index, 1)
+      }
+    })
+
+    view.on('active', () => {
+      this.subscribe('onAppRoute', {
+        ...options,
+        openType: 'navigateBack',
+        webviewId: view.id,
+      }, view.id)
+
+      this.subscribe('onAppRouteDone', {
+        ...options,
+        openType: 'navigateBack',
+        webviewId: view.id,
+      }, view.id)
+    })
+    
+    return view
+  }
+
+  //// 
+  // from app worker publish
+  handlePublish (name: string, data: unknown, ids: unknown[]) {
+    if (ids.length > 0) {
+      for (const id of ids) {
+        for (const view of this.views) {
+          if (view.id === id) {
+            view.subscribe(name, data, view.id)
+          }
+        }
+      }
+    } else {
+      for (const view of this.views) {
+        view.subscribe(name, data, view.id)
+      }
+    }
+  }
+
+  // from app worker invoke
+  handleInvoke (name: string, data: unknown, id: number) {
     app_debug('调用 Delegate Libs 能力 <name: %s,data: %o, id: %s>', name, data, id)
     
     for (const capability of this.capabilities) {
       if (capability.has(name)) {
-        return capability.invoke(name, data)
+        return capability.invoke(name, JSON.parse(data as string))
       }
     }
   }
+
+  /**
+   * 创建 View
+   * @param path 
+   * @param container 
+   * @returns 
+   */
+  create (
+    path: string, 
+    container: HTMLIFrameElement
+  ) {
+    const view = ProxyView.boot(path, container)
+    invariant(this.proj !== null)
+
+    view.path = path
+    view.id = ProxyApp.proxyId++
+    view.configs = this.configs
+    view.settings = this.settings
+    view.fromAssetsBundle({
+      root: this.bundle.root,
+      assets: this.bundle.assets.filter(asset => {
+        if (asset.relative !== '@wx/app.js') {
+          return true
+        }
+      }).map(asset => asset.toJSON())
+    })
+
+    this.views.push(view)
+
+    return view
+  }
+ 
 }

@@ -1,7 +1,7 @@
 import invariant from 'ts-invariant'
 import fs from 'fs-extra'
 import { glob } from 'glob'
-import { Asset, AssetDataProcessor, AssetStoreType } from '@catalyze/basic'
+import { Asset, AssetDataProcessor, AssetStoreKind } from '@catalyze/basic'
 
 import * as Wx from '@catalyze/wx-asset'
 import { MainCompilePod } from './pod/proxy'
@@ -174,7 +174,7 @@ class AssetDefaultProcessor extends AssetDataProcessor {
   }
 
   decode (asset: Asset): Promise<void> {
-    if (asset.source === null && asset.type === AssetStoreType.Locale) {
+    if (asset.source === null && asset.type === AssetStoreKind.Locale) {
       return fs.readFile(asset.absolute).then(source => {
         asset.source = source.toString()
         asset.data = asset.source as string

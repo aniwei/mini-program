@@ -34,11 +34,11 @@ export class WxApi extends Api.WxApi {
     api_debug(`开始连接服务器 <uri:%s>`, uri)
 
     if (
-      this.state & Api.WxApiState.Created || 
-      this.state & Api.WxApiState.Disconnected
+      this.state & Api.WxApiStateKind.Created || 
+      this.state & Api.WxApiStateKind.Disconnected
     ) {
       this.transport?.close()
-      this.state |= Api.WxApiState.Connecting
+      this.state |= Api.WxApiStateKind.Connecting
       const transport = new WxApiTransport()
   
       transport.connect(uri as string)

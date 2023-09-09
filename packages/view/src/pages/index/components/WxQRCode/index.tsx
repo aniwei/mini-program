@@ -1,12 +1,12 @@
 import { View, Text, Image } from 'react-native'
-import { WxQRCodeState } from '@catalyze/wx-api'
+import { WxQRCodeStateKind } from '@catalyze/wx-api'
 
 interface WxQRCodeLiftcycleProps {
-  state: WxQRCodeState
+  state: WxQRCodeStateKind
 }
 
 const WxQRCodeLiftcycle: React.FC<WxQRCodeLiftcycleProps> = ({ state }) => {
-  if (WxQRCodeState.Alive === state) {
+  if (WxQRCodeStateKind.Alive === state) {
     return null
   }
 
@@ -27,7 +27,7 @@ const WxQRCodeLiftcycle: React.FC<WxQRCodeLiftcycleProps> = ({ state }) => {
       textAlign: 'center'
     }}>
       {
-        state === WxQRCodeState.Scanned 
+        state === WxQRCodeStateKind.Scanned 
           ? `已扫码` 
           : <>已失效，<Text style={{
             textDecorationLine: 'underline'

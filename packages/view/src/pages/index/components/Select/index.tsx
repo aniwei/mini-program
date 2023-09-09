@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { TouchableHighlight, Text } from 'react-native'
 
 export interface SelectProps {
+  children: ReactNode,
   size?: 'S' | 'M' | 'L',
   variant?: 'default' | 'primary' | 'secondary' | 'tertiary'
 }
@@ -61,6 +62,12 @@ export const Select: React.FC<SelectProps> = (props) => {
       paddingTop: 8,
       paddingBottom: 8,
       borderRadius: 48,
+      // shadowColor: `rgba(33, 33, 52, 0.1)`,
+      // shadowRadius: 4,
+      // shadowOffset: {
+      //   width: 0,
+      //   height: 1
+      // },
     }, style]}>
       <Text style={{
         fontSize: 14,

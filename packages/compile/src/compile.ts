@@ -1,5 +1,5 @@
 import { WxAsset } from '@catalyze/wx-asset'
-import { AssetStoreType, unescape } from '@catalyze/basic'
+import { AssetStoreKind, unescape } from '@catalyze/basic'
 import { WxAssetsBundle } from './asset'
 
 export interface WxAssetCompiledFile {
@@ -7,7 +7,7 @@ export interface WxAssetCompiledFile {
   source: string
 }
 
-export enum WxWxssAsset {
+export enum WxWxssAssetKind {
   Version = 'version',
   Common = 'comm'
 }
@@ -23,9 +23,9 @@ export class WxAssetsCompile extends WxAssetsBundle {
       const v = wxsses[++i]
 
       if (k && v) {
-        if (k === WxWxssAsset.Version) {
+        if (k === WxWxssAssetKind.Version) {
           version = v
-        } else if (k === WxWxssAsset.Common) {
+        } else if (k === WxWxssAssetKind.Common) {
           files.push({
             source: `// version - ${version}\n${unescape(v)}`,
             filename: `wxss/${k}.wxss`
@@ -55,7 +55,7 @@ export class WxAssetsCompile extends WxAssetsBundle {
     }).then((files: WxAssetCompiledFile[]) => {
       this.put(files.map(file => {
         const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)
-        asset.type = AssetStoreType.Memory
+        asset.type = AssetStoreKind.Memory
         return asset
       }))
 

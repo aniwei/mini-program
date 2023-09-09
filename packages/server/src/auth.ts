@@ -2,7 +2,7 @@ import qs from 'qs'
 import Axios from 'axios'
 import debug from 'debug'
 import qrcode from 'qrcode'
-import { WxQRCodeState, WxUser } from '@catalyze/wx-api'
+import { WxQRCodeStateKind, WxUser } from '@catalyze/wx-api'
 import { WxStore } from './store'
 import { WxScanCheck } from './libs/check'
 
@@ -96,7 +96,7 @@ export class WxAuth extends WxStore {
     
           const checker = new WxScanCheck()
           checker.on('alive', () => {
-            this.api?.Auth.events.WxQRCodeStateChanged(WxQRCodeState.Alive)
+            this.api?.Auth.events.WxQRCodeStateKindChanged(WxQRCodeStateKind.Alive)
           }).on('success', async (code: string) => {
             const { ticket, signature, ...user } = await this.getUser(code)
             this.user = user
@@ -106,11 +106,11 @@ export class WxAuth extends WxStore {
             await this.store()
             this.api.Auth.events.signIn(user)
           }).on(`scanned`, () => {
-            this.api?.Auth.events.WxQRCodeStateChanged(WxQRCodeState.Scanned)
+            this.api?.Auth.events.WxQRCodeStateKindChanged(WxQRCodeStateKind.Scanned)
           }).on(`cancelled`, () => {
-            this.api?.Auth.events.WxQRCodeStateChanged(WxQRCodeState.Cancelled)
+            this.api?.Auth.events.WxQRCodeStateKindChanged(WxQRCodeStateKind.Cancelled)
           }).on(`timeout`, () => {
-            this.api?.Auth.events.WxQRCodeStateChanged(WxQRCodeState.Timeout)
+            this.api?.Auth.events.WxQRCodeStateKindChanged(WxQRCodeStateKind.Timeout)
           })
     
           checker.run(code)

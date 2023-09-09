@@ -1,7 +1,7 @@
 import debug from 'debug'
 import { ReactElement, ReactFragment, useCallback } from 'react'
 import { View, Text } from 'react-native'
-import { WxApiState } from '@catalyze/wx-api'
+import { WxApiStateKind } from '@catalyze/wx-api'
 import { useWx } from '@stores/wx'
 import { WxQRCode } from '@components/WxQRCode'
 import { api } from '../../api'
@@ -12,7 +12,7 @@ const WxReconnect = () => {
   const wx = useWx(state => state)
 
   const onPress = useCallback(() => {
-    if (wx.state === WxApiState.Disconnected || wx.state === WxApiState.Error) {
+    if (wx.state === WxApiStateKind.Disconnected || wx.state === WxApiStateKind.Error) {
       api.reconnect()
     }
   }, [wx.state])
@@ -37,9 +37,9 @@ const WxState = () => {
         fontSize: 14
       }}>
         {
-          wx.state === WxApiState.Error 
+          wx.state === WxApiStateKind.Error 
             ? <>服务器连接错误，<WxReconnect /></>
-            : wx.state === WxApiState.Disconnected 
+            : wx.state === WxApiStateKind.Disconnected 
               ? <>已断开连接，<WxReconnect /></>
               : `连接服务器中...`
         }

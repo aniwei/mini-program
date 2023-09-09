@@ -1,7 +1,7 @@
 
 import { ReactElement, ReactFragment } from 'react'
 import { Text, View } from 'react-native'
-import { WxApiState } from '@catalyze/wx-api'
+import { WxApiStateKind } from '@catalyze/wx-api'
 import { useWx } from '@stores/wx'
 
 const WxState = () => {
@@ -27,8 +27,8 @@ export const InitLayout: React.FC<InitLayoutProps> = ({ children }) => {
   const wx = useWx(state => state)
 
   if (
-    wx.state === WxApiState.Connected || 
-    wx.state === WxApiState.Disconnected
+    wx.state === WxApiStateKind.Connected || 
+    wx.state === WxApiStateKind.Disconnected
   ) {
     return <>{children}</>
   }

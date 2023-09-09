@@ -17,7 +17,7 @@ export type MessageContent<T = {
   payload?: T,
 }
 
-export enum MessageOwnerState {
+export enum MessageOwnerStateKind {
   Active = 1,
   Replied = 2
 }
@@ -61,7 +61,7 @@ export class MessageError extends Error {
 export class MessageOwner {
   public transport: MessageTransport
   public content: MessageContent
-  public state: MessageOwnerState = MessageOwnerState.Active
+  public state: MessageOwnerStateKind = MessageOwnerStateKind.Active
 
   public get id () {
     return this.content.id
@@ -103,8 +103,8 @@ export class MessageOwner {
    * @param {MessageContent} content 
    */
   reply (content: MessageContent) {
-    if (this.state === MessageOwnerState.Active) {
-      this.state = MessageOwnerState.Replied
+    if (this.state === MessageOwnerStateKind.Active) {
+      this.state = MessageOwnerStateKind.Replied
       this.send({ ...content, command: 'message::callback' })
     }
   }
@@ -113,15 +113,15 @@ export class MessageOwner {
    * 回复收到指令
    */
   receive () {
-    if (this.state === MessageOwnerState.Active) {
-      this.state = MessageOwnerState.Replied
+    if (this.state === MessageOwnerStateKind.Active) {
+      this.state = MessageOwnerStateKind.Replied
       this.send({ command: 'message::received' })
     }
   }
 }
 
 
-export enum MessageTransportState {
+export enum MessageTransportStateKind {
   // 活跃
   Ready = 1,
   // 空闲
@@ -137,7 +137,7 @@ export enum MessageTransportState {
  */
 export abstract class MessageTransport<
   T extends MessageTransportPort = MessageTransportPort, 
-  S extends MessageTransportState = MessageTransportState,
+  S extends MessageTransportStateKind = MessageTransportStateKind,
   Command extends MessageTransportCommands = MessageTransportCommands,
 > extends EventEmitter<`open` | `close` | `message` | `error` | string> {
   public state: S
@@ -148,7 +148,7 @@ export abstract class MessageTransport<
 
   constructor () {
     super()
-    this.state = MessageTransportState.Ready as S
+    this.state = MessageTransportStateKind.Ready as S
   }
 
   /**

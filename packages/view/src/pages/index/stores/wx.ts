@@ -1,6 +1,6 @@
 import debug from 'debug'
 import { create } from 'zustand'
-import { WxApiState, WxQRCodeState, WxUser } from '@catalyze/wx-api'
+import { WxApiStateKind, WxQRCodeStateKind, WxUser } from '@catalyze/wx-api'
 import { api } from '../api'
 
 
@@ -8,9 +8,9 @@ const api_debug = debug(`app:stores:wx`)
 
 export interface WxState {
   QRCodeURL: string | null,
-  QRCodeState: WxQRCodeState,
+  QRCodeState: WxQRCodeStateKind,
   user: WxUser | null,
-  state: WxApiState
+  state: WxApiStateKind
 }
 
 export const useWx = create<WxState>(set => {
@@ -20,7 +20,7 @@ export const useWx = create<WxState>(set => {
         api_debug('获取 QRCodeURL 二维码 <QRCodeURL: %s>', QRCodeURL.slice(0, 10) + '...')
         set(() => ({ 
           QRCodeURL, 
-          QRCodeState: WxQRCodeState.Alive 
+          QRCodeState: WxQRCodeStateKind.Alive 
         }))
       })
     } else {
@@ -32,17 +32,17 @@ export const useWx = create<WxState>(set => {
   api.on('Auth.signIn', (user: WxUser) => {
     api_debug('登录成功 <user: %o>', user)
     set(() => ({ user: { ...user } }))
-  }).on('Auth.WxQRCodeStateChanged', (QRCodeState: WxQRCodeState) => {
+  }).on('Auth.WxQRCodeStateKindChanged', (QRCodeState: WxQRCodeStateKind) => {
     api_debug(`QRCode 状态改变 <api: %s>`, QRCodeState)
     set(() => ({ QRCodeState }))
   }).on('connected', () => {
-    set({ state: WxApiState.Connected })
+    set({ state: WxApiStateKind.Connected })
   })
 
   return {
-    state: WxApiState.Created,
+    state: WxApiStateKind.Created,
     user: null,
     QRCodeURL: null,
-    QRCodeState: WxQRCodeState.Uncreated,
+    QRCodeState: WxQRCodeStateKind.Uncreated,
   }
 })
