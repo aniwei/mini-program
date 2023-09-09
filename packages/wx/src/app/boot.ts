@@ -223,7 +223,7 @@ export class WxApp extends MixinWxAssetsBundle(WxLibs) {
     worker_debug('App 层调用 「Native」 方法 「name: %s, data: %s, callbackId: %s」', name, data, id)     
     for (const capability of this.capabilities) {
       if (capability.has(name)) {
-        return capability.invoke(name, data)
+        return capability.invoke(name, JSON.parse(data), id)
       }
     }
   }

@@ -32,8 +32,8 @@ export const useProgram = create<ProgramState>((set) => {
         wx: wx,
         settings: {
           ...settings,
-          entry: app.pages[0],
-          path: app.pages[0]
+          // entry: app.pages[0],
+          // path: app.pages[0]
         }
       }
 
@@ -63,8 +63,8 @@ export const useProgram = create<ProgramState>((set) => {
         appid: ''
       },
       scene: 1001,
-      path: 'pages/dashboard/index',
-      entry: 'pages/dashboard/index',
+      path: 'pages/field/index',
+      entry: 'pages/field/index',
       // path: 'example/index',
       // entry: 'example/index',
       size: {

@@ -4,6 +4,7 @@ import { ProxyApp } from '../../app'
 import { WxCapability } from '..'
 
 export class UI extends WxCapability {
+  static kSymbol = Symbol.for('ui')
   static create (proxy: ProxyApp): Promise<UI> {
     return new Promise((resolve) => resolve(new UI(proxy)))
   }
@@ -18,8 +19,6 @@ export class UI extends WxCapability {
     invariant(navigation !== null, `The argument "navigation" cannot be null.`)
     this._navigation = navigation
   }
-
-  public name: string = 'ui'
 
   constructor (proxy: ProxyApp) {
     super(proxy)

@@ -1,8 +1,11 @@
 import debug from 'debug'
 import React from 'react'
+
 import { NavigationProp } from '@react-navigation/native'
 import { useView } from '@hooks/useView'
 import { useProgram } from '@stores/program'
+import { TextView } from '../TextView'
+
 
 const screen_debug = debug(`app:screen`)
 
@@ -17,15 +20,18 @@ export const Screen: React.FC<ScreenProps> = ({ path, navigation }) => {
   const size = useProgram(state => state).settings.size
 
   return (
-    
-    <iframe 
-      width={size.width} 
-      height={size.height} 
-      style={{
-        height: size.height,
-        width: size.width,
-        border: 'none'
-      }} 
-      src={`/view.html?path=${path}`} onLoad={onLoad} />
+    <>
+      <iframe 
+        width={size.width} 
+        height={size.height} 
+        style={{
+          height: size.height,
+          width: size.width,
+          border: 'none'
+        }} 
+        src={`/view.html?path=${path}`} onLoad={onLoad} 
+      />
+      <TextView />
+    </>
   )
 }

@@ -1,5 +1,9 @@
-import { WxApp } from '../app/boot'
 import { ProxyApp } from '../app'
+
+export type * from './proxy/controller'
+export type * from './proxy/request'
+export type * from './proxy/ui'
+export type * from './proxy/view'
 
 export type CapabilityHandle = (...rest: any[]) => unknown | Promise<unknown>
 export type CapabilityType = 'async' | 'sync'

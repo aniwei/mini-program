@@ -12,6 +12,7 @@ import { WxSettings } from '../context'
 import { ProxyView, WxViewEventKind, WxViewInvocationKind } from '../view'
 import { Controller } from '../capability/proxy/controller'
 import { UI } from '../capability/proxy/ui'
+import { View } from '../capability/proxy/view'
 import { Request } from '../capability/proxy/request'
 
 import '../asset'
@@ -45,9 +46,10 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
   static boot (...rests: unknown[]) {
     // @ts-ignore
     const wx = super.boot((new URL('./boot.js', import.meta.url)).toString(), ...rests)
-    wx.register(Controller),
-    wx.register(Request),
+    wx.register(Controller)
+    wx.register(Request)
     wx.register(UI)
+    wx.register(View)
 
     return wx
   }
@@ -149,11 +151,11 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
     const view = this.create(options.path, container)
 
     view.init()
-    view.handleInvoke = (name: string, data: unknown, id: unknown) => {
+    view.handleInvoke = (name: string, data: unknown, id: string) => {
       app_debug('来自「 View > ProxyApp 」逻辑层「invoke」事件「name: %s, data: %o, id: %o」', name, data, id)
       switch (name) {
         case WxViewInvocationKind.InsertTextArea: {
-          debugger
+          this.handleInvoke(name, data, id)
           break
         }
       }
@@ -224,12 +226,12 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
   }
 
   // from app worker invoke
-  handleInvoke (name: string, data: unknown, id: number) {
+  handleInvoke (name: string, data: unknown, id: string) {
     app_debug('调用 Delegate Libs 能力 <name: %s,data: %o, id: %s>', name, data, id)
     
     for (const capability of this.capabilities) {
       if (capability.has(name)) {
-        return capability.invoke(name, JSON.parse(data as string))
+        return capability.invoke(name, data, id)
       }
     }
   }
