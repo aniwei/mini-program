@@ -5,10 +5,12 @@
 欢迎一起参与开发此开源项目，让我们不再饱受微信开发工具的困扰，随时随地开发调试小程序。感兴趣可以加我「微信二维码」。
 
 Vant 小程序
-![image](https://github.com/aniwei/mini-program/blob/main/screenshot/vant-app.jpg)![image](https://github.com/aniwei/mini-program/blob/main/screenshot/vant.jpg)
+<img src="https://github.com/aniwei/mini-program/blob/main/screenshot/vant-web.jpg" alt="vant" width="30%" height="30%">
+<img src="https://github.com/aniwei/mini-program/blob/main/screenshot/vant.jpg" alt="vant" width="30%" height="30%">
 
 WeUI 小程序
-![image](https://github.com/aniwei/mini-program/blob/main/screenshot/weui-web-01.jpg)![image](https://github.com/aniwei/mini-program/blob/main/screenshot/weui-web-02.jpg)
+<img src="https://github.com/aniwei/mini-program/blob/main/screenshot/weui-web-01.jpg" alt="vant" width="30%" height="30%">
+<img src="https://github.com/aniwei/mini-program/blob/main/screenshot/weui-web-02.jpg" alt="vant" width="30%" height="30%">
 
 ## 运行 DEMO
 
