@@ -4,12 +4,12 @@
 
 欢迎一起参与开发此开源项目，让我们不再饱受微信开发工具的困扰，随时随地开发调试小程序。感兴趣可以加我「微信二维码」。
 
-Vant 小程序
+#### Vant 小程序
 
 <img src="https://github.com/aniwei/mini-program/blob/main/screenshot/vant-web.jpg" alt="vant" width="30%" height="30%">
 <img src="https://github.com/aniwei/mini-program/blob/main/screenshot/vant.jpg" alt="vant" width="30%" height="30%">
 
-WeUI 小程序
+#### WeUI 小程序
 
 <img src="https://github.com/aniwei/mini-program/blob/main/screenshot/weui-web-01.jpg" alt="vant" width="30%" height="30%">
 <img src="https://github.com/aniwei/mini-program/blob/main/screenshot/weui-web-02.jpg" alt="vant" width="30%" height="30%">
@@ -75,10 +75,10 @@ pnpm dev
 本项目依赖 「微信代码编译工具 wsc wscc」，苹果 M 系列需要安装 「Rosetta」
 
 ## 架构设计
-![image](https://github.com/aniwei/mini-program/blob/main/mini-program-framework.png)
+<img src="https://github.com/aniwei/mini-program/blob/main/mini-program-framework.png" alt="vant" width="50%" height="50%">
 
 ## 模块说明
-![image](https://github.com/aniwei/mini-program/blob/main/package-introduction.png)
+<img src="https://github.com/aniwei/mini-program/blob/main/package-introduction.png" alt="vant" width="50%" height="50%">
 
 ## 路线图
 // TODO
@@ -87,7 +87,10 @@ pnpm dev
 未来还会将 iFrame 层，增加类似 Flutter 的实现，通过定义渲染器切换
 
 ## 微信
-![image](https://github.com/aniwei/mini-program/blob/main/wechat.jpg)
+
+欢迎交流
+
+<img src="[https://github.com/aniwei/mini-program/blob/main/package-introduction.png](https://github.com/aniwei/mini-program/blob/main/wechat.jpg)" alt="vant" width="30%" height="30%">
 
 
 
