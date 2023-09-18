@@ -90,7 +90,7 @@ pnpm dev
 
 欢迎交流
 
-<img src="[https://github.com/aniwei/mini-program/blob/main/package-introduction.png](https://github.com/aniwei/mini-program/blob/main/wechat.jpg)" alt="vant" width="30%" height="30%">
+<img src="https://github.com/aniwei/mini-program/blob/main/wechat.jpg" alt="vant" width="30%" height="30%">
 
 
 
