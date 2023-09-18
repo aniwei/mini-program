@@ -172,7 +172,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
    */
   private defineApi (domain: ApiDomain) {    
     const define = (type: 'Command' | 'Event', actions: ApiAction[]) => {
-      const proxy = Object.create(null)
+      const proxy = Object.create({})
 
       for (const action of actions) {
         const func = async (...parameters: unknown[]) =>  {

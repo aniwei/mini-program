@@ -16,18 +16,19 @@ import {
   WxAssetSetJSON, 
   WxAssetsBundle 
 } from '@catalyze/wx-asset'
-import { WxLibs } from './libs'
+import { WxAppLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
-import { FS } from '../capability/fs'
-import { Network } from '../capability/network'
-import { System } from '../capability/system'
-import { Storage } from '../capability/storage'
-import { User } from '../capability/user'
-import { Controller } from '../capability/controller'
-import { Request } from '../capability/request'
-import { UI } from '../capability/ui'
-import { WxCapabilityCreate } from '../capability'
+import { FS } from './capability/fs'
+import { Network } from './capability/network'
+import { System } from './capability/system'
+import { Storage } from './capability/storage'
+import { User } from './capability/user'
+import { Controller } from './capability/controller'
+import { Request } from './capability/request'
+import { UI } from './capability/ui'
+import { WxCapabilityFactory } from '../capability'
 import { BuildTypeKind, MainBuilder } from '../builder'
+import { ProxyApp } from './proxy'
 
 import '../asset'
 
@@ -97,11 +98,11 @@ class AssetSassProcessor extends AssetDataProcessor {}
 class AssetLessProcessor extends AssetDataProcessor {}
 
 // 
-export class WxApp extends MixinWxAssetsBundle(WxLibs) {
+export class WxApp extends MixinWxAssetsBundle(WxAppLibs) {
   static create (...rests: unknown[]) {
     const wx = super.create(...rests)
 
-    wx.register(FS as WxCapabilityCreate, {})
+    wx.register(FS as unknown as WxCapabilityFactory<ProxyApp>, {})
     wx.register(Network)
     wx.register(System)
     wx.register(Storage)

@@ -1,9 +1,7 @@
+import { WxCapability } from '../../../capability'
+import { ProxyApp } from '../..'
 
-import { ProxyApp } from '../app'
-import { WxCapability } from '.'
-
-
-export class Controller extends WxCapability {
+export class Controller extends WxCapability<ProxyApp> {
   static kSymbol = Symbol.for('controller')
   static create (proxy: ProxyApp): Promise<Controller> {
     return new Promise((resolve) => {
@@ -20,21 +18,19 @@ export class Controller extends WxCapability {
   }
 
   navigateTo = (data: { url: string }) => {
-    return this.proxy.send({
-      command: 'message::invoke',
-      payload: {
-        method: 'Invoke',
-        parameters: ['navigateTo', data]
+    return Promise.resolve().then(() => {
+      let url = data.url.replace(/^\/|\.html$/g, '')
+
+      if (url.indexOf('/') === 0) {
+        url = data.url.slice(1)
       }
+
+      this.proxy.navigateTo({ path: url })
     })
   }
 
   navigateBack = (delta: number = -1) => {
-    return this.proxy.send({
-      command: 'message::invoke',
-      payload: {
-        parameters: ['navigateBack', delta]
-      }
-    })
+    return Promise.resolve().then(() => this.proxy.navigateBack(delta))
   }
+  
 }

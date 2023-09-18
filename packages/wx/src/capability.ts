@@ -1,9 +1,3 @@
-import { ProxyApp } from '../app'
-
-export type * from './proxy/controller'
-export type * from './proxy/request'
-export type * from './proxy/ui'
-export type * from './proxy/view'
 
 export type CapabilityHandle = (...rest: any[]) => unknown | Promise<unknown>
 export type CapabilityType = 'async' | 'sync'
@@ -14,11 +8,11 @@ export interface Capability {
   handle: CapabilityHandle
 }
 
-export abstract class WxCapability extends Map<string, Capability> {  
-  public proxy: ProxyApp
+export abstract class WxCapability<T> extends Map<string, Capability> {  
+  public proxy: T
 
-  constructor (proxy: ProxyApp, ...rest: unknown[])
-  constructor (proxy: ProxyApp) {
+  constructor (proxy: T, ...rest: unknown[])
+  constructor (proxy: T) {
     super()
 
     this.proxy = proxy
@@ -48,9 +42,9 @@ export abstract class WxCapability extends Map<string, Capability> {
   }
 }
 
-export interface WxCapabilityCreate {
+export interface WxCapabilityFactory<T> {
   kSymbol: Symbol,
-  create: (proxy: ProxyApp, ...rests: unknown[]) => Promise<WxCapability>, 
-  new (proxy: ProxyApp, ...rests: unknown[]): WxCapability,
+  create: (proxy: T, ...rests: unknown[]) => Promise<T>, 
+  new (proxy: T, ...rests: unknown[]): T,
 }
 

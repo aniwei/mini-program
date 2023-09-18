@@ -1,6 +1,6 @@
-import invariant from 'ts-invariant'
-import { ProxyApp } from '../../app'
-import { WxCapability } from '..'
+// TODO remove in the future?
+import { ProxyApp } from '../..'
+import { WxCapability } from '../../../capability'
 
 export interface TextInputPlaceholderStyle {
   fontSize: number,
@@ -41,7 +41,7 @@ export interface TextInputPayload {
   zIndex: number
 }
 
-export class View extends WxCapability {
+export class View extends WxCapability<ProxyApp> {
   static kSymbol = Symbol.for('view')
   static create (proxy: ProxyApp): Promise<View> {
     return new Promise((resolve) => resolve(new View(proxy)))

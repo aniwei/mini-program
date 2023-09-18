@@ -4,38 +4,26 @@ import { PodStatusKind, defineReadOnlyProperty } from '@catalyze/basic'
 import { WxCapability, WxCapabilityFactory } from '../capability'
 
 import { WxContext } from '../context'
-import { ProxyApp } from './proxy'
-import { Controller } from './capability/controller'
-import { FS } from './capability/fs'
-import { Network } from './capability/network'
-import { System } from './capability/system'
-import { User } from './capability/user'
-import { UI } from './capability/ui'
+import { ProxyView } from './proxy'
+import { View } from './capability/view'
 
 const libs_debug = debug(`wx:libs`)
 
-export interface WxAppLibs {
-  controller: Controller
-  fs: FS,
-  network: Network,
-  storage: Storage,
-  system: System,
-  user: User,
-  request: Request
-  ui: UI
+export interface WxViewLibs {
+  view: View
 }
 
-export abstract class WxAppLibs extends WxContext {
-  public capabilities: WxCapability<ProxyApp>[] = []
+export abstract class WxViewLibs extends WxContext {
+  public capabilities: WxCapability<ProxyView>[] = []
   public deps: number = 0
 
-  register (WxCapability: WxCapabilityFactory<ProxyApp>, ...options: unknown[]) {
+  register (WxCapability: WxCapabilityFactory<ProxyView>, ...options: unknown[]) {
     this.deps++
 
-    WxCapability.create(this as unknown as  ProxyApp, ...options).then(capability => {
+    WxCapability.create(this as unknown as  ProxyView, ...options).then(capability => {
       defineReadOnlyProperty(this, WxCapability.kSymbol as PropertyKey, capability)
-
-      this.capabilities.push(capability as unknown as WxCapability<ProxyApp>)
+      
+      this.capabilities.push(capability as unknown as WxCapability<ProxyView>)
       this.deps--
 
       if (this.deps === 0) {
@@ -50,7 +38,7 @@ export abstract class WxAppLibs extends WxContext {
   }
 
   invokeHandler (name: string, data: unknown, id: number) {
-    libs_debug('调用 Libs 能力 <name: %s,data: %o, id: %s>', name, data, id)
+    libs_debug('View 调用 Libs 能力 「name: %s,data: %o, id: %s」', name, data, id)
     
     for (const capability of this.capabilities) {
       if (capability.has(name)) {

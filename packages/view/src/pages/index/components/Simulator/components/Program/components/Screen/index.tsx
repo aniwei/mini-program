@@ -4,7 +4,8 @@ import React from 'react'
 import { NavigationProp } from '@react-navigation/native'
 import { useView } from '@hooks/useView'
 import { useProgram } from '@stores/program'
-import { TextView } from '../TextView'
+// TODO remove
+// import { TextView } from '../TextView'
 
 
 const screen_debug = debug(`app:screen`)
@@ -31,7 +32,6 @@ export const Screen: React.FC<ScreenProps> = ({ path, navigation }) => {
         }} 
         src={`/view.html?path=${path}`} onLoad={onLoad} 
       />
-      <TextView />
     </>
   )
 }

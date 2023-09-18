@@ -1,7 +1,7 @@
 import { View } from 'react-native'
 import { UserLayout } from '../UserLayout'
 
-const SideLayout = () => {
+export const SideLayout = () => {
   return (
     <View style={{
       width: 60,

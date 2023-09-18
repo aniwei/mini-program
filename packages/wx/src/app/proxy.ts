@@ -7,13 +7,13 @@ import {
   WxAsset, 
   WxAssetAppJSON 
 } from '@catalyze/wx-asset'
-import { WxLibs } from './libs'
+import { WxAppLibs } from './libs'
 import { WxSettings } from '../context'
 import { ProxyView, WxViewEventKind, WxViewInvocationKind } from '../view'
-import { Controller } from '../capability/proxy/controller'
-import { UI } from '../capability/proxy/ui'
-import { View } from '../capability/proxy/view'
-import { Request } from '../capability/proxy/request'
+import { Controller } from './capability/proxy/controller'
+import { UI } from './capability/proxy/ui'
+import { View } from './capability/proxy/view'
+import { Request } from './capability/proxy/request'
 
 import '../asset'
 
@@ -41,7 +41,7 @@ export interface ProxyLibs {
 /**
  * View 创建及持有类
  */
-export abstract class ProxyApp extends MixinWxAssetsBundle(WxLibs) {
+export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
   static proxyId: number = 1
   static boot (...rests: unknown[]) {
     // @ts-ignore

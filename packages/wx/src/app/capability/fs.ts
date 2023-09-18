@@ -1,7 +1,7 @@
 import { FSModule } from 'browserfs/dist/node/core/FS'
 import * as BrowserFS from 'browserfs'
-import { WxCapability } from '.'
-import { ProxyApp } from '../app'
+import { WxCapability } from '../../capability'
+import { ProxyApp } from '..'
 
 export interface FSCreateOptions {
   [key: string]: {
@@ -12,7 +12,7 @@ export interface FSCreateOptions {
   }
 }
 
-export class FS extends WxCapability {
+export class FS extends WxCapability<ProxyApp> {
   static create (proxy: ProxyApp, options: FSCreateOptions): Promise<FS> {
     return new Promise((resolve, reject) => {
       BrowserFS.configure({

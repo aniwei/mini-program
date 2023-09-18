@@ -1,17 +1,19 @@
 import debug from 'debug'
 import invariant from 'ts-invariant'
 import { 
+  AssetsBundleJSON,
   MessageOwner,
   PodStatusKind, 
   WorkPort, 
   defineReadAndWriteProperty, 
   tick 
 } from '@catalyze/basic'
-import { WxAsset, WxAssetSetJSON } from '@catalyze/wx-asset'
-import { ProxyView } from './proxy'
+import { MixinWxAssetsBundle, WxAsset, WxAssetSetJSON } from '@catalyze/wx-asset'
 import { WxInit } from '../context'
+import { WxViewLibs } from './libs'
 
 import '../asset'
+import { View } from './capability/view'
 
 const view_debug = debug('wx:view:iframe')
 
@@ -29,7 +31,15 @@ type InjectFile  = {
   source: string
 }
 
-export class WxView extends ProxyView {
+export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
+  static create (...rests: unknown[]) {
+    const wx = super.create(...rests)
+
+    wx.register(View)
+
+    return wx
+  }
+
   constructor () {
     super()
 
@@ -75,21 +85,16 @@ export class WxView extends ProxyView {
   }
 
   invokeHandler (name: string, data: string, id: string) {
-    view_debug('View 层调用 Native 方法 <name: %s, data: %s, callbackId: %s>', name, data, id) 
-    this.send({
-      command: 'message::invoke',
-      payload: {
-        parameters: [
-          name, 
-          JSON.parse(data), 
-          JSON.parse(id)
-        ]
+    view_debug('View 层调用 「Native」 方法 「name: %s, data: %s, callbackId: %s」', name, data, id)     
+    for (const capability of this.capabilities) {
+      if (capability.has(name)) {
+        return capability.invoke(name, JSON.parse(data), id)
       }
-    })
+    }
   }
 
   publishHandler (name: string, data: string, id: string): void {
-    view_debug('发布消息 <name: %s, data: %s, viewIds: %s>', name, data, id)
+    view_debug('发布消息 「name: %s, data: %s, viewIds: %s」', name, data, id)
     return this.send({
       command: 'message::publish',
       payload: {
@@ -153,6 +158,11 @@ export class WxView extends ProxyView {
     }
     
     this.status |= PodStatusKind.On
+  }
+
+  fromAssetsBundle (assets: AssetsBundleJSON) {
+    this.fromAssetsBundleJSON(assets)
+    return this.mount()
   }
 }
 

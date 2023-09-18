@@ -2,6 +2,7 @@ import { View } from 'react-native'
 import { useWx } from '@stores/wx'
 
 import { SideLayout } from '../SideLayout'
+import { ContentLayout } from '../ContentLayout'
 import { AuthenticateLayout } from '../AuthenticateLayout'
 import { InitLayout } from '../InitLayout'
 import { SimulatorLayout } from '../SimulatorLayout'

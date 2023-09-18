@@ -1,8 +1,8 @@
-import { ProxyApp } from '../app'
-import { WxCapability } from '.'
+import { ProxyApp } from '..'
+import { WxCapability } from '../../capability'
 
 
-export class Network extends WxCapability {
+export class Network extends WxCapability<ProxyApp> {
   static kSymbol = Symbol.for('network')
   static create (delegate: ProxyApp): Promise<Network> {
     return new Promise((resolve) => {

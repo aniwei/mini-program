@@ -3,7 +3,7 @@ import invariant from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
 import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyze/basic'
 import { MixinWxAssetsBundle, WxAssetSet } from '@catalyze/wx-asset'
-import { WxContext } from '../context'
+import { WxViewLibs } from './libs'
 
 const view_debug = debug(`wx:view:proxy`)
 
@@ -18,7 +18,7 @@ export enum WxViewInvocationKind {
 
 export type NavigationEventSubscriber = () => void
 
-export class ProxyView extends MixinWxAssetsBundle(WxContext) {
+export class ProxyView extends MixinWxAssetsBundle(WxViewLibs) {
   /**
    * 启动 View 渲染层
    * @param {string} root 

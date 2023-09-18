@@ -1,8 +1,8 @@
 
-import { ProxyApp } from '../../app'
-import { WxCapability } from '..'
+import { ProxyApp } from '../..'
+import { WxCapability } from '../../../capability'
 
-export class Request extends WxCapability {
+export class Request extends WxCapability<ProxyApp> {
   static kSymbol: string = 'request'
   static create (proxy: ProxyApp): Promise<Request> {
     return new Promise((resolve) => resolve(new Request(proxy)))

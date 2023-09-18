@@ -1,9 +1,8 @@
-import { WxUserLogin } from '@catalyze/wx-api'
-import { WxCapability } from '.'
-import { ProxyApp } from '../app'
+import { WxCapability } from '../../capability'
+import { ProxyApp } from '..'
 
 
-export class User extends WxCapability {
+export class User extends WxCapability<ProxyApp> {
   static kSymbol = Symbol.for('user')
   static create (proxy: ProxyApp): Promise<User> {
     return new Promise((resolve, reject) => {
