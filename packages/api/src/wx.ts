@@ -115,7 +115,7 @@ export abstract class WxApiService<T extends string> extends BaseApi<WxApiEvent 
 export type WxApiQueueHandle = () => void
 
 export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'disconnected' | 'error'> {
-  public state: WxApiStateKind= WxApiStateKind.Created
+  public state: WxApiStateKind = WxApiStateKind.Created
   public queue: WxApiQueueHandle[] = []
 
   constructor () {

@@ -6,22 +6,19 @@ import { MessageContent, MessageOwner, MessageTransport } from './transport'
 
 export interface ApiParameter {
   name: string,
-    description?: string,
-    type: string,
-    enum?: string[]
+  description?: string,
+  type: string,
+  enum?: string[]
 }
 
-export interface ApiCommand {
+export interface ApiAction {
   name: string,
   description?: string,
   parameters: ApiParameter[]
 }
 
-export interface ApiEvent {
-  name: string,
-  description?: string,
-  parameters: ApiParameter[]
-}
+export interface ApiCommand extends ApiAction {}
+export interface ApiEvent extends ApiAction {}
 
 export interface ApiDomain {
   name: string,
@@ -37,8 +34,12 @@ export interface ApiJSON {
   domains: ApiDomain[]
 }
 
-
-const checkApiParametersType = (args: unknown[], parameters: ApiParameter[]) => {
+/**
+ * 检查 API 参数是否合法
+ * @param {unknown[]} args 
+ * @param {ApiParameter[]} parameters 
+ */
+const checkApiParameters = (args: unknown[], parameters: ApiParameter[]) => {
   if (args.length !== parameters.length) {
     throw new TypeError(`Incorrect number of parameters.`)
   }
@@ -67,9 +68,11 @@ const checkApiParametersType = (args: unknown[], parameters: ApiParameter[]) => 
   }
 }
 
-
+/**
+ * Api 负载
+ */
 export interface ApiPayload {
-  type: `Command` | `Event`,
+  type: 'Command' | 'Event',
   name: string,
   parameters: unknown[]
 }
@@ -167,45 +170,37 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
    * 
    * @param {ApiDomain} domain 
    */
-  private defineApi (domain: ApiDomain) {
-    const commands = {}
-    const events = {}
+  private defineApi (domain: ApiDomain) {    
+    const define = (type: 'Command' | 'Event', actions: ApiAction[]) => {
+      const proxy = Object.create(null)
 
-    for (const command of domain.commands) {
-      const func = async (...args: unknown[]) =>  {
-        checkApiParametersType(args, command.parameters)
-        const result = await this.send({
-          command: 'message::api',
-          payload: {
-            type: 'Command',
-            name: `${domain.name}.${command.name}`,
-            parameters: args
-          }
-        })
-
-        return result?.payload
+      for (const action of actions) {
+        const func = async (...parameters: unknown[]) =>  {
+          checkApiParameters(parameters, action.parameters)
+          
+          const result = await this.send({
+            command: 'message::api',
+            payload: {
+              type,
+              name: `${domain.name}.${action.name}`,
+              parameters
+            }
+          })
+  
+          return result?.payload
+        }
+  
+        defineReadOnlyProperty(proxy, action.name, func)
       }
 
-      defineReadOnlyProperty(commands, command.name, func)
+      return proxy
     }
 
-    for (const event of domain.events) {
-      const func = async (...args: unknown[]) =>  {
-        checkApiParametersType(args, event.parameters)
-        return this.transport?.send({
-          command: 'message::api',
-          payload: {
-            type: 'Event',
-            name: `${domain.name}.${event.name}`,
-            parameters: args
-          }
-        })
-      }
-
-      defineReadOnlyProperty(events, event.name, func)
+    const api = { 
+      commands: define('Command', domain.commands), 
+      events : define('Event', domain.commands)
     }
-
-    const api = { commands, events }
+    
     defineReadOnlyProperty(this, domain.name, api)
   }
 
