@@ -1,10 +1,6 @@
-// @ts-nocheck
 import invariant from 'ts-invariant'
 import { EventEmitter } from '@catalyze/basic'
-import { ProxyView } from '../proxy'
-import { WxCapability } from '../../capability'
-
-
+import { ProxyView } from '../../proxy'
 
 export interface PlaceholderStyle {
   fontSize: number,
@@ -12,7 +8,7 @@ export interface PlaceholderStyle {
   color: string
 }
 
-export interface ShowKeyboardFields {
+export interface ShowKeyboardInputFields {
   bindinput: string,
   bindkeyboardheightchange: string, 
   target: {
@@ -52,7 +48,7 @@ export interface ShowKeyboardPayload {
     marginBottom: number,
     textAlign: string
   },
-  data: ShowKeyboardFields,
+  data: ShowKeyboardInputFields,
   placeholderStyle: PlaceholderStyle,
   placeholderStyleDark: PlaceholderStyle,
   keyboardAppearance: string,
@@ -65,12 +61,12 @@ export interface ShowKeyboardPayload {
   cursor: number
 }
 
-interface TextFieldElement extends HTMLElement {
+interface InputElement extends HTMLElement {
   value: string | null,
   placeholder?: string | null
 }
 
-abstract class TextField<T extends TextFieldElement> extends EventEmitter<'input'> {
+abstract class TextField<T extends InputElement> extends EventEmitter<'input'> {
   // => element
   protected _element: T | null = null
   public get element () {
@@ -213,12 +209,12 @@ abstract class TextField<T extends TextFieldElement> extends EventEmitter<'input
   }
 
   // => data
-  protected _data: ShowKeyboardFields | null = null
+  protected _data: ShowKeyboardInputFields | null = null
   public get data () {
     invariant(this._data)
     return this._data
   }
-  public set data (data: ShowKeyboardFields) {
+  public set data (data: ShowKeyboardInputFields) {
     if (this._data !== data){
       this._data = data
     }
@@ -252,26 +248,26 @@ abstract class TextField<T extends TextFieldElement> extends EventEmitter<'input
   abstract createElement (): T
 
   private handleInput = (event: Event) => {
-    this.proxy.send({
-      command: 'message::publish',
-      payload: {
-        parameters: [
-          'custom_event_vdSync',
-          {
-            data: []
-          }
-        ]
-      }
-    })
+    
   }
 
   private handleBlur = () => {
     // this.remove()
   }
 
+  dispatch (type: string) {
+    const event = new CustomEvent('onKeyboardShow', {
+      detail: {
+        inputId: this.id
+      }
+    })
+    
+    // @ts-ignore
+    exparser.triggerEvent(document, type, event)
+  }
+
   append () {
     document.body.appendChild(this.element)
-
   }
 
   remove () {
@@ -283,96 +279,14 @@ abstract class TextField<T extends TextFieldElement> extends EventEmitter<'input
   }
 }
 
-class InputField extends TextField<HTMLInputElement> {
+export class InputField extends TextField<HTMLInputElement> {
   createElement(): HTMLInputElement {
     return document.createElement('input')
   }
 }
 
-class TextAreaField extends TextField<HTMLTextAreaElement> {
+export class TextAreaField extends TextField<HTMLTextAreaElement> {
   createElement(): HTMLTextAreaElement {
     return  document.createElement('textarea')
   }
 }
-
-export class View extends WxCapability<ProxyView> {
-  static kSymbol = Symbol.for('view')
-  static create (proxy: ProxyView): Promise<View> {
-    return new Promise((resolve) => resolve(new View(proxy)))
-  }
-
-  public input: InputField
-  public textarea: TextAreaField
-
-  constructor (proxy: ProxyView) {
-    super(proxy)
-
-
-    const input = new InputField(proxy)
-    const textarea = new TextAreaField(proxy)
-
-    this.input = input
-    this.textarea = textarea
-
-    this.on('insertTextArea', this.insertTextArea, 'sync')
-    this.on('showKeyboard', this.showKeyboard, 'sync')
-    this.on('hideKeyboard', this.hideKeyboard, 'sync')
-  }
-
-  hideKeyboard = () => {
-    this.input.remove()
-    this.input.blur()
-  }
-
-  showKeyboard = (payload: ShowKeyboardPayload, id) => {
-    this.input.placeholder = payload.placeholder
-    this.input.value = payload.defaultValue
-    this.input.textAlign = payload.style.textAlign
-    this.input.width = payload.style.width
-    this.input.height = payload.style.height
-    this.input.fontSize = payload.style.fontSize
-    this.input.top = payload.style.top
-    this.input.left = payload.style.left
-    this.input.data = JSON.parse(payload.data)
-
-    this.input.append()
-    this.input.focus()
-
-    const event = new CustomEvent('onKeyboardShow', {
-      detail: {
-        inputId: this.input.id
-      }
-    })
-    
-    debugger
-    document.dispatchEvent(event)
-
-
-
-    return {
-      errMsg: 'showKeyboard:ok',
-      inputId: this.input.id
-    }
-  }
-
-  insertTextArea = (payload: TextViewPayload, id) => {
-    this.input.placeholder = payload.placeholder
-    this.input.value = payload.defaultValue
-    this.input.textAlign = payload.style.textAlign
-    this.input.width = payload.style.width
-    this.input.height = payload.style.height
-    this.input.fontSize = payload.style.fontSize
-    this.input.fontFamily = payload.style.fontFamily
-    this.input.color = payload.style.color
-    this.input.top = payload.style.top
-    this.input.left = payload.style.left
-    this.input.data = JSON.parse(payload.data)
-
-    this.input.id = payload.inputId
-
-    return {
-      errMsg: 'insertTextArea:ok'
-    }
-  }
-}
-

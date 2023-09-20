@@ -3,9 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./",
     "rootDir": "./src",
-    "outDir": "./dist/module",
+    "outDir": "./dist/module"
   },
   "include": [
     "src/**/*.ts"
-, "src/app/proj"  ]
+, "src/app/proj", "global.d.ts"  ]
 }

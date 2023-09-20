@@ -1,4 +1,4 @@
 import { WxApi } from '@catalyze/wx'
 
 export const api = WxApi.create()
-api.connect('ws://localhost:4001')
+api.connect(`wss://${location.hostname}:4001`)
