@@ -22,9 +22,9 @@ export abstract class WxCapability<T> extends Map<string, Capability> {
     const capability = this.get(key) ?? null
     if (capability !== null) {
       if (capability.type === 'async') {
-        return Promise.resolve(capability.handle(...rest))
+        return Promise.resolve(capability.handle(...rest) ?? {})
       } else {
-        return capability.handle(...rest)
+        return capability.handle(...rest) ?? {}
       }
     }
 

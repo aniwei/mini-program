@@ -22,7 +22,7 @@ export class WxStore extends WxBase {
     super()
 
     this.dir = resolve(`~/.config/catalyze`)
-    store_debug(`数据缓存路径 <%s>`, this.dir)
+    store_debug(`数据缓存路径 「%s」`, this.dir)
 
     this.platform = process.platform === 'darwin' 
       ? `darwin`
@@ -31,8 +31,8 @@ export class WxStore extends WxBase {
     this.os = `MacOS`
     this.version = `1.0`
 
-    store_debug(`执行版本 <%s>`, this.version)
-    store_debug(`执行环境 <%s, %s>`, this.platform, this.os)
+    store_debug(`执行版本 「%s」`, this.version)
+    store_debug(`执行环境 「%s, %s」`, this.platform, this.os)
   }
 
   resolve (appid: string) {
@@ -46,7 +46,7 @@ export class WxStore extends WxBase {
     const filename = path.resolve(this.dir, `wx.json`)
     
     if (!await fs.exists(filename)) {
-      store_debug(`创建缓存数据文件 <%s>`, filename)
+      store_debug(`创建缓存数据文件 「%s」`, filename)
       this.store()
     }
   }
@@ -66,7 +66,7 @@ export class WxStore extends WxBase {
     this.ticket = config.ticket
     this.signature = config.signature
 
-    store_debug(`读取缓存数据文件 <%o>`, config)
+    store_debug(`读取缓存数据文件 「%o」`, config)
   }
   
   async start () {

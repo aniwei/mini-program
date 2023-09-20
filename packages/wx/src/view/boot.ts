@@ -11,9 +11,9 @@ import {
 import { MixinWxAssetsBundle, WxAsset, WxAssetSetJSON } from '@catalyze/wx-asset'
 import { WxInit } from '../context'
 import { WxViewLibs } from './libs'
+import { View } from './capability/view'
 
 import '../asset'
-import { View } from './capability/view'
 
 const view_debug = debug('wx:view:iframe')
 
@@ -29,6 +29,10 @@ type MessagePayload = {
 type InjectFile  = {
   filename: string,
   source: string
+}
+
+enum ViewPublishEventKind {
+  RemoveInputComponent = 'custom_event_removeInputComponent'
 }
 
 export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
@@ -95,12 +99,21 @@ export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
 
   publishHandler (name: string, data: string, id: string): void {
     view_debug('发布消息 「name: %s, data: %s, viewIds: %s」', name, data, id)
-    return this.send({
-      command: 'message::publish',
-      payload: {
-        parameters: [name, JSON.parse(data), JSON.parse(id)]
-      }
-    })
+    
+    switch (name) {
+      case ViewPublishEventKind.RemoveInputComponent:
+        this.invokeHandler('hideKeyboard', data, id)
+        break
+
+      default:
+        return this.send({
+          command: 'message::publish',
+          payload: {
+            parameters: [name, JSON.parse(data), JSON.parse(id)]
+          }
+        })
+    }
+
   }
 
   inject (...rests: unknown[])
