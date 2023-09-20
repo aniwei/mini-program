@@ -48,7 +48,7 @@ export interface ShowKeyboardPayload {
     marginBottom: number,
     textAlign: string
   },
-  data: ShowKeyboardInputFields,
+  data: string,
   placeholderStyle: PlaceholderStyle,
   placeholderStyleDark: PlaceholderStyle,
   keyboardAppearance: string,
@@ -56,17 +56,33 @@ export interface ShowKeyboardPayload {
   confirmType: string,
   adjustPosition: boolean,
   showCoverView: boolean,
-  defaultValue: number,
+  defaultValue: string,
   viewId: number,
-  cursor: number
+  cursor: number,
+  inputId: number
 }
 
-interface InputElement extends HTMLElement {
-  value: string | null,
-  placeholder?: string | null
+interface TextViewElement extends HTMLElement {
+  value: string,
+  placeholder?: string | null,
+  selectionStart: number | null,
+  selectionEnd: number | null,
+  selectionDirection: string | null
 }
 
-abstract class TextField<T extends InputElement> extends EventEmitter<'input'> {
+const getCaretPosition = <T extends TextViewElement>(input: T) => {
+  let caretPosition = input.value?.length ?? 0
+  
+  if (input.selectionStart || input.selectionStart === 0) {
+    caretPosition = input.selectionDirection === 'backward' 
+      ? input.selectionStart as number
+      : input.selectionEnd as number
+  }
+
+  return caretPosition;
+}
+
+export abstract class TextView<T extends TextViewElement> extends EventEmitter<'input'> {
   // => element
   protected _element: T | null = null
   public get element () {
@@ -248,22 +264,47 @@ abstract class TextField<T extends InputElement> extends EventEmitter<'input'> {
   abstract createElement (): T
 
   private handleInput = (event: Event) => {
-    
-  }
+    const target = event.target as HTMLInputElement
 
-  private handleBlur = () => {
-    // this.remove()
-  }
-
-  dispatch (type: string) {
-    const event = new CustomEvent('onKeyboardShow', {
-      detail: {
-        inputId: this.id
-      }
+    this.dispatch<{
+      value: string,
+      cursor: number
+    }>('onKeyboardConfirm', {
+      value: target.value,
+      cursor: getCaretPosition<HTMLInputElement>(target)
     })
+
+    // this.dispatch<{
+    //   value: string,
+    //   cursor: number
+    // }>('setKeyboardValue', {
+    //   value: target.value,
+    //   cursor: getCaretPosition<HTMLInputElement>(target)
+    // })
+  }
+
+  private handleBlur = (event: Event) => {
+    const target = event.target as HTMLInputElement
+
+    this.dispatch<{
+      value: string,
+      cursor: number
+    }>('onKeyboardComplete', {
+      value: target.value,
+      cursor: getCaretPosition<HTMLInputElement>(target)
+    })
+  }
+
+  dispatch <T extends object> (
+    type: 'setKeyboardValue' | 'onKeyboardConfirm' | 'onKeyboardComplete' | 'onKeyboardShow', 
+    detail?: T
+  ) {
     
     // @ts-ignore
-    exparser.triggerEvent(document, type, event)
+    exparser.triggerEvent(document, type, {
+      ...detail,
+      inputId: this.id,
+    })
   }
 
   append () {
@@ -279,13 +320,13 @@ abstract class TextField<T extends InputElement> extends EventEmitter<'input'> {
   }
 }
 
-export class InputField extends TextField<HTMLInputElement> {
+export class InputView extends TextView<HTMLInputElement> {
   createElement(): HTMLInputElement {
     return document.createElement('input')
   }
 }
 
-export class TextAreaField extends TextField<HTMLTextAreaElement> {
+export class TextAreaView extends TextView<HTMLTextAreaElement> {
   createElement(): HTMLTextAreaElement {
     return  document.createElement('textarea')
   }

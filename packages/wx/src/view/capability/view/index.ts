@@ -1,9 +1,8 @@
-// @ts-nocheck
-import invariant from 'ts-invariant'
-import { EventEmitter } from '@catalyze/basic'
-import { ProxyView } from '../proxy'
-import { WxCapability } from '../../capability'
-import { InputField, TextAreaField } from './input'
+
+import { nextTick } from '@catalyze/basic'
+import { ProxyView } from '../../proxy'
+import { WxCapability } from '../../../capability'
+import { InputView, ShowKeyboardPayload, TextAreaView } from './text-view'
 
 
 
@@ -13,15 +12,15 @@ export class View extends WxCapability<ProxyView> {
     return new Promise((resolve) => resolve(new View(proxy)))
   }
 
-  public input: InputField
-  public textarea: TextAreaField
+  public input: InputView
+  public textarea: TextAreaView
 
   constructor (proxy: ProxyView) {
     super(proxy)
 
 
-    const input = new InputField(proxy)
-    const textarea = new TextAreaField(proxy)
+    const input = new InputView(proxy)
+    const textarea = new TextAreaView(proxy)
 
     this.input = input
     this.textarea = textarea
@@ -33,11 +32,10 @@ export class View extends WxCapability<ProxyView> {
 
   hideKeyboard = () => {
     this.input.remove()
-    this.input.blur()
   }
 
   showKeyboard = (payload: ShowKeyboardPayload, id) => {
-    this.input.placeholder = payload.placeholder
+    // this.input.placeholder = payload.placeholder
     this.input.value = payload.defaultValue
     this.input.textAlign = payload.style.textAlign
     this.input.width = payload.style.width
@@ -50,7 +48,7 @@ export class View extends WxCapability<ProxyView> {
     this.input.append()
     this.input.focus()
 
-    this.input.dispatch('onKeyboardShow')
+    nextTick(() => this.input.dispatch('onKeyboardShow'))
 
     return {
       errMsg: 'showKeyboard:ok',
@@ -58,8 +56,8 @@ export class View extends WxCapability<ProxyView> {
     }
   }
 
-  insertTextArea = (payload: TextViewPayload, id) => {
-    this.input.placeholder = payload.placeholder
+  insertTextArea = (payload: ShowKeyboardPayload, id) => {
+    // this.input.placeholder = payload.placeholder
     this.input.value = payload.defaultValue
     this.input.textAlign = payload.style.textAlign
     this.input.width = payload.style.width
