@@ -48,7 +48,9 @@ export default defineConfig({
   },
   plugins: [
     inject({
-      process: 'process/browser'
+      process: 'process/browser',
+      include: ['src'],
+      exclude: ['']
     }), 
     viteCommonjs({
       exclude: ['src', '@catalyze/*']

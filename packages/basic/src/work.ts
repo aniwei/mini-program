@@ -75,7 +75,7 @@ export class MessageConv {
   public encoder: TextEncoder = new TextEncoder()
   
   decode (data: unknown) {
-    if (data instanceof Blob) {
+    if (typeof globalThis.Blob !== 'undefined' && data instanceof Blob) {
       return data.arrayBuffer().then(buffer => this.decoder.decode(buffer))
     } else {
       return Promise.resolve().then(() => this.decoder.decode(data as Buffer))

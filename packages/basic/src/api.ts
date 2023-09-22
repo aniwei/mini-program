@@ -198,7 +198,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
 
     const api = { 
       commands: define('Command', domain.commands), 
-      events : define('Event', domain.commands)
+      events : define('Event', domain.events)
     }
     
     defineReadOnlyProperty(this, domain.name, api)

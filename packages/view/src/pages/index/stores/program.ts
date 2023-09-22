@@ -63,8 +63,8 @@ export const useProgram = create<ProgramState>((set) => {
         appid: ''
       },
       scene: 1001,
-      path: 'pages/field/index',
-      entry: 'pages/field/index',
+      path: 'pages/index/index',
+      entry: 'pages/index/index',
       // path: 'example/index',
       // entry: 'example/index',
       size: {

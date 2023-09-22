@@ -38,7 +38,7 @@ export class WxScanCheck extends EventEmitter<`success` | `cancelled` | `scanned
               const func = new Function(`window`, `window = window || {};${result.data}return window;`)
               const { wx_errcode, wx_code } = func()
 
-              wx_debug(`二维码状态查询 <state: ${wx_code}>`)
+              wx_debug(`二维码状态查询 「state: ${wx_code}」`)
       
               switch (wx_errcode) {
                 case WxErrorCodeKind.Success: {
