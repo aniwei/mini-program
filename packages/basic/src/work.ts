@@ -12,6 +12,7 @@ import {
 } from './transport'
 import invariant from 'ts-invariant'
 import { UnsupportError } from './unsupport'
+import { isBlob, isSupportBlob } from './is'
 
 const transport_debug = debug('work')
 
@@ -75,11 +76,11 @@ export class MessageConv {
   public encoder: TextEncoder = new TextEncoder()
   
   decode (data: unknown) {
-    if (typeof globalThis.Blob !== 'undefined' && data instanceof Blob) {
-      return data.arrayBuffer().then(buffer => this.decoder.decode(buffer))
-    } else {
-      return Promise.resolve().then(() => this.decoder.decode(data as Buffer))
+    if (isSupportBlob() && isBlob(data as Blob)) {
+      return (data as Blob).arrayBuffer().then(buffer => this.decoder.decode(buffer))
     }
+
+    return Promise.resolve().then(() => this.decoder.decode(data as Buffer))
   }
   
   encode (data: string) {
@@ -120,7 +121,6 @@ export class MessageData {
   }
 
   static decode (content: Uint8Array) {
-
 
     let offset = 0
     return Promise.all([
