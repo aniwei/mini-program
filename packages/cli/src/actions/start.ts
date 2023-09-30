@@ -4,7 +4,7 @@ import path from 'path'
 import { createWxApplication } from '@catalyze/server'
 
 const env = process.env
-const start_debug = debug(`wx:cli:start`)
+const start_debug = debug('wx:cli:start')
 
 export const start = async (port: number) => {
   const proj = process.cwd()

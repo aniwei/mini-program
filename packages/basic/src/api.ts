@@ -4,6 +4,7 @@ import { Subscribable } from './subscribable'
 import { defineReadOnlyProperty } from './helpers'
 import { MessageContent, MessageOwner, MessageTransport } from './transport'
 
+// Api 参数
 export interface ApiParameter {
   name: string,
   description?: string,
@@ -11,15 +12,17 @@ export interface ApiParameter {
   enum?: string[]
 }
 
+// Api Action
 export interface ApiAction {
   name: string,
   description?: string,
   parameters: ApiParameter[]
 }
 
-export interface ApiCommand extends ApiAction {}
-export interface ApiEvent extends ApiAction {}
+export interface ApiCommand extends ApiAction { }
+export interface ApiEvent extends ApiAction { }
 
+// Api 域
 export interface ApiDomain {
   name: string,
   description?: string,
@@ -29,6 +32,7 @@ export interface ApiDomain {
   events: ApiEvent[]
 }
 
+// Api JSON 结构
 export interface ApiJSON {
   version: string,
   domains: ApiDomain[]
@@ -36,8 +40,8 @@ export interface ApiJSON {
 
 /**
  * 检查 API 参数是否合法
- * @param {unknown[]} args 
- * @param {ApiParameter[]} parameters 
+ * @param {unknown[]} args
+ * @param {ApiParameter[]} parameters
  */
 const checkApiParameters = (args: unknown[], parameters: ApiParameter[]) => {
   if (args.length !== parameters.length) {
@@ -54,7 +58,7 @@ const checkApiParameters = (args: unknown[], parameters: ApiParameter[]) => {
           throw new TypeError(`Expected "${type}" type.`)
         }
         break
-      case `enum`: 
+      case `enum`:
         if (typeof args[i] !== 'string' || !parameter.enum?.includes(args[i] as string)) {
           throw new TypeError(`Expected "${type}" type.`)
         }
@@ -68,6 +72,8 @@ const checkApiParameters = (args: unknown[], parameters: ApiParameter[]) => {
   }
 }
 
+
+//// => ApiSubscribables
 /**
  * Api 负载
  */
@@ -78,7 +84,9 @@ export interface ApiPayload {
 }
 
 export class ApiSubscribables extends Map<string, Subscribable> {
-  subscribe (name: string, subscribeHandle: SubscribeHandle) {
+  /**
+  */
+  subscribe(name: string, subscribeHandle: SubscribeHandle) {
     if (!this.has(name)) {
       this.set(name, new Subscribable())
     }
@@ -88,7 +96,9 @@ export class ApiSubscribables extends Map<string, Subscribable> {
     return this
   }
 
-  unsubscribe (name: string, subscribeHandle?: SubscribeHandle) {
+  /**
+  */
+  unsubscribe(name: string, subscribeHandle?: SubscribeHandle) {
     if (subscribeHandle === this.unsubscribe) {
       this.delete(name)
     } else {
@@ -105,32 +115,33 @@ export class ApiSubscribables extends Map<string, Subscribable> {
     return this
   }
 
-  async publish (name: string, ...args: unknown[]) {
+  async publish(name: string, ...rests: unknown[]) {
     const subscribable = this.get(name) as Subscribable ?? null
     if (subscribable !== null) {
-      return await subscribable.publish(...args)
+      return await subscribable.publish(...rests)
     }
   }
 }
 
-export interface BaseApi<T extends string> {}
+//// => BaseApi
+export interface BaseApi<T extends string> { }
 
 export abstract class BaseApi<T extends string> extends EventEmitter<T> {
   // => transport
   protected _transport: MessageTransport | null = null
-  public get transport () {
+  public get transport() {
     return this._transport
   }
-  public set transport (transport: MessageTransport | null) {
+  public set transport(transport: MessageTransport | null) {
     if (this._transport === null || this._transport !== transport) {
       transport?.command('message::api', async (message: MessageOwner) => {
         const payload = message.payload as unknown as ApiPayload
-        
+
         switch (payload.type) {
           case 'Command':
             return message.reply({
               payload: await this.commands.publish(payload.name as T, ...payload.parameters) as {}
-            }) 
+            })
           case 'Event':
             this.emit(payload.name as T, ...payload.parameters)
         }
@@ -144,11 +155,11 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
   public commands: ApiSubscribables = new ApiSubscribables()
 
   /**
-   * 
-   * @param {ApiJSON} api 
-   * @param {MessageTransport | null} transport 
+   *
+   * @param {ApiJSON} api
+   * @param {MessageTransport | null} transport
    */
-  constructor (api: ApiJSON, transport: MessageTransport | null = null) {
+  constructor(api: ApiJSON, transport: MessageTransport | null = null) {
     super()
     this.transport = transport
 
@@ -157,27 +168,30 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
   }
 
   /**
-   * 
-   * @param {ApiDomain[]} domains 
+   *
+   * @param {ApiDomain[]} domains
    */
-  private registerApi (domains: ApiDomain[]) {
+  private registerApi(domains: ApiDomain[]) {
     for (const domain of domains) {
       this.defineApi(domain)
     }
   }
 
   /**
-   * 
-   * @param {ApiDomain} domain 
+   *
+   * @param {ApiDomain} domain
    */
-  private defineApi (domain: ApiDomain) {    
-    const define = (type: 'Command' | 'Event', actions: ApiAction[]) => {
+  private defineApi(domain: ApiDomain) {
+    const defineApiImpl = (
+      type: 'Command' | 'Event',
+      actions: ApiAction[]
+    ) => {
       const proxy = Object.create({})
 
       for (const action of actions) {
-        const func = async (...parameters: unknown[]) =>  {
+        const func = async (...parameters: unknown[]) => {
           checkApiParameters(parameters, action.parameters)
-          
+
           const result = await this.send({
             command: 'message::api',
             payload: {
@@ -186,32 +200,37 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
               parameters
             }
           })
-  
+
           return result?.payload
         }
-  
+
         defineReadOnlyProperty(proxy, action.name, func)
       }
 
       return proxy
     }
 
-    const api = { 
-      commands: define('Command', domain.commands), 
-      events : define('Event', domain.events)
-    }
-    
-    defineReadOnlyProperty(this, domain.name, api)
+    defineReadOnlyProperty(this, domain.name, {
+      commands: defineApiImpl('Command', domain.commands),
+      events: defineApiImpl('Event', domain.events)
+    })
   }
 
-  abstract send (content: MessageContent): Promise<MessageOwner>
+  abstract send(content: MessageContent): Promise<MessageOwner>
 
-  subscribe (name: string, subscribeHandle: SubscribeHandle) {
+  /**
+  */
+  subscribe(
+    name: string,
+    subscribeHandle: SubscribeHandle
+  ) {
     this.commands.subscribe(name, subscribeHandle)
     return this
   }
 
-  unsubscribe (name: string, subscribeHandle: SubscribeHandle) {
+  /**
+  */
+  unsubscribe(name: string, subscribeHandle: SubscribeHandle) {
     this.commands.unsubscribe(name, subscribeHandle)
     return this
   }
