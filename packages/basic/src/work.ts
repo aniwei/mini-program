@@ -1,5 +1,6 @@
 import debug from 'debug'
 import bytes from 'bytes'
+import invariant from 'ts-invariant'
 import { EventEmitter } from './events'
 import { 
   MessageContent, 
@@ -10,12 +11,10 @@ import {
   MessageTransportPort, 
   MessageTransportStateKind 
 } from './transport'
-import invariant from 'ts-invariant'
 import { UnsupportError } from './unsupport'
 import { isBlob, isSupportBlob } from './is'
 
 const transport_debug = debug('work')
-
 
 export type MessagePort = {
   onmessage: null | ((data: MessageEvent<unknown>) => void)

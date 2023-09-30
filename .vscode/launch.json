@@ -54,7 +54,7 @@
       "name": "@catalyze/cli",
       "program": "${workspaceRoot}/packages/cli/src/cli",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/example/puzzle-game-applets",
+      "cwd": "${workspaceFolder}/packages/cli/example/inthemood",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"
