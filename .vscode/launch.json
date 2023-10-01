@@ -52,9 +52,9 @@
       "port": 9229
     }, {
       "name": "@catalyze/cli",
-      "program": "${workspaceRoot}/packages/cli/src/cli",
+      "program": "${workspaceRoot}/packages/cli/lib/cli",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/example/inthemood",
+      "cwd": "${workspaceFolder}/packages/cli/example/vant",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"

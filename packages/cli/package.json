@@ -1,28 +1,36 @@
 {
-  "name": "@catalyze/cli",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p tsconfig.json & tsc -p tsconfig.cjs.json"
+  "name": "cli",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "main": "./dist/counter.umd.cjs",
+  "module": "./dist/counter.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "types": "./index.d.ts",
+    "import": "./dist/counter.js",
+    "require": "./dist/counter.umd.cjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
+    "@types/minimist": "^1.2.2",
+    "typescript": "^5.1.3",
+    "vite": "^4.3.9"
+  },
   "dependencies": {
     "@catalyze/server": "workspace:^",
+    "@catalyze/types": "workspace:^",
+    "@catalyze/view": "workspace:^",
     "debug": "^4.3.4",
     "fs-extra": "^11.1.1",
     "minimist": "^1.2.8"
-  },
-  "devDependencies": {
-    "@types/debug": "^4.1.8",
-    "@types/fs-extra": "^11.0.1",
-    "@types/minimist": "^1.2.2",
-    "@types/node": "^20.2.5",
-    "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.0.2"
   }
 }

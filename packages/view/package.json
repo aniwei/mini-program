@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "build": "vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -14,10 +15,10 @@
     "@react-navigation/bottom-tabs": "^6.3.17"
   },
   "dependencies": {
-    "@catalyze/basic": "workspace:^1.0.0",
+    "@catalyze/basic": "workspace:^",
     "@catalyze/wx": "workspace:^",
-    "@catalyze/wx-asset": "workspace:^",
-    "@catalyze/wx-api": "workspace:^1.0.0",
+    "@catalyze/asset": "workspace:^",
+    "@catalyze/api": "workspace:^",
     "@react-navigation/bottom-tabs": "6.5.7",
     "@react-navigation/drawer": "6.6.2",
     "@react-navigation/native": "^6.1.7",
