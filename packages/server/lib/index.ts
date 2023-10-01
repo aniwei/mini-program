@@ -1,11 +1,8 @@
-import { WxApp } from './wx'
-import type { WxProj } from '@catalyze/types'
+import { WxApp, WxAppOptions } from './wx'
 
-export interface WxApplicationOptions {
-  port: number,
-  proj: WxProj
-}
+export const createWxApplication = async (options: WxAppOptions) => {
+  const app = new WxApp({ ...options})
+  await app.start()
 
-export const createWxApplication = (options: WxApplicationOptions) => {
-  return new WxApp(options)
+  return app
 }

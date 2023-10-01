@@ -1,7 +1,6 @@
 import debug from 'debug'
 // @TODO
 // @ts-ignore
-import view from '@catalyze/view'
 import { WxAuth } from './auth'
 import { MiniProgram } from './program'
 
@@ -46,7 +45,8 @@ export class WxApp extends WxAuth {
     this.api.subscribe('Program.createRequestTask', (data: unknown) => this.program.createRequestTask(data))
     this.api.subscribe('Program.getWxAssetsBundle', () => this.program.getWxAssetsBundle())
     
-    this.use(view())
+    // @TODO
+    // this.use(view())
   }
 
   async start () {

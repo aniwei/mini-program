@@ -15,7 +15,7 @@ export const start = async (port: number) => {
   const proj = await getWxProj()
 
   if (proj.root === null) {
-    console.error(`执行错误，当前路径 「${proj}」 不存在小程序项目`)
+    console.error(`执行错误，当前路径 「${process.cwd()}」 不存在小程序项目`)
     process.exit(0)
   } else {
     await createWxApplication({

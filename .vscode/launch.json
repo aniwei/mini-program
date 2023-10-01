@@ -54,7 +54,7 @@
       "name": "@catalyze/cli",
       "program": "${workspaceRoot}/packages/cli/lib/cli",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/example/vant",
+      "cwd": "${workspaceFolder}/packages/cli/examples/weui",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"

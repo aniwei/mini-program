@@ -5,11 +5,21 @@ export default defineConfig({
     lib: {
       entry: './lib/cli.ts',
       name: 'cli',
-      fileName: 'cli'
+      fileName: 'cli',
+      formats: ['cjs', 'es']
     },
     sourcemap: true,
     rollupOptions: {
-      external: []
+      external: [
+        '@catalyze/server',
+        '@catalyze/types',
+        '@catalyze/view',
+        'fs',
+        'fs/promises',
+        'url',
+        'http',
+        'path'
+      ]
     }
   }
 })
