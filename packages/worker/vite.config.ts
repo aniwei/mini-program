@@ -7,8 +7,9 @@ export default defineConfig({
     lib: {
       entry: {
         node: './lib/node.ts',
-        browser:  './lib/browser.ts'
+        browser:  './lib/browser.ts',
       },
+      formats: ['es', 'cjs']
     },
     sourcemap: true,
     rollupOptions: {

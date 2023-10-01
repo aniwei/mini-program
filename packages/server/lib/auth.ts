@@ -4,7 +4,7 @@ import debug from 'debug'
 import qrcode from 'qrcode'
 import { WxQRCodeStateKind, WxUser } from '@catalyze/api'
 import { WxStore } from './store'
-import { WxScanCheck } from './libs/check'
+import { WxScanCheck } from './basic/check'
 
 const wx_debug = debug(`wx:auth`)
 

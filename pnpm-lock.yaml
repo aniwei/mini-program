@@ -142,6 +142,9 @@ importers:
       debug:
         specifier: ^4.3.4
         version: 4.3.4
+      ts-invariant:
+        specifier: ^0.10.3
+        version: 0.10.3
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@20.2.5)(typescript@5.1.3)
