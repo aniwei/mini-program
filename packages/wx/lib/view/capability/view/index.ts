@@ -55,6 +55,7 @@ export class View extends WxCapability<ProxyView> {
     this.input.append()
     this.input.focus()
 
+
     nextTick(() => this.input.dispatch('onKeyboardShow'))
 
     return {

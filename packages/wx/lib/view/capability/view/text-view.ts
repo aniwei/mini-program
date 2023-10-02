@@ -105,123 +105,88 @@ export abstract class TextView<T extends TextViewElement> extends EventEmitter<'
   }
 
   // => width
-  protected _width: number = 0
   public get width () {
-    return this._width
+    const width = parseInt(this.element.style.width)
+    return isNaN(width) ? 0 : width
   }
   public set width (width: number) {
-    if (this._width !== width){
-      this._width = width
-      this.element.style.width = this._width + 'px'
-    }
+    this.element.style.width = width + 'px'
   }
 
   // => height
-  protected _height: number = 0
   public get height () {
-    return this._height
+    const height = parseInt(this.element.style.height)
+    return isNaN(height) ? 0 : height
   }
   public set height (height: number) {
-    if (this._height !== height){
-      this._height = height
-      this.element.style.height = this._height + 'px'
-    }
+    this.element.style.height = height + 'px'
   }
 
   // => top
-  protected _top: number = 0
   public get top () {
-    return this._top
+    const top = parseInt(this.element.style.top)
+    return isNaN(top) ? 0 : top
   }
   public set top (top: number) {
-    if (this._top !== top){
-      this._top = top
-      this.element.style.top = this._top + 'px'
-    }
+    this.element.style.top = top + 'px'
   }
 
   // => left
-  protected _left: number = 0
   public get left () {
-    return this._left
+    const left = parseInt(this.element.style.left)
+    return isNaN(left) ? 0 : left
   }
   public set left (left: number) {
-    if (this._left !== left){
-      this._left = left
-      this.element.style.left = this._left + 'px'
-    }
+    this.element.style.left = left + 'px'
   }
 
   // => fontSize
-  protected _fontSize: number = 0
   public get fontSize () {
-    return this._fontSize
+    const fontSize = parseInt(this.element.style.fontSize)
+    return isNaN(fontSize) ? 0 : fontSize
   }
   public set fontSize (fontSize: number) {
-    if (this._fontSize !== fontSize){
-      this._fontSize = fontSize
-      this.element.style.fontSize = this._fontSize + 'px'
-    }
+    this.element.style.fontSize = fontSize + 'px'
   }
 
   // => fontFamily
-  protected _fontFamily: string = ''
   public get fontFamily () {
-    return this._fontFamily
+    return this.element.style.fontFamily
   }
   public set fontFamily (fontFamily: string) {
-    if (this._fontFamily !== fontFamily){
-      this._fontFamily = fontFamily
-      this.element.style.fontFamily = this._fontFamily
-    }
+    this.element.style.fontFamily = fontFamily
   }
 
   // => color 
-  protected _color: string = ''
   public get color () {
-    return this._color
+    return this.element.style.color
   }
   public set color (color: string) {
-    if (this._color !== color){
-      this._color = color
-      this.element.style.color = this._color
-    }
+    this.element.style.color = color
   }
 
   // => textAlign
-  protected _textAlign: string = 'left'
   public get textAlign () {
-    return this._textAlign
+    return this.element.style.textAlign
   }
-  public set textAlign (textAlign: string) {
-    if (this._textAlign !== textAlign){
-      this._textAlign = textAlign
-      this.element.style.textAlign = this._textAlign
-    }
+  public set textAlign (textAlign: string) {    
+    this.element.style.textAlign = textAlign
   }
 
   // => placeholder
-  protected _placeholder: string = ''
   public get placeholder () {
-    return this._placeholder
+    return this.element.placeholder ?? null
   }
-  public set placeholder (placeholder: string) {
-    if (this._placeholder !== placeholder){
-      this._placeholder = placeholder
-      this.element.placeholder = this._placeholder
-    }
+  public set placeholder (placeholder: string | null) {
+    this.element.placeholder = placeholder
   }
 
   // => value
-  protected _value: string = ''
   public get value () {
-    return this._value
+    return this.element.value
   }
   public set value (value: string) {
-    if (this._value !== value){
-      this._value = value
-      this.element.value = this._value
-    }
+    this.element.value = value
   }
 
   // => data
@@ -288,11 +253,14 @@ export abstract class TextView<T extends TextViewElement> extends EventEmitter<'
   private handleBlur = (event: Event) => {
     const target = event.target as HTMLInputElement
 
+    const value = target.value
+    this.value = ''
+
     this.dispatch<{
       value: string,
       cursor: number
     }>('onKeyboardComplete', {
-      value: target.value,
+      value,
       cursor: getCaretPosition<HTMLInputElement>(target)
     })
   }

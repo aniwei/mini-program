@@ -81,12 +81,19 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
       let cssesExecArgs: (string | number)[] = csses.reduce((args, file) => {
         const set = this.findSetByFilename(file.relative)
 
-        if (set && set.json) {
+        if (file.relative === 'app.wxss') {
+          count++
+          args.unshift(file.relative)
+        } else if (
+          set &&
+          set.type !== Wx.WxAssetSetKind.Unknown
+        ) {
           count++
           args.unshift(file.relative)
         } else {
           args.push(file.relative)
         }
+
         return args
       }, [] as (string | number)[])
   
