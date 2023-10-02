@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@catalyze/basic": "workspace:^",
+    "@catalyze/asset": "workspace:^",
     "@catalyze/types": "workspace:^"
   }
 }
