@@ -4,6 +4,7 @@ import { NavigationProp } from '@react-navigation/native'
 import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyze/basic'
 import { MixinWxAssetsBundle, WxAssetSet } from '@catalyze/asset'
 import { WxViewLibs } from './libs'
+import { getModuleURL } from '../basic/module'
 
 const view_debug = debug(`wx:view:proxy`)
 
@@ -36,8 +37,8 @@ export class ProxyView extends MixinWxAssetsBundle(WxViewLibs) {
     const document = iframe.contentDocument as Document
     const script = document.createElement('script')
     script.type = 'module'
-    // @ts-ignore
-    script.src = (new URL('./boot', import.meta.url)).toString()
+    /* @__PURE__ */
+    script.src = (new URL('./view/boot.js', getModuleURL())).toString()
     script.onload = () => {
       invariant(iframe.contentWindow)
       iframe.contentWindow.postMessage({ type: 'connection', port: port2 }, `http://${location.host}/view.html`, [port2])

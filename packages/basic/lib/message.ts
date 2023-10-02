@@ -59,7 +59,13 @@ export class MessageData {
         view.set(buffer, offset)
         offset += buffer.byteLength
       }
-      view.set(chunk, offset)
+
+      try {
+        view.set(chunk, offset)
+      } catch (error) {
+        debugger
+      }
+
 
       return view
     })

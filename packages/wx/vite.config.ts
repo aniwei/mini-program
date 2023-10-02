@@ -2,10 +2,13 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   build: {
+    minify: false,
     lib: {
-      entry: './lib/index.ts',
-      name: 'index',
-      fileName: 'index',
+      entry: {
+        index: './lib/index.ts',
+        'app/boot': './lib/app/boot.ts',
+        'view/boot': './lib/view/boot.ts',
+      }, 
       formats: ['es', 'cjs']
     },
     sourcemap: true,
@@ -22,6 +25,12 @@ export default defineConfig({
         '@swc/wasm-web',
         'sass.js'
       ]
+    }
+  },
+  resolve: {
+    extensions: ['.web.tsx', '.web.jsx', '.web.js', '.web.ts', '.tsx', '.ts', '.js', '.jsx'],
+    alias: {
+      'react-native': 'react-native-web',
     }
   }
 })

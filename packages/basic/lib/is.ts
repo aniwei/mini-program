@@ -1,3 +1,7 @@
+export const isTypeOf = (object: object, type: string) => {
+  return Object.prototype.toString.call(object) === `[object ${type}]`
+}
+
 export const isDarwin = () => {
   return process.platform === 'darwin'
 }
@@ -18,12 +22,8 @@ export const isSupportBlob = () => {
   return typeof globalThis.Blob !== undefined
 }
 
-export const typeOf = (object: object, type: string) => {
-  return Object.prototype.toString.call(object) === `[object ${type}]`
-}
-
 export const isBlob = (blob: Blob) => {
-  return typeOf(blob, 'Blob')
+  return isTypeOf(blob, 'Blob')
 }
 
 export function isNative (Constructor: unknown): boolean {

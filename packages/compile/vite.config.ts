@@ -6,7 +6,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: './lib/index.ts',
-        compile: './lib/pod/compile.ts'
+        'pod/compile': './lib/pod/compile.ts'
       },
       formats: ['es', 'cjs']
     },

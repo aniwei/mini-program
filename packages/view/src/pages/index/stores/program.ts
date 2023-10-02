@@ -21,7 +21,6 @@ export interface ProgramState {
 
 export const useProgram = create<ProgramState>((set) => {
   
-
   api.Program.commands.getWxAssetsBundle().then(assets => {
     const wx = ProxyApp.boot()
     const settings = useProgram.getState().settings

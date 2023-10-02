@@ -13,6 +13,7 @@ import { Controller } from './capability/proxy/controller'
 import { UI } from './capability/proxy/ui'
 import { View } from './capability/proxy/view'
 import { Request } from './capability/proxy/request'
+import { getModuleURL } from '../basic/module'
 
 import type { WxAppJSON } from '@catalyze/types'
 import '../asset'
@@ -40,7 +41,8 @@ export interface ProxyApp {
 export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
   static proxyId: number = 1
   static boot (...rests: unknown[]) {
-    const wx = super.boot((new URL('./boot.js', import.meta.url)).toString(), ...rests)
+    /* @__PURE__ */
+    const wx = super.boot((new URL('./app/boot.js', getModuleURL())).toString(), ...rests)
     wx.register(Controller)
     wx.register(Request)
     wx.register(UI)

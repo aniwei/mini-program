@@ -6,8 +6,8 @@ import {
   tryCatch, 
 } from '@catalyze/basic'
 import { ProxyCompile } from './proxy'
-import { WxWCC } from '../wx/wcc'
-import { WxWCSC } from '../wx/wcsc'
+import { WxWCC } from './wcc'
+import { WxWCSC } from './wcsc'
 
 type MessagePayload = {
   parameters: string[],

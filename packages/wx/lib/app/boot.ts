@@ -257,10 +257,18 @@ class AssetJS extends AssetProcess {
 }
 
 // Sass 文件处理器
-class AssetSass extends AssetProcess {}
+class AssetSass extends AssetProcess {
+  static create <T extends AssetSass> (): T {
+    return super.create('.scss')
+  }
+}
 
 // Less 文件处理器
-class AssetLess extends AssetProcess {}
+class AssetLess extends AssetProcess {
+  static create <T extends AssetLess> (): T {
+    return super.create('.less')
+  }
+}
 
 WxAssetsBundle.processor.register(AssetJS.create())
 WxAssetsBundle.processor.register(AssetSass.create())
