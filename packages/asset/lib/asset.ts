@@ -1,5 +1,5 @@
 import path from 'path'
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 
 import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyze/basic'
 import { WxAppJSON, WxAppUsingJSON, WxAppWindowJSON } from '@catalyze/types'

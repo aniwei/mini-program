@@ -1,5 +1,5 @@
-import invariant from 'ts-invariant'
 import fs from 'fs-extra'
+import { invariant } from 'ts-invariant'
 import { glob } from 'glob'
 import { 
   Asset, 

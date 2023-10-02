@@ -18,8 +18,12 @@ export const isSupportBlob = () => {
   return typeof globalThis.Blob !== undefined
 }
 
+export const typeOf = (object: object, type: string) => {
+  return Object.prototype.toString.call(object) === `[object ${type}]`
+}
+
 export const isBlob = (blob: Blob) => {
-  return blob instanceof globalThis.Blob
+  return typeOf(blob, 'Blob')
 }
 
 export function isNative (Constructor: unknown): boolean {

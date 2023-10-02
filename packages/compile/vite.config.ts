@@ -4,9 +4,10 @@ export default defineConfig({
   build: {
     minify: false,
     lib: {
-      entry: './lib/index.ts',
-      name: 'index',
-      fileName: 'index',
+      entry: {
+        index: './lib/index.ts',
+        compile: './lib/pod/compile.ts'
+      },
       formats: ['es', 'cjs']
     },
     sourcemap: true,
@@ -24,6 +25,7 @@ export default defineConfig({
         '@catalyze/types', 
         '@catalyze/asset', 
         'ts-invariant', 
+        'debug',
         'glob',
         'fs-extra',
         'fs', 

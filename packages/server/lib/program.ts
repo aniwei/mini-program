@@ -65,15 +65,11 @@ export class MiniProgram extends Axios {
 
   // 登陆
   login () {
-    return this.post('/wxa-dev-logic/jslogin?', {
-      scope: ['snsapi_base']
-    }, {
+    return this.post('/wxa-dev-logic/jslogin?', { scope: ['snsapi_base'] }, {
       headers: {
         'Content-Type': 'application/json'
       },
-      params: {
-        appid: this.appid
-      }
+      params: { appid: this.appid }
     }).then(res => {
       return res.data
     })

@@ -73,7 +73,7 @@ export class MainCompilePod extends MainPod<ProxyCompilePod> {
   static create (...rests: unknown[]): unknown
   static create (count: number = 5, root: string) {
     const proxies: ProxyCompilePod[] = []
-    const uri = path.resolve(__dirname, 'compile')
+    const uri = path.resolve(__dirname, 'compile.cjs')
 
     for (let i = 0; i < count; i++) {
       const proxy = ProxyCompilePod.boot(root, uri)

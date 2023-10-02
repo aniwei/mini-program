@@ -1,6 +1,6 @@
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { isNative } from './is'
-import { VoidCallback } from '@catalyze/types'
+import type { VoidCallback } from '@catalyze/types'
 
 //// => MicroTaskQueue
 export type MicroTask<T = unknown> = {
