@@ -5,6 +5,7 @@ import { EventEmitter } from './events'
 import { UnsupportError } from './unsupport'
 import { MessageContent } from './transport'
 import type { WorkPort } from './work'
+import { paddingLeft } from '.'
 
 export class MessageConv {
   static conv = new MessageConv()
@@ -38,8 +39,8 @@ export class MessageData {
   
   static ID_LENGTH = String(Number.MAX_SAFE_INTEGER).length
   static MESSAGE_ID_LENGTH = String('message::id::').length + MessageData.ID_LENGTH
-  static INDEX_LENGTH = 1
-  static COUNT_LENGTH = 1
+  static INDEX_LENGTH = 3
+  static COUNT_LENGTH = 3
   static HEADER_LENGTH = MessageData.MESSAGE_ID_LENGTH + MessageData.INDEX_LENGTH + MessageData.COUNT_LENGTH
 
   static encode (
@@ -50,8 +51,8 @@ export class MessageData {
   ) {
     return Promise.all([
       MessageConv.encode(id),
-      MessageConv.encode(String(index)),
-      MessageConv.encode(String(count))
+      MessageConv.encode(paddingLeft(index, MessageData.INDEX_LENGTH)),
+      MessageConv.encode(paddingLeft(count, MessageData.COUNT_LENGTH))
     ]).then(buffers => {
       const view = new Uint8Array(MessageData.HEADER_LENGTH + chunk.length)
       let offset = 0
@@ -60,12 +61,7 @@ export class MessageData {
         offset += buffer.byteLength
       }
 
-      try {
-        view.set(chunk, offset)
-      } catch (error) {
-        debugger
-      }
-
+      view.set(chunk, offset)
 
       return view
     })

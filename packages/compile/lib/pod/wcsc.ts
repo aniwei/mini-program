@@ -31,13 +31,13 @@ export class WxWCSC {
 
   compile (parameters: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
-      wcsc_debug('正在编译 WXSS 文件 <parameters: %s>', parameters)
+      wcsc_debug('正在编译 WXSS 文件 「parameters: %s」', parameters)
 
       WxWCSC.tryChmod(this.bin).then(() => {
         const ps = spawnSync(this.bin, parameters, { cwd: this.root })
 
         if (ps.status !== 0) {
-          reject(new Error(`WXSS编译错误 <${ps.stderr.toString()}>`))
+          reject(new Error(`WXSS编译错误 「${ps.stderr.toString()}」`))
         } else {
           resolve(ps.stdout.toString())
         }

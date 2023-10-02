@@ -9,7 +9,6 @@ import {
 
 import * as Wx from '@catalyze/asset'
 import { MainCompilePod } from './pod/proxy'
-
 import type { WxAppUsingJSON } from '@catalyze/types'
 
 export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {

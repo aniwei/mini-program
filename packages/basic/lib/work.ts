@@ -15,6 +15,7 @@ import {
   MessageReceivers, 
   MessageSender 
 } from './message'
+import { paddingLeft } from './helpers'
 
 const transport_debug = debug('work')
 
@@ -70,8 +71,7 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
       index = this._index = 0
     }
     
-    const value = String(index)
-    return Array(MessageData.ID_LENGTH - value.length).fill(0).join('') + value
+    return paddingLeft(index, MessageData.ID_LENGTH)
   }
 
   /**

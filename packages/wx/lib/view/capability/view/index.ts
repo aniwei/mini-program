@@ -41,9 +41,16 @@ export class View extends WxCapability<ProxyView> {
     this.input.width = payload.style.width
     this.input.height = payload.style.height
     this.input.fontSize = payload.style.fontSize
+    this.input.fontFamily = payload.style.fontFamily
     this.input.top = payload.style.top
     this.input.left = payload.style.left
-    this.input.data = JSON.parse(payload.data)
+
+    try {
+      this.input.data = JSON.parse(payload.data)
+    } catch (error: any) {
+      // @ts-ignore
+      this.input.data = {}
+    }
 
     this.input.append()
     this.input.focus()
@@ -67,7 +74,13 @@ export class View extends WxCapability<ProxyView> {
     this.input.color = payload.style.color
     this.input.top = payload.style.top
     this.input.left = payload.style.left
-    this.input.data = JSON.parse(payload.data)
+
+    try {
+      this.input.data = JSON.parse(payload.data)
+    } catch (error: any) {
+      // @ts-ignore
+      this.input.data = {}
+    }
 
     this.input.id = payload.inputId
 

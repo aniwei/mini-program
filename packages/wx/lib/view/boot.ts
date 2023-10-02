@@ -131,18 +131,26 @@ export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
       }, {
         source: (this.findByFilename(`@wx/wxss/comm.wxss`) as WxAsset).data as string,
         filename: 'wxss/comm.js'
+      }, {
+        source: (this.findByFilename(`@wx/wxss/app.wxss`) as WxAsset).data as string + '()',
+        filename: 'wxss/app.js'
+      }, {
+        source: (this.findByFilename(`@wx/wxss/./app.wxss`) as WxAsset).data as string + '()',
+        filename: 'wxss/./app.js'
       }
     ].concat(sets.reduce((file, set) => {
       const json: WxAssetSetJSON = { 
         ...(set.json ? set.json.data as object : {  }),
         usingComponents: set.usingComponents ?? {}
       }
-      
       file.source += `///// => ${set.relative}\n`
       file.source += `decodeJsonPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeJsonPathName + '.json'] = ${JSON.stringify(json)}\n`
       file.source += `decodeWxmlPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeWxmlPathName + '.wxml'] = $gwx(decodeWxmlPathName + '.wxml')\n`
-      if (set.wxss) {
-        file.source += `decodeWxssPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeWxssPathName + '.wxss'] = ${(this.findByFilename(`@wx/wxss/${set.relative}.wxss`) as WxAsset)?.source}\n`
+
+      const wxss = this.findByFilename(`@wx/wxss/${set.relative}.wxss`) ?? null
+
+      if (set.wxss && wxss) {
+        file.source += `decodeWxssPathName = decodeURI('${set.relative}')\n__wxAppCode__[decodeWxssPathName + '.wxss'] = ${(wxss as WxAsset)?.source}\n`
       }
 
       return file

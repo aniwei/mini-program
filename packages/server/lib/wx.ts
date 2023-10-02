@@ -3,7 +3,6 @@ import debug from 'debug'
 // @ts-ignore
 import { WxAuth } from './auth'
 import { MiniProgram } from './program'
-
 import type { WxProj } from '@catalyze/types'
 
 export type AppStartCallback = () => void
@@ -31,7 +30,7 @@ export class WxApp extends WxAuth {
     this.program = new MiniProgram(this.proj)
 
     this.program.interceptors.request.use((config) => {
-      app_debug('请求微信服务 <api: %s, params: %o>', config.url, config.params)
+      app_debug('请求微信服务 「api: %s, params: %o」', config.url, config.params)
 
       config.params.ticket = this.ticket
       config.params.os = this.os
@@ -53,6 +52,6 @@ export class WxApp extends WxAuth {
     await this.program.ensure()
     await super.start()
     app_debug('服务启动成功')
-    console.log('程序启动成功.')
+    console.log('✨ 程序启动成功.')
   }
 }

@@ -7,6 +7,7 @@ export default defineConfig({
       entry: {
         index: './lib/index.ts',
         'app/boot': './lib/app/boot.ts',
+        'builder/build': './lib/builder/build.ts',
         'view/boot': './lib/view/boot.ts',
       }, 
       formats: ['es', 'cjs']

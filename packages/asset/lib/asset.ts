@@ -71,14 +71,12 @@ export class WxAssetSet extends AssetsBundle {
         const app = this.app.data as WxAppJSON
         const window: WxAppWindowJSON = {}
 
-        const dir = path.parse(this.relative).dir
-
         for (const key in app.window) {
-          const value = path.relative(dir,  app.window[key] as string)
+          const value =  app.window[key] as string
           window[key] = value
         }
 
-        const json = (this.json.data as WxAssetSetJSON) as WxAssetSetJSON
+        const json = (this.json?.data as WxAssetSetJSON) as WxAssetSetJSON ?? {}
 
         this._window = {
           ...window,
@@ -109,7 +107,7 @@ export class WxAssetSet extends AssetsBundle {
           usingComponents[key] = value
         }
 
-        const components = (this.json.data as WxAssetSetJSON).usingComponents as WxAppUsingJSON
+        const components = this.json ? (this.json.data as WxAssetSetJSON).usingComponents : {}
         this._usingComponents = {
           ...usingComponents,
           ...components

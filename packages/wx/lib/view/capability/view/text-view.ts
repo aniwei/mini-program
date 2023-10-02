@@ -259,6 +259,8 @@ export abstract class TextView<T extends TextViewElement> extends EventEmitter<'
     this.element.style.position = 'absolute'
     this.element.style.border = 'none'
     this.element.style.outline = 'none'
+    this.element.style.margin = '0'
+    this.element.style.padding = '0'
   }
 
   abstract createElement (): T

@@ -1,8 +1,7 @@
 import { create } from 'zustand'
-import { ProxyApp } from '@catalyze/wx'
-import { WxSettings } from '@catalyze/wx'
-import { WxAssetAppJSON } from '@catalyze/wx-asset'
+import { WxSettings, ProxyApp } from '@catalyze/wx'
 import { api } from '../api'
+import type { WxAppJSON } from '@catalyze/types'
 
 export interface TabItem {
   route: string,
@@ -25,14 +24,14 @@ export const useProgram = create<ProgramState>((set) => {
     const wx = ProxyApp.boot()
     const settings = useProgram.getState().settings
     wx.init(assets, settings).then(() => {
-      const app = wx.findByFilename('app.json').data as WxAssetAppJSON
+      const app = wx.findByFilename('app.json').data as WxAppJSON
 
       const state: Partial<ProgramState> = {
         wx: wx,
         settings: {
           ...settings,
-          // entry: app.pages[0],
-          // path: app.pages[0]
+          entry: app.pages[0],
+          path: app.pages[0]
         }
       }
 

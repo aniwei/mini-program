@@ -232,9 +232,17 @@ export abstract class AssetsBundle {
   // 添加数据
   put (assets: Asset[] | Asset): void
   put (assets: Asset): void {
-    Array.isArray(assets)
-      ? assets.forEach(asset => this.put(asset))
-      : this.assets.push(assets)
+    if (Array.isArray(assets)) {
+      assets.forEach(asset => this.put(asset))
+    } else {
+      const current = this.findByFilename(assets.relative) ?? null
+      if (current !== null) {
+        const index = this.assets.indexOf(current)
+        this.assets.splice(index, 1, assets)
+      } else {
+        this.assets.push(assets)
+      }
+    }
   }
 
   // 挂载数据
