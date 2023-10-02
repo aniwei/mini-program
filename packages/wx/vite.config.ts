@@ -5,7 +5,8 @@ export default defineConfig({
     lib: {
       entry: './lib/index.ts',
       name: 'index',
-      fileName: 'index'
+      fileName: 'index',
+      formats: ['es', 'cjs']
     },
     sourcemap: true,
     rollupOptions: {

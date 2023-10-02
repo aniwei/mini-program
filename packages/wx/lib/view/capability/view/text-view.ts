@@ -1,4 +1,4 @@
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { EventEmitter } from '@catalyze/basic'
 import { ProxyView } from '../../proxy'
 

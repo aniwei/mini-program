@@ -8,12 +8,12 @@
     "index.d.ts"
   ],
   "main": "./dist/node.cjs",
-  "module": "./dist/node.js",
+  "module": "./dist/browser.js",
   "browser": "dist/browser.js",
   "types": "./index.d.ts",
   "exports": {
     "types": "./index.d.ts",
-    "import": "./dist/node.js",
+    "import": "./dist/browser.js",
     "require": "./dist/node.cjs"
   },
   "scripts": {

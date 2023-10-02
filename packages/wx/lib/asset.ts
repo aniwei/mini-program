@@ -1,4 +1,4 @@
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { Asset, AssetProcess } from '@catalyze/basic'
 import { WxAssetsBundle } from '@catalyze/asset'
 

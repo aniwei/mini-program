@@ -1,7 +1,8 @@
-import invariant from 'ts-invariant'
-import { NavigationContainerRef } from '@react-navigation/native'
+import { invariant } from 'ts-invariant'
 import { ProxyApp } from '../..'
 import { WxCapability } from '../../../capability'
+
+import type { NavigationContainerRef } from '@react-navigation/native'
 
 export class UI extends WxCapability<ProxyApp> {
   static kSymbol = Symbol.for('ui')

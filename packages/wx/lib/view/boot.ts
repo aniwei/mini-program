@@ -1,5 +1,5 @@
 import debug from 'debug'
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { 
   AssetsBundleJSON,
   MessageOwner,

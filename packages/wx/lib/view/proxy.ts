@@ -1,5 +1,5 @@
 import debug from 'debug'
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
 import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyze/basic'
 import { MixinWxAssetsBundle, WxAssetSet } from '@catalyze/asset'

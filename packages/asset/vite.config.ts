@@ -14,6 +14,7 @@ export default defineConfig({
       external: [
         '@catalyze/basic', 
         'debug', 
+        'path',
         'ts-invariant', 
         'path-browserify'
       ]

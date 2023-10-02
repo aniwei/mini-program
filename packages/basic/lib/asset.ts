@@ -1,5 +1,5 @@
-import invariant from 'ts-invariant'
 import path from 'path'
+import { invariant } from 'ts-invariant'
 import { UnimplementError } from './unimplement'
 
 // 资源类型

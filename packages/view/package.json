@@ -21,10 +21,10 @@
     "@react-navigation/bottom-tabs": "^6.3.17"
   },
   "dependencies": {
+    "@catalyze/api": "workspace:^",
+    "@catalyze/asset": "workspace:^",
     "@catalyze/basic": "workspace:^",
     "@catalyze/wx": "workspace:^",
-    "@catalyze/asset": "workspace:^",
-    "@catalyze/api": "workspace:^",
     "@react-navigation/bottom-tabs": "6.5.7",
     "@react-navigation/drawer": "6.6.2",
     "@react-navigation/native": "^6.1.7",
@@ -38,6 +38,7 @@
     "debug": "^4.3.4",
     "esbuild-wasm": "^0.18.17",
     "koa-static": "^5.0.0",
+    "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

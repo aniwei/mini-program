@@ -1,7 +1,7 @@
 
 import { ReactElement, ReactFragment } from 'react'
 import { Text, View } from 'react-native'
-import { WxApiStateKind } from '@catalyze/wx-api'
+import { WxApiStateKind } from '@catalyze/api'
 import { useWx } from '@stores/wx'
 
 const WxState = () => {

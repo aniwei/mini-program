@@ -54,7 +54,7 @@ export default defineConfig({
       exclude: ['']
     }), 
     viteCommonjs({
-      exclude: ['src', '@catalyze/*']
+      exclude: ['src']
     }), 
     react()
   ],

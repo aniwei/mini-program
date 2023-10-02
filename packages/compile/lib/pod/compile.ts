@@ -1,4 +1,4 @@
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { 
   MessageOwner, 
   PodStatusKind, 

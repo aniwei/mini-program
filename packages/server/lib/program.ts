@@ -1,7 +1,7 @@
 import debug from 'debug'
 import fs from 'fs-extra'
 import path from 'path'
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { Axios } from 'axios'
 import { WxAsset, WxAssetProjJSON } from '@catalyze/asset'
 import { WxAssetsCompile } from '@catalyze/compile'

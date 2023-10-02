@@ -1,4 +1,4 @@
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import debug from 'debug'
 import { WorkPort } from '@catalyze/basic'
 import * as Api from '@catalyze/api'
