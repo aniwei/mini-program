@@ -9,7 +9,8 @@ export interface WxAssetCompiledFile {
 
 export enum WxWxssAssetKind {
   Version = 'version',
-  Common = 'comm'
+  Common = 'comm',
+  IgnoreAppWXSS = './app.wxss'
 }
 
 export class WxAssetsCompile extends WxAssetsBundle {
@@ -30,6 +31,8 @@ export class WxAssetsCompile extends WxAssetsBundle {
             source: `// version - ${version}\n${unescape(v)}`,
             filename: `wxss/${k}.wxss`
           })
+        } else if (k === WxWxssAssetKind.IgnoreAppWXSS) {
+          // 
         } else {
           files.push({
             source: unescape(v),
@@ -53,6 +56,7 @@ export class WxAssetsCompile extends WxAssetsBundle {
       const files: WxAssetCompiledFile[] = this.unescape(wxss).concat({ filename: 'wxml.js', source: wxml })
       return files
     }).then((files: WxAssetCompiledFile[]) => {
+      
       this.put(files.map(file => {
         const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)
         asset.type = AssetStoreKind.Memory

@@ -26,10 +26,6 @@ declare const ProxyApp_base: (abstract new () => {
     root: string;
     _bundle: import("@catalyze/asset").WxAssetsBundle | null;
     bundle: import("@catalyze/asset").WxAssetsBundle;
-    /**
-     *
-     * @param delta
-     */
     readonly assets: import("@catalyze/basic").Asset[];
     readonly components: import("@catalyze/asset").WxAssetSet[];
     readonly pages: import("@catalyze/asset").WxAssetSet[];

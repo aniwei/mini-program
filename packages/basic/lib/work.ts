@@ -24,6 +24,7 @@ export type MessagePort = {
   onmessageerror?: null | ((error: any) => void),
   onerror?: null | ((error: any) => void),
   onopen?: null | (() => void),
+  onclose?: null | (() => void),
   postMessage?: (data: string | ArrayBufferLike | ArrayBufferView | Blob | unknown) => void
   send?: (data: string | ArrayBufferLike | ArrayBufferView | Blob | unknown) => void
   close: () => void
@@ -38,6 +39,7 @@ export class WorkPort<T extends string = string> extends EventEmitter<'open' | '
     port.onmessage = this.handleMessage
     port.onmessageerror = this.handleError
     port.onerror = this.handleError
+    port.onclose = this.handleClose
     port.onopen = this.handleOpen
 
     this.port = port
@@ -46,6 +48,7 @@ export class WorkPort<T extends string = string> extends EventEmitter<'open' | '
   handleMessage = (...args: unknown[]) => this.emit('message', ...args)
   handleError = (error: unknown) => this.emit('error', error)
   handleOpen = (...args: unknown[]) => this.emit('open', ...args)
+  handleClose = (...args: unknown[]) => this.emit('close', ...args)
   
   // 发送数据
   send (message: unknown) {
@@ -96,13 +99,19 @@ export class WorkTransport<T extends string = string> extends MessageTransport<W
           this.except(message.id, error)
         }
       }
-    })).on(`error`, (error: any) => {
+    })).on('error', (error: any) => {
       this.transport = null
       this.state = MessageTransportStateKind.Error
 
       ;(port as WorkPort).removeAllListeners()
       this.emit('error', error)
-    }).on(`open`, () => {
+    }).on('close', () => {
+      this.transport = null
+      this.state = MessageTransportStateKind.Disconnected
+
+      ;(port as WorkPort).removeAllListeners()
+      this.emit('close')
+    }).on('open', () => {
       this.state = MessageTransportStateKind.Connected
       this.emit('open')
     })

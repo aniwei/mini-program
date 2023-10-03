@@ -12,7 +12,7 @@ import * as Wx from '@catalyze/asset'
 import { MainCompilePod } from './pod/proxy'
 import type { WxAppUsingJSON } from '@catalyze/types'
 
-const hash = (source: string | Buffer) => {
+const createHash = (source: string | Buffer) => {
   const hash = crypto.createHash('md5')
   hash.update(source)
   return hash.digest('hex')
@@ -155,13 +155,14 @@ class AssetJSON extends AssetProcess {
   decode (asset: Asset): Promise<void> {
     if (asset.source === null) {
       return fs.readFile(asset.absolute).then(source => {
-        asset.hash = hash(source)
+        asset.hash = createHash(source)
         asset.source = source.toString()
         asset.data = JSON.parse(asset.source as string)
       })
     } else {
       return Promise.resolve().then(() => {
         invariant(asset.source)
+        asset.hash = createHash(asset.source as Buffer)
         asset.data = JSON.parse(asset.source.toString())
       })
     }
@@ -177,13 +178,14 @@ class AssetImage extends AssetProcess {
   decode (asset: Asset): Promise<void> {
     if (asset.source === null) {
       return fs.readFile(asset.absolute).then(source => {
-        asset.hash = hash(source)
+        asset.hash = createHash(source)
         asset.source = source.toString('base64url')
         asset.data = asset.source
       })
     } else {
       return Promise.resolve().then(() => {
         invariant(asset.source)
+        asset.hash = createHash(asset.source as Buffer)
         asset.data = asset.source
       })
     }
@@ -199,13 +201,14 @@ class AssetDefault extends AssetProcess {
   decode (asset: Asset): Promise<void> {
     if (asset.source === null && asset.type === AssetStoreKind.Locale) {
       return fs.readFile(asset.absolute).then(source => {
-        asset.hash = hash(source)
+        asset.hash = createHash(source)
         asset.source = source.toString()
         asset.data = asset.source as string
       })
     } else {
       return Promise.resolve().then(() => {
         invariant(asset.source !== null)
+        asset.hash = createHash(asset.source as Buffer)
         asset.data = asset.source as string
       })
     }

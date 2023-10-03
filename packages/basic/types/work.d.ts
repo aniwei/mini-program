@@ -5,6 +5,7 @@ export type MessagePort = {
     onmessageerror?: null | ((error: any) => void);
     onerror?: null | ((error: any) => void);
     onopen?: null | (() => void);
+    onclose?: null | (() => void);
     postMessage?: (data: string | ArrayBufferLike | ArrayBufferView | Blob | unknown) => void;
     send?: (data: string | ArrayBufferLike | ArrayBufferView | Blob | unknown) => void;
     close: () => void;
@@ -15,6 +16,7 @@ export declare class WorkPort<T extends string = string> extends EventEmitter<'o
     handleMessage: (...args: unknown[]) => boolean;
     handleError: (error: unknown) => boolean;
     handleOpen: (...args: unknown[]) => boolean;
+    handleClose: (...args: unknown[]) => boolean;
     send(message: unknown): void | null;
     close(): void;
 }

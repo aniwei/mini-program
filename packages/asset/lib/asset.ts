@@ -1,10 +1,13 @@
 import path from 'path'
 import { invariant } from 'ts-invariant'
 
-import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyze/basic'
+import { Asset, AssetHash, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyze/basic'
 import { WxAppJSON, WxAppUsingJSON, WxAppWindowJSON } from '@catalyze/types'
 
-
+export interface WxAssetHash extends AssetHash {
+  hash: string,
+  relative: string
+}
 
 // component / page .json
 export interface WxAssetSetJSON extends WxAppWindowJSON {

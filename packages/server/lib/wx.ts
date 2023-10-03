@@ -3,6 +3,7 @@ import { invariant } from 'ts-invariant'
 import { WxAuth } from './auth'
 import { WxProgram } from './program'
 import type { WxProj } from '@catalyze/types'
+import { WxAssetHash } from '@catalyze/asset'
 
 export type AppStartCallback = () => void
 
@@ -42,8 +43,9 @@ export class WxApp extends WxAuth {
     })  
 
     this.api.subscribe('Program.login', () => this.program.login())
+    this.api.subscribe('Program.current', () => this.program.current())
     this.api.subscribe('Program.createRequestTask', (data: unknown) => this.program.createRequestTask(data))
-    this.api.subscribe('Program.getWxAssetsBundle', () => this.program.getWxAssetsBundle())
+    this.api.subscribe('Program.getWxAssetsBundle', (assets: WxAssetHash[]) => this.program.getWxAssetsBundle(assets))
     
     // this.use(view())
   }

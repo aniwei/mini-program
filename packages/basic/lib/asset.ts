@@ -2,6 +2,14 @@ import path from 'path'
 import { invariant } from 'ts-invariant'
 import { UnimplementError } from './unimplement'
 
+// 资源指纹
+export interface AssetHash {
+  hash: string,
+  ext: string,
+  root: string,
+  relative: string
+}
+
 // 资源类型
 export enum AssetStoreKind {
   Memory,
@@ -125,7 +133,7 @@ export abstract class Asset {
       ext: this.ext,
       hash: this.hash,
       root: this.root,
-      source: this.source,
+      source: this.source.toString(),
       relative: this.relative,
     }
   }

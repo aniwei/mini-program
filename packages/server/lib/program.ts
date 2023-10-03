@@ -2,9 +2,9 @@ import debug from 'debug'
 import fs from 'fs-extra'
 import path from 'path'
 import { Axios } from 'axios'
-import { WxAsset } from '@catalyze/asset'
+import { WxAsset, WxAssetHash } from '@catalyze/asset'
 import { WxAssetsCompile } from '@catalyze/compile'
-import { AssetStoreKind, PodStatusKind } from '@catalyze/basic'
+import { AssetJSON, AssetStoreKind, PodStatusKind } from '@catalyze/basic'
 import type { WxProj } from '@catalyze/types'
 
 const mini_debug = debug(`wx:program`)
@@ -15,7 +15,7 @@ class MiniAssetsBundle extends WxAssetsCompile {
     const files: { filename: string, source: Buffer | string}[] = await Promise.all([
       'app.js',
       'view.js'
-    ].map(filename => fs.readFile(path.join(relative, filename)).then(source => ({ filename, source: source.toString() }))))
+    ].map(filename => fs.readFile(path.join(relative, filename)).then(source => ({ filename, source }))))
 
     for (const file of files) {
       const asset = WxAsset.create('@wx/' + file.filename, this.root, file.source)
@@ -88,8 +88,42 @@ export class WxProgram extends WxCached {
   }
 
   ////// API 方法
-  getWxAssetsBundle () {
-    return this.bundle.compile()
+  current () {
+    return {
+      root: this.root,
+      appid: this.appid
+    }
+  }
+
+  getWxAssetsBundle (assets: WxAssetHash[]) {
+    return this.bundle.compile().then(() => {
+      const data = this.bundle.toJSON()
+      
+      if (assets.length > 0) {
+        const diffs: AssetJSON[] = []
+
+        for (const asset of assets) {
+          const current = data.assets.find(current => {
+            if (current.relative === asset.relative) {
+              if (current.hash !== asset.hash) {
+                return current
+              }
+            }
+          }) ?? null
+  
+          if (current !== null) {
+            diffs.push(current as AssetJSON)
+          }
+        }
+
+        return {
+          root: data.root,
+          assets: diffs
+        }
+      }
+
+      return data
+    })
   }
 
   // 登陆

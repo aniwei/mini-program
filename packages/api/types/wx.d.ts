@@ -1,5 +1,6 @@
-import { BaseApi, MessageContent, MessageOwner, MessageTransport } from '@catalyze/basic';
-import { WxAssetsBundle } from '@catalyze/asset';
+import { AssetsBundleJSON, BaseApi, MessageContent, MessageOwner, MessageTransport } from '@catalyze/basic';
+import { WxAssetHash } from '@catalyze/asset';
+import { WxProj } from '@catalyze/types';
 export declare enum WxQRCodeStateKind {
     Uncreated = "uncreated",
     Created = "created",
@@ -35,7 +36,8 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
     };
     Program: {
         commands: {
-            getWxAssetsBundle(): Promise<WxAssetsBundle>;
+            current(): Promise<WxProj>;
+            getWxAssetsBundle(assets: WxAssetHash[]): Promise<AssetsBundleJSON>;
             compile(): Promise<string[]>;
             invoke(name: string, data: unknown, id: number): Promise<unknown>;
             login(): Promise<WxLogin>;

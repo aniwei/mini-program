@@ -1,6 +1,10 @@
 /// <reference types="node" />
-import { Asset, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyze/basic';
+import { Asset, AssetHash, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyze/basic';
 import { WxAppUsingJSON, WxAppWindowJSON } from '@catalyze/types';
+export interface WxAssetHash extends AssetHash {
+    hash: string;
+    relative: string;
+}
 export interface WxAssetSetJSON extends WxAppWindowJSON {
     component?: boolean;
     usingComponents?: WxAppUsingJSON;

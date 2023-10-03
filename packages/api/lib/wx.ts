@@ -1,13 +1,16 @@
 import { invariant } from 'ts-invariant'
 import { 
   ApiJSON, 
+  Asset, 
+  AssetsBundleJSON, 
   BaseApi, 
   MessageContent, 
   MessageOwner, 
   MessageTransport 
 } from '@catalyze/basic'
-import { WxAssetsBundle } from '@catalyze/asset'
+import { WxAssetHash } from '@catalyze/asset'
 import { WxApiTransport } from './transport'
+import { WxProj } from '@catalyze/types'
 import WxApiJSON from './api.json'
 
 export enum WxQRCodeStateKind {
@@ -27,7 +30,6 @@ export interface WxUser {
   nickname: string,
   avatarURL: string
 }
-
 
 export interface WxLogin {
   code: string,
@@ -52,7 +54,8 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
   }, 
   Program: {
     commands: {
-      getWxAssetsBundle (): Promise<WxAssetsBundle>
+      current (): Promise<WxProj>,
+      getWxAssetsBundle (assets: WxAssetHash[]): Promise<AssetsBundleJSON>
       compile (): Promise<string[]>
       invoke (name: string, data: unknown, id: number): Promise<unknown>
       login (): Promise<WxLogin>

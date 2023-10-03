@@ -37,6 +37,10 @@ export const useWx = create<WxState>(set => {
     set(() => ({ QRCodeState }))
   }).on('connected', () => {
     set({ state: WxApiStateKind.Connected })
+  }).on('disconnected', () => {
+    set({ state: WxApiStateKind.Disconnected })
+  }).on('error', () => {
+    set({ state: WxApiStateKind.Error })
   })
 
   return {

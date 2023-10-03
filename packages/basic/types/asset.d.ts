@@ -1,4 +1,10 @@
 /// <reference types="node" />
+export interface AssetHash {
+    hash: string;
+    ext: string;
+    root: string;
+    relative: string;
+}
 export declare enum AssetStoreKind {
     Memory = 0,
     Locale = 1

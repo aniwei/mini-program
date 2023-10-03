@@ -134,10 +134,11 @@ export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
       }, {
         source: (this.findByFilename(`@wx/wxss/app.wxss`) as WxAsset).data as string + '()',
         filename: 'wxss/app.js'
-      }, {
-        source: (this.findByFilename(`@wx/wxss/./app.wxss`) as WxAsset).data as string + '()',
-        filename: 'wxss/./app.js'
-      }
+      }, 
+      // {
+      //   source: (this.findByFilename(`@wx/wxss/./app.wxss`) as WxAsset).data as string + '()',
+      //   filename: 'wxss/./app.js'
+      // }
     ].concat(sets.reduce((file, set) => {
       const json: WxAssetSetJSON = { 
         ...(set.json ? set.json.data as object : {  }),

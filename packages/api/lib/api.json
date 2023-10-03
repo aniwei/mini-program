@@ -59,8 +59,8 @@
     }, {
       "name": "Program",
       "commands": [{
-        "name": "recent",
-        "description": "最近项目",
+        "name": "current",
+        "description": "当前项目数据",
         "parameters": []
       }, {
         "name": "getWxAssetsBundle",
