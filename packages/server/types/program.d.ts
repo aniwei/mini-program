@@ -1,6 +1,5 @@
 import { Axios } from 'axios';
 import { WxAssetsCompile } from '@catalyze/compile';
-import { Asset } from '@catalyze/basic';
 import type { WxProj } from '@catalyze/types';
 declare class MiniAssetsBundle extends WxAssetsCompile {
     search(): Promise<undefined>;
@@ -28,11 +27,7 @@ export declare class WxProgram extends WxCached {
     protected bundle: MiniAssetsBundle;
     constructor(options: WxProgramOptions);
     ensure(): Promise<void>;
-    getWxAssetsBundle(): Promise<{
-        root: string;
-        assets: Asset[];
-    }>;
-    recent(): void;
+    getWxAssetsBundle(): Promise<undefined>;
     login(): Promise<any>;
     createRequestTask(data: unknown): void;
     start(): any;

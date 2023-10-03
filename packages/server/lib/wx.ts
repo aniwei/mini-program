@@ -41,7 +41,6 @@ export class WxApp extends WxAuth {
       return config
     })  
 
-    this.api.subscribe('Program.recent', () => this.program.recent())
     this.api.subscribe('Program.login', () => this.program.login())
     this.api.subscribe('Program.createRequestTask', (data: unknown) => this.program.createRequestTask(data))
     this.api.subscribe('Program.getWxAssetsBundle', () => this.program.getWxAssetsBundle())
@@ -52,6 +51,7 @@ export class WxApp extends WxAuth {
   async start () {
     await this.ensure()
     await this.program.ensure()
+    
     await super.start()
     app_debug('服务启动成功')
     console.log('✨ 程序启动成功.')

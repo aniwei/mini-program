@@ -4,7 +4,7 @@ import path from 'path'
 import { Axios } from 'axios'
 import { WxAsset } from '@catalyze/asset'
 import { WxAssetsCompile } from '@catalyze/compile'
-import { Asset, AssetStoreKind, PodStatusKind } from '@catalyze/basic'
+import { AssetStoreKind, PodStatusKind } from '@catalyze/basic'
 import type { WxProj } from '@catalyze/types'
 
 const mini_debug = debug(`wx:program`)
@@ -89,42 +89,7 @@ export class WxProgram extends WxCached {
 
   ////// API 方法
   getWxAssetsBundle () {
-    return this.bundle.compile().then(() => {
-      const bundle = this.bundle.toJSON() 
-      const diffs: Asset[] = []
-
-      for (const asset of bundle.assets) {
-        const diff = this.cached.find(cache => {
-          if (cache.relative === asset.relative) {
-            if (cache.hash !== asset.hash) {
-              return cache
-            }
-          }
-        }) ?? null
-
-        if (diff === null) {
-          diffs.push(asset)
-        }
-      }
-
-      this.cached = bundle.assets.map(asset => {
-        return {
-          relative: asset.relative,
-          hash: asset.hash as string
-        }
-      })
-
-      return this.write().then(() => {
-        return {
-          root: bundle.root,
-          assets: diffs
-        }
-      })
-    })
-  }
-
-  recent () {
-    
+    return this.bundle.compile()
   }
 
   // 登陆

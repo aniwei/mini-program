@@ -65,7 +65,11 @@
       }, {
         "name": "getWxAssetsBundle",
         "description": "获取项目文件包",
-        "parameters": []
+        "parameters": [{
+          "name": "assets",
+          "type": "object",
+          "description": "文件资源"
+        }]
       }, {
         "name": "login",
         "description": "用户登陆",
