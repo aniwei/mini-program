@@ -38,7 +38,7 @@ export class WxStore extends WxBase {
   }
 
   resolve (appid: string) {
-    return path.resolve(this.dir, appid)
+    return path.join(this.dir, 'apps', appid)
   }
 
   async ensure () {
@@ -51,6 +51,8 @@ export class WxStore extends WxBase {
       store_debug(`创建缓存数据文件 「%s」`, filename)
       this.store()
     }
+
+    await this.read()
   }
 
   async clean () {
@@ -73,9 +75,6 @@ export class WxStore extends WxBase {
   
   async start () {
     // 确认是否已经创建缓存数据
-    await this.ensure()
-    await this.read()
-
     store_debug(`数据缓存启动完成`)
     super.start()
   }

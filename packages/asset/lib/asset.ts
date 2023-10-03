@@ -107,7 +107,7 @@ export class WxAssetSet extends AssetsBundle {
           usingComponents[key] = value
         }
 
-        const components = this.json ? (this.json.data as WxAssetSetJSON).usingComponents : {}
+        const components = this.json ? (this.json.data as WxAssetSetJSON).usingComponents ?? {} : {}
         this._usingComponents = {
           ...usingComponents,
           ...components

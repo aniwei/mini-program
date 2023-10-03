@@ -14,6 +14,7 @@ export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '
 export type AssetJSON = {
     ext: string;
     root: string;
+    hash: string | null;
     source: ArrayBufferView | ArrayBufferLike | string;
     relative: string;
 };
@@ -39,6 +40,7 @@ export declare abstract class Asset {
     parsed: ParsedPath;
     absolute: string;
     relative: string;
+    hash: string | null;
     /**
      * 构造函数
      * @param {string} file

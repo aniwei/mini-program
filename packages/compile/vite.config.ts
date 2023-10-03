@@ -25,6 +25,7 @@ export default defineConfig({
         '@catalyze/types', 
         '@catalyze/asset', 
         'ts-invariant', 
+        'crypto',
         'debug',
         'glob',
         'fs-extra',

@@ -9,7 +9,8 @@ export default defineConfig({
   define: {
     global: 'globalThis',
     '__DEV__': true,
-    'process.env': {},
+    // 'process.env': {},
+    // 'process.cwd': `function () { return ${process.cwd()}}`,
   },
   server: {
     headers: {
@@ -50,8 +51,8 @@ export default defineConfig({
   plugins: [
     inject({
       process: 'process/browser',
-      include: ['src'],
-      exclude: ['']
+      // include: ['src/**/*', 'node_modules/path-browserify'],
+      // exclude: ['']
     }), 
     viteCommonjs({
       exclude: ['src']

@@ -61,9 +61,6 @@ importers:
       '@catalyze/types':
         specifier: workspace:^
         version: link:../types
-      path-browserify:
-        specifier: ^1.0.1
-        version: 1.0.1
       ts-invariant:
         specifier: ^0.10.3
         version: 0.10.3
@@ -95,6 +92,9 @@ importers:
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
+      process:
+        specifier: ^0.11.10
+        version: 0.11.10
     devDependencies:
       '@types/bytes':
         specifier: ^3.1.2
@@ -9740,7 +9740,7 @@ packages:
     version: 4.3.0
     engines: {node: '>=8'}
     dependencies:
-      color-convert: r2.cnpmjs.org/color-convert@2.0.1
+      color-convert: 2.0.1
     dev: false
 
   r2.cnpmjs.org/ansi-styles@5.2.0:

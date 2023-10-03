@@ -24,6 +24,7 @@ export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '
 export type AssetJSON = {
   ext: string,
   root: string,
+  hash: string | null,
   source: ArrayBufferView | ArrayBufferLike | string,
   relative: string,
 }
@@ -94,6 +95,7 @@ export abstract class Asset {
   public relative: string
   // 文件存储类型 内存 / 本地
   
+  public hash: string | null = null
   
   /**
    * 构造函数
@@ -121,6 +123,7 @@ export abstract class Asset {
 
     return {
       ext: this.ext,
+      hash: this.hash,
       root: this.root,
       source: this.source,
       relative: this.relative,

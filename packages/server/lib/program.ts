@@ -1,11 +1,10 @@
 import debug from 'debug'
 import fs from 'fs-extra'
 import path from 'path'
-import { invariant } from 'ts-invariant'
 import { Axios } from 'axios'
-import { WxAsset, WxAssetProjJSON } from '@catalyze/asset'
+import { WxAsset } from '@catalyze/asset'
 import { WxAssetsCompile } from '@catalyze/compile'
-import { AssetStoreKind, PodStatusKind } from '@catalyze/basic'
+import { Asset, AssetStoreKind, PodStatusKind } from '@catalyze/basic'
 import type { WxProj } from '@catalyze/types'
 
 const mini_debug = debug(`wx:program`)
@@ -28,39 +27,104 @@ class MiniAssetsBundle extends WxAssetsCompile {
   }
 }
 
-export class MiniProgram extends Axios {
+interface WxCachedOptions extends WxProj {
+  dir: string,
+}
 
-  protected _appid: string | null = null
-  public get appid () {
-    if (this._appid === null) {
-      const proj = this.bundle.findByFilename('project.config')?.data ?? null
-      invariant(proj !== null)
+interface AssetCache {
+  relative: string,
+  hash: string
+}
 
-      this._appid = (proj as WxAssetProjJSON).appid
+abstract class WxCached extends Axios {
+  protected dir: string
+  protected root: string
+  protected appid: string
+
+  protected cached: AssetCache[] = []
+
+  constructor (options: WxCachedOptions) {
+    super({ baseURL: `https://servicewechat.com` })
+
+    this.dir = options.dir
+    this.root = options.root
+    this.appid = options.appid
+  } 
+
+  async read () {
+    const filename = path.resolve(this.dir, `apps/${this.appid}.json`)
+    
+    if (!await fs.exists(filename)) {
+      await fs.writeFile(filename, '[]')
+      this.cached = []
+    } else {
+      this.cached = await fs.readJSON(filename)
     }
-
-    return this._appid
   }
 
-  protected root: string
+  async write () {
+    const filename = path.resolve(this.dir, `apps/${this.appid}.json`)
+    await fs.writeFile(filename, JSON.stringify(this.cached))
+  }
+}
+
+
+export interface WxProgramOptions extends WxCachedOptions {
+  dir: string
+}
+
+export class WxProgram extends WxCached {
   protected bundle: MiniAssetsBundle
-
-  constructor (proj: WxProj) {
-    super({ baseURL: `https://servicewechat.com` })
+  constructor (options: WxProgramOptions) {
+    super(options)
     
-
-    this.root = proj.root
-    this.bundle = MiniAssetsBundle.create(4, proj.root)
+    this.bundle = MiniAssetsBundle.create(4, options.root)
   }
 
   async ensure () {
     mini_debug(`开始读取小程序项目`)
+    await this.read()
     await this.start()
   }
 
   ////// API 方法
   getWxAssetsBundle () {
-    return this.bundle.compile().then(() => this.bundle.toJSON())
+    return this.bundle.compile().then(() => {
+      const bundle = this.bundle.toJSON() 
+      const diffs: Asset[] = []
+
+      for (const asset of bundle.assets) {
+        const diff = this.cached.find(cache => {
+          if (cache.relative === asset.relative) {
+            if (cache.hash !== asset.hash) {
+              return cache
+            }
+          }
+        }) ?? null
+
+        if (diff === null) {
+          diffs.push(asset)
+        }
+      }
+
+      this.cached = bundle.assets.map(asset => {
+        return {
+          relative: asset.relative,
+          hash: asset.hash as string
+        }
+      })
+
+      return this.write().then(() => {
+        return {
+          root: bundle.root,
+          assets: diffs
+        }
+      })
+    })
+  }
+
+  recent () {
+    
   }
 
   // 登陆

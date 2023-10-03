@@ -59,6 +59,10 @@
     }, {
       "name": "Program",
       "commands": [{
+        "name": "recent",
+        "description": "最近项目",
+        "parameters": []
+      }, {
         "name": "getWxAssetsBundle",
         "description": "获取项目文件包",
         "parameters": []

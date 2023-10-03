@@ -11,6 +11,10 @@ export const getWxProj = async (): Promise<WxProj> => {
 
   if (await fs.exists(path.resolve(cwd, 'project.config.json'))) {
     const config = await fs.readJson(path.resolve(cwd, 'project.config.json'))
+
+    if (config.appid) {
+      proj.appid = config.appid
+    }
     
     if (
       config.miniprogramRoot !== undefined &&

@@ -27,7 +27,6 @@
   "dependencies": {
     "@catalyze/basic": "workspace:^",
     "@catalyze/types": "workspace:^",
-    "path-browserify": "^1.0.1",
     "ts-invariant": "^0.10.3"
   }
 }

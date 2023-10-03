@@ -162,6 +162,10 @@ export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
       filename: 'view.js'
     }, {
       source: `
+        if (__wxAppCode__['${this.path}.wxss'] !== undefined && __wxAppCode__['${this.path}.wxss'] !== null) {
+          __wxAppCode__['${this.path}.wxss']()
+        }
+
         const generateFunc = $gwx('${this.path}.wxml');
         if (generateFunc) {
           document.dispatchEvent(new CustomEvent('generateFuncReady', { 

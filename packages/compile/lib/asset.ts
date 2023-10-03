@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import crypto from 'crypto'
 import { invariant } from 'ts-invariant'
 import { glob } from 'glob'
 import { 
@@ -10,6 +11,12 @@ import {
 import * as Wx from '@catalyze/asset'
 import { MainCompilePod } from './pod/proxy'
 import type { WxAppUsingJSON } from '@catalyze/types'
+
+const hash = (source: string | Buffer) => {
+  const hash = crypto.createHash('md5')
+  hash.update(source)
+  return hash.digest('hex')
+}
 
 export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
   /**
@@ -148,6 +155,7 @@ class AssetJSON extends AssetProcess {
   decode (asset: Asset): Promise<void> {
     if (asset.source === null) {
       return fs.readFile(asset.absolute).then(source => {
+        asset.hash = hash(source)
         asset.source = source.toString()
         asset.data = JSON.parse(asset.source as string)
       })
@@ -169,6 +177,7 @@ class AssetImage extends AssetProcess {
   decode (asset: Asset): Promise<void> {
     if (asset.source === null) {
       return fs.readFile(asset.absolute).then(source => {
+        asset.hash = hash(source)
         asset.source = source.toString('base64url')
         asset.data = asset.source
       })
@@ -190,6 +199,7 @@ class AssetDefault extends AssetProcess {
   decode (asset: Asset): Promise<void> {
     if (asset.source === null && asset.type === AssetStoreKind.Locale) {
       return fs.readFile(asset.absolute).then(source => {
+        asset.hash = hash(source)
         asset.source = source.toString()
         asset.data = asset.source as string
       })
