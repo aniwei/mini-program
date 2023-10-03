@@ -1,7 +1,6 @@
 import { invariant } from 'ts-invariant'
 import { 
   ApiJSON, 
-  Asset, 
   AssetsBundleJSON, 
   BaseApi, 
   MessageContent, 
