@@ -40,6 +40,7 @@ export default defineConfig({
     alias: {
       'react-native': 'react-native-web',
       'path': 'path-browserify',
+      'less': 'less/lib/less-node',
       '@api': path.resolve(__dirname, `src/pages/index/api`),
       '@libs': path.resolve(__dirname, `src/pages/index/libs`),
       '@hooks': path.resolve(__dirname, `src/pages/index/hooks`),

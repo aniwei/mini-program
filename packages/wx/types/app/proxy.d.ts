@@ -7,6 +7,7 @@ import { Controller } from './capability/proxy/controller';
 import { UI } from './capability/proxy/ui';
 import { Request } from './capability/proxy/request';
 import '../asset';
+import type { WxProj } from '@catalyze/types';
 export interface WxAppRouteOptions {
     path: string;
     query?: object;
@@ -19,6 +20,9 @@ export interface ProxyApp {
     controller: Controller;
     request: Request;
     ui: UI;
+}
+export interface ProxyAppInit extends AssetsBundleJSON {
+    proj: WxProj;
 }
 declare const ProxyApp_base: (abstract new () => {
     [x: string]: any;
@@ -49,7 +53,7 @@ declare const ProxyApp_base: (abstract new () => {
  */
 export declare abstract class ProxyApp extends ProxyApp_base {
     static proxyId: number;
-    static boot(...rests: unknown[]): any;
+    static boot(...rests: unknown[]): ProxyApp;
     protected _navigation: NavigationContainerRef<{}> | null;
     get navigation(): NavigationContainerRef<{}>;
     set navigation(navigation: NavigationContainerRef<{}>);
@@ -63,14 +67,14 @@ export declare abstract class ProxyApp extends ProxyApp_base {
      * @param {WxSettings} settings
      * @returns {Promise<void>}
      */
-    init(assets: AssetsBundleJSON, settings: WxSettings): Promise<any>;
+    init(data: ProxyAppInit, settings: WxSettings): Promise<any>;
     /**
      *
      * @param assets
      * @param settings
      * @returns
      */
-    fromAssetsBundleAndSettings(assets: AssetsBundleJSON, settings: WxSettings): Promise<void>;
+    fromAssetsBundleAndSettings(data: ProxyAppInit, settings: WxSettings): Promise<void>;
     /**
      *
      * @param delta

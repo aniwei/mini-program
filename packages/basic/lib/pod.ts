@@ -201,12 +201,16 @@ export abstract class ProxyPod extends Pod {
 
   init (...rests: unknown[]): Promise<void> {
     return new Promise((resolve) => {
-      this.once('connected', () => this.send({
-        command: 'message::init',
-        payload: {
-          parameters: [...rests]
-        }
-      }).then(() => this.status |= PodStatusKind.Booted))
+      
+
+      this.once('connected', () => {
+        this.send({
+          command: 'message::init',
+          payload: {
+            parameters: [...rests]
+          }
+        }).then(() => this.status |= PodStatusKind.Booted)
+      })
 
       this.once('booted', () => resolve())
     })

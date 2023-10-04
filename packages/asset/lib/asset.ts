@@ -133,6 +133,10 @@ export class WxAssetSet extends AssetsBundle {
   public get js (): WxAsset {
     return this.findByExt('.js')[0] ?? null
   }
+  // => ts
+  public get ts (): WxAsset {
+    return this.findByExt('.ts')[0] ?? null
+  }
   // => json
   public get json (): WxAsset {
     return this.findByExt('.json')[0] ?? null
@@ -148,6 +152,8 @@ export class WxAssetSet extends AssetsBundle {
     
     // 无 JSON 文件，但有 wxml & js 文件
     if (this.wxml && this.js) {
+      return WxAssetSetKind.Page
+    } else if (this.wxml && this.ts) {
       return WxAssetSetKind.Page
     }
 

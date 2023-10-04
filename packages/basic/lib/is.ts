@@ -26,6 +26,10 @@ export const isBlob = (blob: Blob) => {
   return isTypeOf(blob, 'Blob')
 }
 
+export const isRegExp = (r: RegExp) => {
+  return isTypeOf(r, 'RegExp')
+}
+
 export const isSupportSharedArrayBuffer = () => {
   return typeof globalThis.SharedArrayBuffer !== 'undefined'
 }

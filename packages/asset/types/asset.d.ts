@@ -40,6 +40,7 @@ export declare class WxAssetSet extends AssetsBundle {
     get wxml(): WxAsset;
     get wxss(): WxAsset;
     get js(): WxAsset;
+    get ts(): WxAsset;
     get json(): WxAsset;
     get type(): WxAssetSetKind;
     app: WxAsset;

@@ -160,7 +160,9 @@ export class ProxyView extends MixinWxAssetsBundle(WxViewLibs) {
     return super.init({
       id: this.id,
       path: this.path, 
-      assets: super.toJSON(),
+      data: {
+        ...super.toJSON()
+      },
       configs: this.configs,
       settings: this.settings
     })

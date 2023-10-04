@@ -1,4 +1,4 @@
-import { ProxyPod, AssetsBundleJSON } from '@catalyze/basic';
+import { ProxyPod } from '@catalyze/basic';
 export interface MessagePayloadParameters extends Iterable<unknown> {
     0: string;
     1: unknown;
@@ -35,7 +35,7 @@ export interface WxSettings {
 export interface WxInit {
     id?: string | number;
     path?: string;
-    assets: AssetsBundleJSON;
+    data: unknown;
     settings: WxSettings;
     configs: WxConfigs;
 }

@@ -40,12 +40,14 @@ export declare abstract class Asset {
     _source: ArrayBufferLike | ArrayBufferView | string | null;
     get source(): ArrayBufferLike | ArrayBufferView | string | null;
     set source(source: ArrayBufferLike | ArrayBufferView | string | null);
+    _relative: string | null;
+    get relative(): string;
+    set relative(relative: string);
     type: AssetStoreKind;
     status: AssetStatusKind;
     root: string;
     parsed: ParsedPath;
     absolute: string;
-    relative: string;
     hash: string | null;
     /**
      * 构造函数
@@ -74,6 +76,7 @@ export declare class AssetProcesses {
     exts: Map<AssetExt, AssetProcess>;
     constructor();
     register(processor: AssetProcess): void;
+    exclude(asset: Asset): boolean;
     decode(asset: Asset): Promise<void> | undefined;
 }
 export type AssetsBundleJSON = {
@@ -102,6 +105,6 @@ export declare abstract class AssetsBundle {
      */
     toJSON(): {
         root: string;
-        assets: Asset[];
+        assets: AssetJSON[];
     };
 }

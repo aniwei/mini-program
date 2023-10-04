@@ -6,7 +6,8 @@ export default defineConfig({
     lib: {
       entry: {
         index: './lib/index.ts',
-        'pod/compile': './lib/pod/compile.ts'
+        'pod/compile': './lib/pod/compile.ts',
+        'builder/build': './lib/builder/build.ts'
       },
       formats: ['es', 'cjs']
     },
@@ -24,6 +25,7 @@ export default defineConfig({
         '@catalyze/basic', 
         '@catalyze/types', 
         '@catalyze/asset', 
+        '@swc/core',
         'ts-invariant', 
         'crypto',
         'debug',
@@ -33,7 +35,9 @@ export default defineConfig({
         'path', 
         'child_process', 
         'fs/promises',
-        'url'
+        'url',
+        'sass',
+        'less'
       ]
     }
   }

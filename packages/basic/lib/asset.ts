@@ -1,6 +1,7 @@
 import path from 'path'
 import { invariant } from 'ts-invariant'
 import { UnimplementError } from './unimplement'
+import { isRegExp } from './is'
 
 // 资源指纹
 export interface AssetHash {
@@ -63,6 +64,7 @@ export abstract class Asset {
     return (this.status & AssetStatusKind.Mounted) === AssetStatusKind.Mounted
   }
 
+  // => data
   // 编码数据
   // JSON / base64 / string
   public _data: JSON | string | unknown | null = null
@@ -77,6 +79,7 @@ export abstract class Asset {
     }
   }
 
+  // => source
   // 原数据
   public _source: ArrayBufferLike | ArrayBufferView | string | null = null
   public get source () {
@@ -86,6 +89,23 @@ export abstract class Asset {
     if (this._source !== source) {
       this._source = source
       this.status = (this.status &~ AssetStatusKind.Mounted) | AssetStatusKind.Unmount
+    }
+  }
+
+  // => relative
+  // 文件相对路径
+  public _relative: string | null = null
+  public get relative () {
+    invariant(this._relative)
+    return this._relative
+  }
+  public set relative (relative: string) {
+    if (this._relative !== relative) {
+      const absolute = path.resolve(this.root, relative)
+    
+      this._relative = relative
+      this.absolute = absolute
+      this.parsed = path.parse(relative)
     }
   }
 
@@ -99,10 +119,8 @@ export abstract class Asset {
   public parsed: ParsedPath
   // 文件绝对路径
   public absolute: string
-  // 文件相对路径
-  public relative: string
   // 文件存储类型 内存 / 本地
-  
+
   public hash: string | null = null
   
   /**
@@ -190,15 +208,30 @@ export class AssetProcesses {
     }
   }
 
+  exclude (asset: Asset) {
+    const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetProcess
+
+    if (processor && processor.exclude.length > 0) {
+      for (const exclude of processor.exclude) {
+        if (isRegExp(exclude as RegExp)) {
+          const { source, flags } = exclude as RegExp
+          const reg = new RegExp(source, flags)
+          return reg.test(asset.relative)
+        } else if (typeof exclude === 'string') {
+          return exclude === asset.relative
+        }
+      }
+    }
+
+    return false
+  }
+
   // 数据转换
   // string -> JSON / base64url / ...
   decode (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetProcess
 
-    if (processor && processor.exclude.some(exclude => exclude instanceof RegExp
-        ? exclude.test(asset.relative)
-        : exclude === asset.relative
-    )) {
+    if (this.exclude(asset)) {
       asset.status |= AssetStatusKind.Mounted
     } else {
       return processor.decode(asset)
@@ -282,7 +315,7 @@ export abstract class AssetsBundle {
   toJSON () {
     return {
       root: this.root,
-      assets: this.assets
+      assets: this.assets.map(asset => asset.toJSON())
     }
   }
 }

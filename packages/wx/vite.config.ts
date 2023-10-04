@@ -7,7 +7,6 @@ export default defineConfig({
       entry: {
         index: './lib/index.ts',
         'app/boot': './lib/app/boot.ts',
-        'builder/build': './lib/builder/build.ts',
         'view/boot': './lib/view/boot.ts',
       }, 
       formats: ['es', 'cjs']
@@ -20,12 +19,10 @@ export default defineConfig({
         '@catalyze/asset',
         '@catalyze/types',
         '@react-navigation/native',
-        '@swc/wasm-web',
         'debug',
         'path',
         'ts-invariant',
-        'browserfs',
-        'sass.js'
+        'browserfs'
       ]
     }
   },

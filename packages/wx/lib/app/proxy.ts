@@ -15,8 +15,8 @@ import { View } from './capability/proxy/view'
 import { Request } from './capability/proxy/request'
 import { getModuleURL } from '../basic/module'
 
-import type { WxAppJSON } from '@catalyze/types'
 import '../asset'
+import type { WxAppJSON, WxProj } from '@catalyze/types'
 
 const app_debug = debug(`wx:app:proxy`)
 
@@ -35,12 +35,16 @@ export interface ProxyApp {
   ui: UI
 }
 
+export interface ProxyAppInit extends AssetsBundleJSON {
+  proj: WxProj
+}
+
 /**
  * View 创建及持有类
  */
 export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
   static proxyId: number = 1
-  static boot (...rests: unknown[]) {
+  static boot (...rests: unknown[]): ProxyApp {
     /* @__PURE__ */
     const wx = super.boot((new URL('./app/boot.js', getModuleURL())).toString(), ...rests)
     wx.register(Controller)
@@ -83,8 +87,16 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
    * @param {WxSettings} settings 
    * @returns {Promise<void>}
    */
-  init (assets: AssetsBundleJSON, settings: WxSettings) {
-    return this.fromAssetsBundleAndSettings(assets, settings).then(() => super.init({ assets: this.bundle, settings }))
+  init (data: ProxyAppInit, settings: WxSettings) {
+    return this.fromAssetsBundleAndSettings(data, settings).then(() => {
+      return super.init({ 
+        data: {
+          ...this.bundle.toJSON(),
+          proj: data.proj
+        }, 
+        settings 
+      })
+    })
   }
 
   /**
@@ -93,8 +105,11 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
    * @param settings 
    * @returns 
    */
-  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
-    this.fromAssetsBundleJSON(assets)
+  fromAssetsBundleAndSettings (data: ProxyAppInit, settings: WxSettings) {
+    this.fromAssetsBundleJSON({
+      root: data.root,
+      assets: data.assets
+    })
     
     return this.mount().then(() => {
       const app = (this.findByFilename('app.json') as WxAsset).data as WxAppJSON
@@ -147,7 +162,16 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
 
     const view = this.create(options.path, container)
 
-    view.init()
+    view.fromAssetsBundle({
+      root: this.bundle.root,
+      assets: this.bundle.assets.filter(asset => {
+        if (asset.relative !== '@wx/app.js') {
+          return true
+        }
+      }).map(asset => asset.toJSON())
+    }).then(() => view.init())
+
+    
     view.handleInvoke = (name: string, data: unknown, id: string) => {
       app_debug('来自「 View > ProxyApp 」逻辑层「invoke」事件「name: %s, data: %o, id: %o」', name, data, id)
       switch (name) {
@@ -250,14 +274,7 @@ export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
     view.id = ProxyApp.proxyId++
     view.configs = this.configs
     view.settings = this.settings
-    view.fromAssetsBundle({
-      root: this.bundle.root,
-      assets: this.bundle.assets.filter(asset => {
-        if (asset.relative !== '@wx/app.js') {
-          return true
-        }
-      }).map(asset => asset.toJSON())
-    })
+   
 
     this.views.push(view)
 
