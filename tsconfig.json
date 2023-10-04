@@ -1,34 +1,25 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "declaration": true,
-    "target": "esnext",
-    "lib": ["dom", "esnext"],
-    "types": ["@types/jest", "node"],
-    "allowJs": false,
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "composite": false,
-    "incremental": false,
+    
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noImplicitAny": false,
-    "noImplicitThis": true,
-    "noEmit": false,
-    "build": true,
-    "baseUrl": "./",
-    "rootDir": "./src",
-    "outDir": "./dist"
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "types",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "dist/"
-  ]
 }

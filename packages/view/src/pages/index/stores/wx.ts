@@ -1,6 +1,6 @@
 import debug from 'debug'
 import { create } from 'zustand'
-import { WxApiStateKind, WxQRCodeStateKind, WxUser } from '@catalyze/wx-api'
+import { WxApiStateKind, WxQRCodeStateKind, WxUser } from '@catalyze/api'
 import { api } from '../api'
 
 
@@ -37,6 +37,10 @@ export const useWx = create<WxState>(set => {
     set(() => ({ QRCodeState }))
   }).on('connected', () => {
     set({ state: WxApiStateKind.Connected })
+  }).on('disconnected', () => {
+    set({ state: WxApiStateKind.Disconnected })
+  }).on('error', () => {
+    set({ state: WxApiStateKind.Error })
   })
 
   return {

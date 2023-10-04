@@ -1,5 +1,5 @@
 import debug from 'debug'
-import invariant from 'ts-invariant'
+import { invariant } from 'ts-invariant'
 import { SyntheticEvent, useCallback } from 'react'
 import { NavigationProp } from '@react-navigation/native'
 import { useProgram } from '@stores/program'

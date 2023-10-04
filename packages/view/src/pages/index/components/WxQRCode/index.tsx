@@ -1,5 +1,5 @@
 import { View, Text, Image } from 'react-native'
-import { WxQRCodeStateKind } from '@catalyze/wx-api'
+import { WxQRCodeStateKind } from '@catalyze/api'
 
 interface WxQRCodeLiftcycleProps {
   state: WxQRCodeStateKind

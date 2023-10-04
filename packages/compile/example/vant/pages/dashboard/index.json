@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "Vant Weapp",
-  "usingComponents": {
-    "demo-home": "../../components/demo-home/index"
-  }
-}

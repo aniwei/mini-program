@@ -9,7 +9,8 @@ export default defineConfig({
   define: {
     global: 'globalThis',
     '__DEV__': true,
-    'process.env': {},
+    // 'process.env': {},
+    // 'process.cwd': `function () { return ${process.cwd()}}`,
   },
   server: {
     headers: {
@@ -38,6 +39,7 @@ export default defineConfig({
     extensions: ['.web.tsx', '.web.jsx', '.web.js', '.web.ts', '.tsx', '.ts', '.js', '.jsx'],
     alias: {
       'react-native': 'react-native-web',
+      'path': 'path-browserify',
       '@api': path.resolve(__dirname, `src/pages/index/api`),
       '@libs': path.resolve(__dirname, `src/pages/index/libs`),
       '@hooks': path.resolve(__dirname, `src/pages/index/hooks`),
@@ -49,11 +51,11 @@ export default defineConfig({
   plugins: [
     inject({
       process: 'process/browser',
-      include: ['src'],
-      exclude: ['']
+      // include: ['src/**/*', 'node_modules/path-browserify'],
+      // exclude: ['']
     }), 
     viteCommonjs({
-      exclude: ['src', '@catalyze/*']
+      exclude: ['src']
     }), 
     react()
   ],
