@@ -14,6 +14,7 @@ import { WxViewLibs } from './libs'
 import { View } from './capability/view'
 
 import '../asset'
+import { WxProj } from '@catalyze/types'
 
 const view_debug = debug('wx:view:iframe')
 
@@ -29,6 +30,10 @@ type MessagePayload = {
 type InjectFile  = {
   filename: string,
   source: string
+}
+
+interface WxViewInit extends AssetsBundleJSON {
+  proj: WxProj
 }
 
 enum ViewPublishEventKind {
@@ -49,9 +54,9 @@ export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
 
     this.command('message::init', async (message: MessageOwner) => {
       const payload = message.payload as MessagePayload
-      const { id, path, settings, configs, assets } = payload.parameters[0] as WxInit
+      const { id, path, settings, configs, data } = payload.parameters[0] as WxInit
 
-      await this.fromAssetsBundle(assets)
+      await this.fromAssetsBundle((data as WxViewInit))
 
       this.id = id as number
       this.path = path as string

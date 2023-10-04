@@ -1,9 +1,6 @@
 import debug from 'debug'
-import { invariant } from 'ts-invariant'
 import { defineReadAndWriteProperty, nextTick } from '@catalyze/basic'
 import { 
-  Asset, 
-  AssetProcess, 
   AssetsBundleJSON, 
   MessageOwner, 
   PodStatusKind, 
@@ -13,7 +10,6 @@ import {
   MixinWxAssetsBundle, 
   WxAsset, 
   WxAssetSetJSON, 
-  WxAssetsBundle 
 } from '@catalyze/asset'
 import { WxAppLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
@@ -26,7 +22,6 @@ import { Controller } from './capability/controller'
 import { Request } from './capability/request'
 import { UI } from './capability/ui'
 import { WxCapabilityFactory } from '../capability'
-import { BuildTypeKind, MainBuilder } from '../builder'
 import { ProxyApp } from './proxy'
 
 import type { WxAppJSON } from '@catalyze/types'
@@ -45,6 +40,10 @@ type MessagePayload = {
 type InjectFile  = {
   filename: string,
   source: string
+}
+
+interface WxAppInit extends AssetsBundleJSON {
+  root: string,
 }
 
 const worker_debug = debug('wx:app:worker')
@@ -71,9 +70,9 @@ export class WxApp extends MixinWxAssetsBundle(WxAppLibs) {
 
     this.command('message::init', async (message: MessageOwner) => {
       const payload = message.payload as unknown as MessagePayload
-      const { settings, assets } = payload.parameters[0] as unknown as WxInit
+      const { settings, data } = payload.parameters[0] as unknown as WxInit
 
-      await this.fromAssetsBundleAndSettings(assets, settings)
+      await this.fromAssetsBundleAndSettings(data as WxAppInit, settings)
     })
 
     this.once('inited', () => {
@@ -147,8 +146,12 @@ export class WxApp extends MixinWxAssetsBundle(WxAppLibs) {
   }
 
   // 初始化
-  fromAssetsBundleAndSettings (assets: AssetsBundleJSON, settings: WxSettings) {
-    this.fromAssetsBundleJSON(assets)
+  fromAssetsBundleAndSettings (data: WxAppInit, settings: WxSettings) {
+    this.fromAssetsBundleJSON({ 
+      assets: data.assets, 
+      root: data.root 
+    })
+
     return this.mount().then(() => {
       const app = (this.findByFilename('app.json') as WxAsset).data as WxAppJSON
       const configs = {
@@ -200,73 +203,9 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
   if (payload.type === 'connection') {
     worker_debug('开始链接 Worker')
     WxApp.create(new WorkPort(payload.port), '/') as unknown as WxApp
-    
-    const processor = AssetJS.create()
-    const builder = MainBuilder.create(1)
-    processor.builder = builder
 
-    WxAssetsBundle.processor.register(processor)
-    builder.init().then(() => self.postMessage({ status: 'connected' }))
+    self.postMessage({ status: 'connected' })
   }
 })
 
 debug.enable('*')
-
-// JS 文件处理器
-// @ts-ignore
-class AssetJS extends AssetProcess {
-  static create <T extends AssetJS> (): T {
-    return super.create('.js', [
-      /^@wx\/.+/gi
-    ])
-  }
-
-  // => builder
-  // JS compile
-  public _builder: MainBuilder | null = null
-  public get builder () {
-    invariant(this._builder)
-    return this._builder
-  }
-  public set builder (builder: MainBuilder) {
-    if (this._builder !== builder) {
-      this._builder = builder
-    }
-  }
-
-  /**
-   * 
-   * @param {Asset} asset 
-   * @returns {Promise<void>}
-   */
-  decode (asset: Asset): Promise<void> {
-    return Promise.resolve().then(() => {
-      invariant(asset.source !== null && asset.source !== undefined)
-      return this.builder.runTask({
-        name: asset.relative,
-        content: asset.source,
-        sourceMaps: true
-      }, BuildTypeKind.JS).then((result) => {
-        asset.data = result
-      })
-    })
-  }
-}
-
-// Sass 文件处理器
-class AssetSass extends AssetProcess {
-  static create <T extends AssetSass> (): T {
-    return super.create('.scss')
-  }
-}
-
-// Less 文件处理器
-class AssetLess extends AssetProcess {
-  static create <T extends AssetLess> (): T {
-    return super.create('.less')
-  }
-}
-
-WxAssetsBundle.processor.register(AssetJS.create())
-WxAssetsBundle.processor.register(AssetSass.create())
-WxAssetsBundle.processor.register(AssetLess.create())

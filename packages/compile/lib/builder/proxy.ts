@@ -1,6 +1,6 @@
-
+import path from 'path'
 import { MainPod, PodStatusKind, ProxyPod } from '@catalyze/basic'
-import { getModuleURL } from '../basic/module'
+
 
 type BuildPayload = {
   code: string,
@@ -15,6 +15,7 @@ export enum BuildTypeKind {
 }
 
 export type BuildSource = {
+  ext: string,
   name: string,
   content: string,
   sourceMaps: boolean
@@ -57,7 +58,7 @@ export class MainBuilder extends MainPod<ProxyBuilder> {
   static create (...rests: unknown[]): MainBuilder
   static create (count: number = 2): MainBuilder {
     const proxies: ProxyBuilder[] = []
-    const uri = (new URL('./builder/build.js', getModuleURL())).toString()
+    const uri = path.resolve(__dirname, 'builder/build.cjs')
 
     for (let i = 0; i < count; i++) {
       const proxy = ProxyBuilder.boot(uri) as ProxyBuilder

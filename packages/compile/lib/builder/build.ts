@@ -1,8 +1,8 @@
 import debug from 'debug'
-import initialize from '@swc/wasm-web'
-// @ts-ignore
-import sass from 'sass.js'
-import { transform }  from '@swc/wasm-web'
+import sass from 'sass'
+import less from 'less'
+import path from 'path'
+import { transform } from '@swc/core'
 import { MessageOwner, PodStatusKind, WorkPort } from '@catalyze/basic'
 import { BuildTask, BuildSource, BuildTypeKind, ProxyBuilder } from './proxy'
 
@@ -35,7 +35,9 @@ class Builder extends ProxyBuilder {
 
       switch (buildTask.type) {
         case BuildTypeKind.Less:
-          throw new Error('Unsupport')
+          // @TODO
+          // @ts-ignore 
+          return message.reply(await this.less(buildTask.source))
 
         case BuildTypeKind.Sass:
           // @TODO
@@ -49,20 +51,44 @@ class Builder extends ProxyBuilder {
       }
     })
   }
+  
+  less (source: BuildSource) {
+    return new Promise((resolve, reject) => {
+      less.render(source.content, (error: any, output?: Less.RenderOutput) => {
+        if (error !== null) {
+          reject(error)
+        } 
+        resolve(output)
+      })
+      // @ts-ignore
+    }).then((result: { css: string, map: string }) => {
+      return {
+        payload: {
+          code: result.css,
+          map: result.map
+        }
+      }
+    })
+  }
 
   sass (source: BuildSource) {
     return new Promise((resolve, reject) => {
       sass.render({
-        data: source.content
-      }, (error: any, result: string) => {
+        data: source.content,
+        omitSourceMapUrl: true,
+      }, (error: any, result: unknown) => {
         if (error !== null) {
           reject(error)
         } 
         resolve(result)
       })
-    }).then(result => {
+      // @ts-ignore
+    }).then((result: { css: string, map: string }) => {
       return {
-        payload: result
+        payload: {
+          code: result.css,
+          map: result.map
+        }
       }
     })
   }
@@ -74,7 +100,9 @@ class Builder extends ProxyBuilder {
       filename: source.name,
       jsc: {
         parser: {
-          syntax: 'ecmascript',
+          syntax: source.ext === '.js' 
+            ? 'ecmascript' 
+            : 'typescript',
         },
         target: 'es5',
       },
@@ -83,12 +111,16 @@ class Builder extends ProxyBuilder {
       },
       sourceMaps: source.sourceMaps,
       inlineSourcesContent: true
-    }).then(result => {
-      const code = `define('${source.name}', function (require, module, exports, window, document, frames, self, location, navigator, localStorage, history, Caches, screen, alert, confirm, prompt, fetch, XMLHttpRequest, WebSocket, webkit, WeixinJSCore, Reporter, print, URL, DOMParser, upload, preview, build, showDecryptedInfo, cleanAppCache, syncMessage, checkProxy, showSystemInfo, openVendor, openToolsLog, showRequestInfo, help, showDebugInfoTable, closeDebug, showDebugInfo, __global, loadBabelMod, WeixinJSBridge){\n${result.code}\n})`
+    }).then((result: { code: string, map?: string }) => {
+      const parsed = path.parse(source.name)
+      parsed.base = ''
+      parsed.ext = '.js'
+
+      const code = `define('${path.format(parsed)}', function (require, module, exports, window, document, frames, self, location, navigator, localStorage, history, Caches, screen, alert, confirm, prompt, fetch, XMLHttpRequest, WebSocket, webkit, WeixinJSCore, Reporter, print, URL, DOMParser, upload, preview, build, showDecryptedInfo, cleanAppCache, syncMessage, checkProxy, showSystemInfo, openVendor, openToolsLog, showRequestInfo, help, showDebugInfoTable, closeDebug, showDebugInfo, __global, loadBabelMod, WeixinJSBridge){\n${result.code}\n})`
       return {
         payload: {
           code,
-          map: result.code
+          map: result.map
         }
       }
     }).catch((error: any) => {
@@ -102,7 +134,7 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
   const payload = event.data
   if (payload.type === 'connection') {
     
-      Builder.create(new WorkPort(payload.port)),
-      initialize(new URL('/wasm-web_bg.wasm', import.meta.url).toString()).then(() => self.postMessage({ status: 'connected' }))
+    Builder.create(new WorkPort(payload.port))
+    self.postMessage({ status: 'connected' })
   }
 })

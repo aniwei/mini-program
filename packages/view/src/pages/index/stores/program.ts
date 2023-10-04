@@ -81,10 +81,11 @@ export const useProgram = create<ProgramState>((set) => {
               set({ state: ProgramStateKind.Run })
   
               wx.init({
+                proj,
                 root: bundle.root,
                 assets
               }, settings).then(() => {
-                const app = wx.findByFilename('app.json').data as WxAppJSON
+                const app = wx.findByFilename('app.json')?.data as WxAppJSON
           
                 const state: Partial<ProgramState> = {
                   wx: wx,

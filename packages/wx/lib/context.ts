@@ -1,6 +1,6 @@
 import debug from 'debug'
 import { invariant } from 'ts-invariant'
-import { ProxyPod, MessageOwner, tryCatch, PodStatusKind, AssetsBundleJSON, UnimplementError } from '@catalyze/basic'
+import { ProxyPod, MessageOwner, tryCatch, PodStatusKind, UnimplementError } from '@catalyze/basic'
 
 
 
@@ -78,7 +78,7 @@ export interface WxSettings {
 export interface WxInit {
   id?: string | number,
   path?: string,
-  assets: AssetsBundleJSON,
+  data: unknown
   settings: WxSettings,
   configs: WxConfigs,
 }

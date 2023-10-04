@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import path from 'path'
 import crypto from 'crypto'
 import { invariant } from 'ts-invariant'
 import { glob } from 'glob'
@@ -10,6 +11,7 @@ import {
 
 import * as Wx from '@catalyze/asset'
 import { MainCompilePod } from './pod/proxy'
+import { BuildTypeKind, MainBuilder } from './builder'
 import type { WxAppUsingJSON } from '@catalyze/types'
 
 const createHash = (source: string | Buffer) => {
@@ -126,7 +128,24 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
   }
 
   search () {
-    return WxAssetsBundle.searchByExts(this.root, [ 
+    const builder = MainBuilder.create(4)
+
+    const js = AssetJS.create()
+    const less = AssetLess.create()
+    const scss = AssetSass.create()
+
+    js.builder = builder
+    less.builder = builder
+    scss.builder = builder
+
+    Wx.WxAssetsBundle.processor.register(js)
+    Wx.WxAssetsBundle.processor.register(less)
+    Wx.WxAssetsBundle.processor.register(scss)
+    Wx.WxAssetsBundle.processor.register(AssetDefault.create())
+    Wx.WxAssetsBundle.processor.register(AssetJSON.create())
+    Wx.WxAssetsBundle.processor.register(AssetImage.create())
+
+    return builder.init().then(() => WxAssetsBundle.searchByExts(this.root, [ 
       'js', 
       'ts', 
       'wxml', 
@@ -137,11 +156,125 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
       'scss', 
       'png', 
       'jpg', 
-      'jpeg'
+      'jpeg',
+      'svg'
     ]).then((files) => {
       
       this.put(files.map(filename => Wx.WxAsset.create(filename, this.root)))
       return this.mount()
+    }))
+  }
+}
+
+// Default
+class AssetDefault extends AssetProcess {
+  static create <T extends AssetDefault> (ext: string | string[] = '*', ...rests: unknown[]): T {
+    return super.create(ext, ...rests)
+  }
+
+  decode (asset: Asset): Promise<void> {
+    if (asset.source === null && asset.type === AssetStoreKind.Locale) {
+      return fs.readFile(asset.absolute).then(source => {
+        asset.hash = createHash(source)
+        asset.source = source.toString()
+        asset.data = asset.source as string
+      })
+    } else {
+      return Promise.resolve().then(() => {
+        invariant(asset.source !== null)
+        asset.hash = createHash(asset.source as Buffer)
+        asset.data = asset.source as string
+      })
+    }
+  }
+}
+
+abstract class AssetBuilder extends AssetDefault {
+  // => builder
+  // JS compile
+  public _builder: MainBuilder | null = null
+  public get builder () {
+    invariant(this._builder)
+    return this._builder
+  }
+  public set builder (builder: MainBuilder) {
+    if (this._builder !== builder) {
+      this._builder = builder
+    }
+  }
+}
+
+// JS 文件处理器
+// @TO-FIX TS
+// @ts-ignore
+class AssetJS extends AssetBuilder {
+  static create <T extends AssetJS> (): T {
+    return super.create(['.js', '.ts'], [
+      /^@wx\/.+/gi
+    ])
+  }
+
+  /**
+   * 
+   * @param {Asset} asset 
+   * @returns {Promise<void>}
+   */
+  decode (asset: Asset): Promise<void> {
+    return super.decode(asset).then(() => {
+      invariant(asset.source !== null && asset.source !== undefined, `Asset relative is "${asset.relative}"`)
+      return this.builder.runTask({
+        ext: asset.ext,
+        name: asset.relative,
+        content: asset.source,
+        sourceMaps: true
+      }, BuildTypeKind.JS).then((result) => {
+        if (asset.ext === '.ts') {
+          const parsed = path.parse(asset.relative)
+          parsed.base = ''
+          parsed.ext = '.js'
+          asset.relative = path.format(parsed)
+        }
+
+        // 需要注意顺序，source 资源 status 会设置为未解析
+        asset.source = result as string
+        asset.data = result
+      })
+    })
+  }
+}
+
+// Sass 文件处理器
+// @TO-FIX TS
+// @ts-ignore
+class AssetSass extends AssetBuilder {
+  static create <T extends AssetSass> (): T {
+    return super.create('.scss')
+  }
+}
+
+// Less 文件处理器
+// @TO-FIX TS
+// @ts-ignore
+class AssetLess extends AssetBuilder {
+  static create <T extends AssetLess> (): T {
+    return super.create('.less')
+  }
+
+  /**
+   * 
+   * @param {Asset} asset 
+   * @returns {Promise<void>}
+   */
+  decode (asset: Asset): Promise<void> {
+    return super.decode(asset).then(() => {
+      invariant(asset.source !== null && asset.source !== undefined)
+      return this.builder.runTask({
+        name: asset.relative,
+        content: asset.source,
+        sourceMaps: true
+      }, BuildTypeKind.Less).then((result) => {
+        asset.data = result
+      })
     })
   }
 }
@@ -172,7 +305,7 @@ class AssetJSON extends AssetProcess {
 // Image
 class AssetImage extends AssetProcess {
   static create <T extends AssetImage> (): T {
-    return super.create(['.png', '.jpg', 'jpeg'])
+    return super.create(['.png', '.jpg', '.jpeg', '.svg'])
   }
 
   decode (asset: Asset): Promise<void> {
@@ -191,30 +324,3 @@ class AssetImage extends AssetProcess {
     }
   }
 }
-
-// Default
-class AssetDefault extends AssetProcess {
-  static create <T extends AssetDefault> (): T {
-    return super.create('*')
-  }
-
-  decode (asset: Asset): Promise<void> {
-    if (asset.source === null && asset.type === AssetStoreKind.Locale) {
-      return fs.readFile(asset.absolute).then(source => {
-        asset.hash = createHash(source)
-        asset.source = source.toString()
-        asset.data = asset.source as string
-      })
-    } else {
-      return Promise.resolve().then(() => {
-        invariant(asset.source !== null)
-        asset.hash = createHash(asset.source as Buffer)
-        asset.data = asset.source as string
-      })
-    }
-  }
-}
-
-Wx.WxAssetsBundle.processor.register(AssetDefault.create())
-Wx.WxAssetsBundle.processor.register(AssetJSON.create())
-Wx.WxAssetsBundle.processor.register(AssetImage.create())
