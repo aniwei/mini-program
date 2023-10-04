@@ -22,7 +22,8 @@ export enum ProgramStateKind {
   Init,
   Mount,
   Read,
-  Inited
+  Inited,
+  Run,
 }
 
 export interface ProgramState {
@@ -77,7 +78,7 @@ export const useProgram = create<ProgramState>((set) => {
               const wx = ProxyApp.boot()
               const settings = useProgram.getState().settings
 
-              set({ state: ProgramStateKind.Inited })
+              set({ state: ProgramStateKind.Run })
   
               wx.init({
                 root: bundle.root,

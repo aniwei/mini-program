@@ -48,13 +48,12 @@ export const BaseLayout = () => {
         width: '100%',
       }}> 
         {
-          program.state === ProgramStateKind.Inited
+          program.state >= ProgramStateKind.Inited
             ? (
               <InitLayout>
                 <AuthenticateLayout>
                   <SideLayout />
                   <ContentLayout />
-                  <SimulatorLayout />
                 </AuthenticateLayout>
               </InitLayout>
             ) : <ModuleState />

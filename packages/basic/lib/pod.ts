@@ -110,6 +110,9 @@ export abstract class Pod extends WorkTransport {
         case PodStatusKind.Unactive: 
           this.emit('unactive')
           break
+        case PodStatusKind.Destroy: 
+          this.emit('destroy')
+          break
       }
     })
 
