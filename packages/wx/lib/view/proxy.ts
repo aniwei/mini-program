@@ -142,8 +142,8 @@ export class ProxyView extends MixinWxAssetsBundle(WxViewLibs) {
 
   unactive = () => {
     if (this.status & PodStatusKind.Inited) {
-      const status = this.status &~ PodStatusKind.On
-      this.status = status | PodStatusKind.Off
+      const status = this.status &~ PodStatusKind.Active
+      this.status = status | PodStatusKind.Unactive
     }
   }
 
