@@ -42,9 +42,10 @@ export declare abstract class ProxyPod extends Pod {
     get passage(): Passage;
     set passage(passage: Passage);
     constructor(...rests: unknown[]);
-    _onmessage: (event: MessageEvent<{
+    onMessage: (event: MessageEvent<{
         status: 'connected';
     }>) => void;
+    onError: (error: any) => void;
     runTask<T>(...rests: unknown[]): Promise<T>;
     init(...rests: unknown[]): Promise<void>;
 }

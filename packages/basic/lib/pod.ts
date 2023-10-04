@@ -165,10 +165,12 @@ export abstract class ProxyPod extends Pod {
     if (this._passage !== passage) {
       if (this._passage) {
         this._passage.terminate()
-        this._passage.removeEventListener('message', this._onmessage)
+        this._passage.removeEventListener('message', this.onMessage)
+        this._passage.removeEventListener('error', this.onError)
       }
 
-      passage.addEventListener('message', this._onmessage) 
+      passage.addEventListener('message', this.onMessage) 
+      passage.addEventListener('error', this.onError)
       this._passage = passage
     }
   }
@@ -180,10 +182,14 @@ export abstract class ProxyPod extends Pod {
     this.once('booted', () => this.status |= PodStatusKind.On)
   }
 
-  public _onmessage = (event: MessageEvent<{ status: 'connected' }>) => {
+  public onMessage = (event: MessageEvent<{ status: 'connected' }>) => {
     if (event.data.status === 'connected') {
       this.emit('connected')
     }
+  }
+
+  public onError = (error: any) => {
+    pod_debug('Worker 发生错误 「错误信息 %o」', error.data)
   }
 
   runTask <T> (...rests: unknown[]): Promise<T> {

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { WxSettings, ProxyApp } from '@catalyze/wx'
 import { api } from '../api'
-import { Store } from '../basic/store'
+import { Store } from '@catalyze/wx'
 import { AssetHash } from '@catalyze/basic'
 import type { WxAppJSON, WxProj } from '@catalyze/types'
 

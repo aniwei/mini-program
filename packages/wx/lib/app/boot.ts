@@ -202,7 +202,7 @@ self.addEventListener('message', async (event: MessageEvent<ConnectionPayload>) 
     WxApp.create(new WorkPort(payload.port), '/') as unknown as WxApp
     
     const processor = AssetJS.create()
-    const builder = MainBuilder.create(2)
+    const builder = MainBuilder.create(1)
     processor.builder = builder
 
     WxAssetsBundle.processor.register(processor)
@@ -217,10 +217,7 @@ debug.enable('*')
 class AssetJS extends AssetProcess {
   static create <T extends AssetJS> (): T {
     return super.create('.js', [
-      '@wx/view.js',
-      '@wx/wxss.js',
-      '@wx/wxml.js',
-      '@wx/app.js'
+      /^@wx\/.+/gi
     ])
   }
 

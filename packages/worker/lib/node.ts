@@ -144,7 +144,10 @@ const mainThread = () => {
 			const worker = new WorkerThread.Worker(__filename, { workerData: { mode, name, type } })
 
 			worker.on('message', data => this.dispatchEvent(new MessageEvent('message', { data })))
-			worker.on('error', error => this.dispatchEvent(new Event('error', )))
+			worker.on('error', error => {
+				const event = new MessageEvent('error', { data: error })
+				this.dispatchEvent(event)
+			})
 			worker.on('exit', () => this.dispatchEvent(new Event('close')))
 
 			Reflect.defineProperty(this, WORKER_SYMBOL, { value: worker })

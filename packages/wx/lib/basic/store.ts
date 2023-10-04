@@ -111,6 +111,18 @@ abstract class FileSystem extends EventEmitter<string> {
       })
     })
   }
+
+  removeAsync (path: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.fsModule.rmdir('/apps', (error: any) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve()
+        }
+      })
+    })
+  }
 }
 
 export class Store extends FileSystem {
@@ -203,5 +215,9 @@ export class Store extends FileSystem {
         }
       })
     }
+  }
+
+  async clear () {
+    return this.readdirAsync('/apps')
   }
 }

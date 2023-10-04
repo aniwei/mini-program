@@ -19,11 +19,12 @@ export default defineConfig({
         '@catalyze/basic',
         '@catalyze/asset',
         '@catalyze/types',
-        'debug',
-        'ts-invariant',
         '@react-navigation/native',
-        'browserfs',
         '@swc/wasm-web',
+        'debug',
+        'path',
+        'ts-invariant',
+        'browserfs',
         'sass.js'
       ]
     }

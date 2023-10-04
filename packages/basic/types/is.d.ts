@@ -5,4 +5,5 @@ export declare const isWindow: () => boolean;
 export declare const isArm64: () => boolean;
 export declare const isSupportBlob: () => boolean;
 export declare const isBlob: (blob: Blob) => boolean;
+export declare const isSupportSharedArrayBuffer: () => boolean;
 export declare function isNative(Constructor: unknown): boolean;

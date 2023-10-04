@@ -19,11 +19,15 @@ export const isArm64 = () => {
 }
 
 export const isSupportBlob = () => {
-  return typeof globalThis.Blob !== undefined
+  return typeof globalThis.Blob !== 'undefined'
 }
 
 export const isBlob = (blob: Blob) => {
   return isTypeOf(blob, 'Blob')
+}
+
+export const isSupportSharedArrayBuffer = () => {
+  return typeof globalThis.SharedArrayBuffer !== 'undefined'
 }
 
 export function isNative (Constructor: unknown): boolean {
