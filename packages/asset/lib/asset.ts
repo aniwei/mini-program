@@ -406,6 +406,11 @@ export function MixinWxAssetsBundle (PodContext: any) {
       return this.bundle.findByFilename(filename)
     }
 
+    // 根据文件名替换 WxAsset
+    replaceByFilename (filename: string, asset: WxAsset) {
+      this.bundle.replaceByFilename(filename, asset)
+    }
+
     // 根据文件名判断 WxAsset 是否存在
     exists (filename: string) {
       return this.bundle.exists(filename)

@@ -14,11 +14,12 @@ declare const WxAssetsBundle_base: (abstract new () => {
     fromAssetsBundleJSON({ root, assets }: import("@catalyze/basic").AssetsBundleJSON): void;
     findSetByFilename(filename: string): Wx.WxAssetSet | null;
     findByFilename(filename: string): Asset | null;
+    replaceByFilename(filename: string, asset: Wx.WxAsset): void;
     exists(filename: string): boolean;
     findByExt(ext: string): Asset[];
     toJSON(): {
         root: string;
-        assets: Asset[];
+        assets: import("@catalyze/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;

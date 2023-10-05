@@ -223,10 +223,11 @@ class AssetJS extends AssetBuilder {
     return super.decode(asset).then(() => {
       invariant(asset.source !== null && asset.source !== undefined, `Asset relative is "${asset.relative}"`)
       return this.builder.runTask({
+        root: asset.root,
         ext: asset.ext,
         name: asset.relative,
         content: asset.source,
-        sourceMaps: true
+        sourceMaps: 'inline'
       }, BuildTypeKind.JS).then((result) => {
         if (asset.ext === '.ts') {
           const parsed = path.parse(asset.relative)
@@ -250,6 +251,26 @@ class AssetSass extends AssetBuilder {
   static create <T extends AssetSass> (): T {
     return super.create('.scss')
   }
+
+  /**
+   * 
+   * @param {Asset} asset 
+   * @returns {Promise<void>}
+   */
+  decode (asset: Asset): Promise<void> {
+    return super.decode(asset).then(() => {
+      invariant(asset.source !== null && asset.source !== undefined)
+      return this.builder.runTask({
+        root: asset.root,
+        ext: asset.ext,
+        name: asset.relative,
+        content: asset.source,
+        sourceMaps: 'inline'
+      }, BuildTypeKind.Sass).then((result) => {
+        asset.data = result
+      })
+    })
+  }
 }
 
 // Less 文件处理器
@@ -269,9 +290,11 @@ class AssetLess extends AssetBuilder {
     return super.decode(asset).then(() => {
       invariant(asset.source !== null && asset.source !== undefined)
       return this.builder.runTask({
+        root: asset.root,
+        ext: asset.ext,
         name: asset.relative,
         content: asset.source,
-        sourceMaps: true
+        sourceMaps: 'inline'
       }, BuildTypeKind.Less).then((result) => {
         asset.data = result
       })

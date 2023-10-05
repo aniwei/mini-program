@@ -30,6 +30,7 @@ export class WxBase extends Koa {
         const transport = new Wx.WxApiTransport()
         transport.connect(socket)
         this.api.connect(transport)
+        this.api.state |= Wx.WxApiStateKind.Connected
         
         this.emit(`connected`)
       })

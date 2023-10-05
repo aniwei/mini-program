@@ -2,17 +2,18 @@
   "name": "cli",
   "private": true,
   "version": "0.0.0",
+  "bin": "bin/catalyze",
   "files": [
     "dist",
     "index.d.ts"
   ],
-  "main": "./dist/cli.umd.cjs",
+  "main": "./dist/cli.cjs",
   "module": "./dist/cli.js",
   "types": "./index.d.ts",
   "exports": {
     "types": "./index.d.ts",
     "import": "./dist/cli.js",
-    "require": "./dist/cli.umd.cjs"
+    "require": "./dist/cli.cjs"
   },
   "scripts": {
     "dev": "vite",

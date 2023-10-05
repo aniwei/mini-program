@@ -252,6 +252,9 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0(debug@4.3.4)
+      chokidar:
+        specifier: ^3.5.3
+        version: 3.5.3
       fs-extra:
         specifier: ^11.1.1
         version: 11.1.1
@@ -8351,6 +8354,12 @@ packages:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
 
+  /source-map-support@0.4.18:
+    resolution: {integrity: sha512-try0/JqxPLF9nOjvSta7tVondkP5dwgyLDjVoyMDlmjugT2lRZ1OfsrYTkCd2hkDnJTKRbO/Rl3orm8vlsUzbA==}
+    dependencies:
+      source-map: 0.5.7
+    dev: true
+
   /source-map-support@0.5.21:
     resolution: {integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==}
     dependencies:
@@ -8361,7 +8370,6 @@ packages:
   /source-map@0.5.7:
     resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
@@ -10727,7 +10735,7 @@ packages:
       home-or-tmp: r2.cnpmjs.org/home-or-tmp@2.0.0
       lodash: 4.17.21
       mkdirp: 0.5.6
-      source-map-support: r2.cnpmjs.org/source-map-support@0.4.18
+      source-map-support: 0.4.18
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11013,7 +11021,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       mdn-data: r2.cnpmjs.org/mdn-data@2.0.14
-      source-map: r2.cnpmjs.org/source-map@0.6.1
+      source-map: 0.6.1
     dev: true
 
   r2.cnpmjs.org/cssesc@3.0.0:
@@ -12334,14 +12342,6 @@ packages:
     name: slash
     version: 3.0.0
     engines: {node: '>=8'}
-
-  r2.cnpmjs.org/source-map-support@0.4.18:
-    resolution: {integrity: sha512-try0/JqxPLF9nOjvSta7tVondkP5dwgyLDjVoyMDlmjugT2lRZ1OfsrYTkCd2hkDnJTKRbO/Rl3orm8vlsUzbA==, registry: https://registry.npmjs.org/, tarball: https://r2.cnpmjs.org/source-map-support/-/source-map-support-0.4.18.tgz}
-    name: source-map-support
-    version: 0.4.18
-    dependencies:
-      source-map: r2.cnpmjs.org/source-map@0.5.7
-    dev: true
 
   r2.cnpmjs.org/source-map-support@0.5.21:
     resolution: {integrity: sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==, registry: https://registry.npmjs.org/, tarball: https://r2.cnpmjs.org/source-map-support/-/source-map-support-0.5.21.tgz}

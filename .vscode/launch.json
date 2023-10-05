@@ -54,7 +54,7 @@
       "name": "@catalyze/cli",
       "program": "${workspaceRoot}/packages/cli/lib/cli",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/examples/ts",
+      "cwd": "${workspaceFolder}/packages/cli/examples/vant",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"
@@ -68,7 +68,7 @@
         "-r",
         "tsconfig-paths/register"
       ],
-      "args": ["start"],
+      "args": ["start", "--watch"],
       "type": "pwa-node",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

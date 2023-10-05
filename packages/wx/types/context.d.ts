@@ -15,7 +15,7 @@ export declare abstract class WxJS extends ProxyPod {
     handlePublish(...rests: unknown[]): void;
     subscribeHandler(...rests: unknown[]): void;
     handleSubscribe(...rests: unknown[]): void;
-    eval(code: string, sourceURL?: string): void;
+    eval(code: string): void;
 }
 export interface WxConfigs {
 }

@@ -38,11 +38,12 @@ declare const ProxyApp_base: (abstract new () => {
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): import("@catalyze/asset").WxAssetSet | null;
     findByFilename(filename: string): import("@catalyze/basic").Asset | null;
+    replaceByFilename(filename: string, asset: WxAsset): void;
     exists(filename: string): boolean;
     findByExt(ext: string): import("@catalyze/basic").Asset[];
     toJSON(): {
         root: string;
-        assets: import("@catalyze/basic").Asset[];
+        assets: import("@catalyze/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;

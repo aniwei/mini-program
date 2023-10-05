@@ -105,11 +105,12 @@ export declare function MixinWxAssetsBundle(PodContext: any): (abstract new () =
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): WxAssetSet | null;
     findByFilename(filename: string): Asset | null;
+    replaceByFilename(filename: string, asset: WxAsset): void;
     exists(filename: string): boolean;
     findByExt(ext: string): Asset[];
     toJSON(): {
         root: string;
-        assets: Asset[];
+        assets: AssetJSON[];
     };
 }) & {
     [x: string]: any;

@@ -4,6 +4,7 @@ import { WxAuth } from './auth'
 import { WxProgram } from './program'
 import type { WxProj } from '@catalyze/types'
 import { WxAssetHash } from '@catalyze/asset'
+import { Asset } from '@catalyze/basic'
 
 export type AppStartCallback = () => void
 
@@ -48,6 +49,23 @@ export class WxApp extends WxAuth {
     this.api.subscribe('Program.getWxAssetsBundle', (assets: WxAssetHash[]) => this.program.getWxAssetsBundle(assets))
     
     // this.use(view())
+  }
+
+  // 监控文件变化
+  async watch () {
+    await this.program.watch()
+    
+    this.program.on('change', (asset: Asset) => {
+      this.api.Program.events.publish('File.change', [
+        this.proj.appid, 
+        asset.toJSON()
+      ])
+    })
+  }
+
+  async stop () {
+    await this.program.stop()
+    await super.stop()
   }
 
   async start () {

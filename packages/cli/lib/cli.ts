@@ -15,7 +15,7 @@ switch (argv._[0]) {
     break
 
   case 'start':
-    start(argv.port)
+    start(argv.port, argv.watch)
     break
 
   case 'upgrade':

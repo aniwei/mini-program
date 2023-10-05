@@ -36,6 +36,7 @@ export type AssetJSON = {
   hash: string | null,
   source: ArrayBufferView | ArrayBufferLike | string,
   relative: string,
+  sourceMap: string | null
 }
 
 export enum AssetStatusKind {
@@ -119,9 +120,10 @@ export abstract class Asset {
   public parsed: ParsedPath
   // 文件绝对路径
   public absolute: string
-  // 文件存储类型 内存 / 本地
-
+  // 文件指纹 hash
   public hash: string | null = null
+  // sourceMap
+  public sourceMap: string | null = null
   
   /**
    * 构造函数
@@ -151,6 +153,7 @@ export abstract class Asset {
       ext: this.ext,
       hash: this.hash,
       root: this.root,
+      sourceMap: this.sourceMap,
       source: this.source.toString(),
       relative: this.relative,
     }
@@ -304,9 +307,25 @@ export abstract class AssetsBundle {
     return this.assets.filter(file => file.ext === ext)
   }
 
-  // 根据相对路径查找
+  /**
+   * 根据相对路径查找
+   * @param relative 
+   * @returns 
+   */
   findByFilename (relative: string) {
     return this.assets.find(file => file.relative === relative) ?? null
+  }
+
+  // 替换
+  replaceByFilename (relative: string, asset: Asset) {
+    invariant(asset.mounted)
+    const index = this.assets.findIndex(file => file.relative === relative)
+
+    if (index > -1) {
+      this.assets.splice(index, 1, asset)
+    } else {
+      this.put(asset)
+    }
   }
 
   /**
