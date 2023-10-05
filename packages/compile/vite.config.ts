@@ -15,16 +15,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         globals: {
-          '@catalyze/basic': '@catalyze/basic', 
-          '@catalyze/types': '@catalyze/types', 
-          '@catalyze/asset': '@catalyze/asset', 
+          '@catalyzed/basic': '@catalyzed/basic', 
+          '@catalyzed/types': '@catalyzed/types', 
+          '@catalyzed/asset': '@catalyzed/asset', 
           'path': 'path'
         }
       },
       external: [
-        '@catalyze/basic', 
-        '@catalyze/types', 
-        '@catalyze/asset', 
+        '@catalyzed/basic', 
+        '@catalyzed/types', 
+        '@catalyzed/asset', 
         '@swc/core',
         'ts-invariant', 
         'crypto',

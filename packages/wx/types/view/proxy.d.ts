@@ -1,6 +1,6 @@
 import { NavigationProp } from '@react-navigation/native';
-import { AssetsBundleJSON } from '@catalyze/basic';
-import { WxAssetSet } from '@catalyze/asset';
+import { AssetsBundleJSON } from '@catalyzed/basic';
+import { WxAssetSet } from '@catalyzed/asset';
 export declare enum WxViewEventKind {
     GenerateFuncReady = "custom_event_GenerateFuncReady",
     PageEvent = "custom_event_PAGE_EVENT"
@@ -13,22 +13,22 @@ declare const ProxyView_base: (abstract new () => {
     [x: string]: any;
     _root: string | null;
     root: string;
-    _bundle: import("@catalyze/asset").WxAssetsBundle | null;
-    bundle: import("@catalyze/asset").WxAssetsBundle;
-    readonly assets: import("@catalyze/basic").Asset[];
+    _bundle: import("@catalyzed/asset").WxAssetsBundle | null;
+    bundle: import("@catalyzed/asset").WxAssetsBundle;
+    readonly assets: import("@catalyzed/basic").Asset[];
     readonly components: WxAssetSet[];
     readonly pages: WxAssetSet[];
-    put(assets: import("@catalyze/asset").WxAsset[]): void;
+    put(assets: import("@catalyzed/asset").WxAsset[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): WxAssetSet | null;
-    findByFilename(filename: string): import("@catalyze/basic").Asset | null;
-    replaceByFilename(filename: string, asset: import("@catalyze/asset").WxAsset): void;
+    findByFilename(filename: string): import("@catalyzed/basic").Asset | null;
+    replaceByFilename(filename: string, asset: import("@catalyzed/asset").WxAsset): void;
     exists(filename: string): boolean;
-    findByExt(ext: string): import("@catalyze/basic").Asset[];
+    findByExt(ext: string): import("@catalyzed/basic").Asset[];
     toJSON(): {
         root: string;
-        assets: import("@catalyze/basic").AssetJSON[];
+        assets: import("@catalyzed/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;

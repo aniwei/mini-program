@@ -3,7 +3,7 @@ import sass from 'sass'
 import less from 'less'
 import path from 'path'
 import { transform } from '@swc/core'
-import { MessageOwner, PodStatusKind, WorkPort } from '@catalyze/basic'
+import { MessageOwner, PodStatusKind, WorkPort } from '@catalyzed/basic'
 import { BuildTask, BuildSource, BuildTypeKind, ProxyBuilder } from './proxy'
 
 const builder_debug = debug('wx:builder')

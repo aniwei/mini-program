@@ -1,6 +1,6 @@
 import debug from 'debug'
 import { create } from 'zustand'
-import { WxApiStateKind, WxQRCodeStateKind, WxUser } from '@catalyze/api'
+import { WxApiStateKind, WxQRCodeStateKind, WxUser } from '@catalyzed/api'
 import { api } from '../api'
 
 

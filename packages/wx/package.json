@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/wx",
+  "name": "@catalyzed/wx",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -26,10 +26,10 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "@catalyze/api": "workspace:^",
-    "@catalyze/asset": "workspace:^",
-    "@catalyze/basic": "workspace:^",
-    "@catalyze/types": "workspace:^",
+    "@catalyzed/api": "workspace:^",
+    "@catalyzed/asset": "workspace:^",
+    "@catalyzed/basic": "workspace:^",
+    "@catalyzed/types": "workspace:^",
     "@react-navigation/native": "6.1.8",
     "browserfs": "^1.4.3",
     "path-browserify": "^1.0.1"

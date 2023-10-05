@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/asset",
+  "name": "@catalyzed/asset",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -25,8 +25,8 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "@catalyze/basic": "workspace:^",
-    "@catalyze/types": "workspace:^",
+    "@catalyzed/basic": "workspace:^",
+    "@catalyzed/types": "workspace:^",
     "path-browserify": "^1.0.1",
     "ts-invariant": "^0.10.3"
   }

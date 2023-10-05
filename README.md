@@ -34,11 +34,11 @@ pnpm i
 pnpm build
 ```
 
-- 执行 vscode 调试模式，调试配置选择 「@catalyze/cli」
+- 执行 vscode 调试模式，调试配置选择 「@catalyzed/cli」
 在此之前，如果运行的是 vant，需要下载官方 vant-app 仓库，构建出 dist 目录；而后将 dist 目录复制至 packages/cli/example/vant 目录下
 ```
 {
-  "name": "@catalyze/cli",
+  "name": "@catalyzed/cli",
   "program": "${workspaceRoot}/packages/cli/src/cli",
   "request": "launch",
   "cwd": "${workspaceFolder}/packages/cli/example/vant", // 将 vant 切换为 weui 可运行 weui 项目，切换时候，注意源码启动页

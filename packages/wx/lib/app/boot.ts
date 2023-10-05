@@ -1,16 +1,16 @@
 import debug from 'debug'
-import { defineReadAndWriteProperty, nextTick } from '@catalyze/basic'
+import { defineReadAndWriteProperty, nextTick } from '@catalyzed/basic'
 import { 
   AssetsBundleJSON, 
   MessageOwner, 
   PodStatusKind, 
   WorkPort 
-} from '@catalyze/basic'
+} from '@catalyzed/basic'
 import { 
   MixinWxAssetsBundle, 
   WxAsset, 
   WxAssetSetJSON, 
-} from '@catalyze/asset'
+} from '@catalyzed/asset'
 import { WxAppLibs } from './libs'
 import { WxInit, WxSettings } from '../context'
 import { FS } from './capability/fs'
@@ -24,7 +24,7 @@ import { UI } from './capability/ui'
 import { WxCapabilityFactory } from '../capability'
 import { ProxyApp } from './proxy'
 
-import type { WxAppJSON } from '@catalyze/types'
+import type { WxAppJSON } from '@catalyzed/types'
 
 import '../asset'
 

@@ -1,5 +1,5 @@
 import { invariant } from 'ts-invariant'
-import { EventEmitter, nextTick } from '@catalyze/basic'
+import { EventEmitter, nextTick } from '@catalyzed/basic'
 import { getIndexedDB } from './indexeddb'
 
 

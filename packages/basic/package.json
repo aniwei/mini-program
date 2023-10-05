@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/basic",
+  "name": "@catalyzed/basic",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -27,8 +27,8 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "@catalyze/types": "workspace:^",
-    "@catalyze/worker": "workspace:^",
+    "@catalyzed/types": "workspace:^",
+    "@catalyzed/worker": "workspace:^",
     "bytes": "^3.1.2",
     "debug": "^4.3.4",
     "path-browserify": "^1.0.1",

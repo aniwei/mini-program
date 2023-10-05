@@ -1,4 +1,4 @@
-import type { VoidCallback } from '@catalyze/types';
+import type { VoidCallback } from '@catalyzed/types';
 export type MicroTask<T = unknown> = {
     context: T;
     handler: VoidCallback;

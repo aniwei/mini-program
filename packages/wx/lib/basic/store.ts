@@ -1,6 +1,6 @@
 import { invariant } from 'ts-invariant'
 import { parse, sep } from 'path'
-import { AssetHash, AssetJSON, EventEmitter } from '@catalyze/basic'
+import { AssetHash, AssetJSON, EventEmitter } from '@catalyzed/basic'
 import * as BrowserFS from 'browserfs'
 
 import type { FSModule } from 'browserfs/dist/node/core/FS'

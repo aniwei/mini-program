@@ -1,4 +1,4 @@
-import { WxUser } from '@catalyze/api';
+import { WxUser } from '@catalyzed/api';
 import { WxBase } from './base';
 export declare class WxStore extends WxBase {
     protected dir: string;

@@ -1,4 +1,4 @@
-import * as Api from '@catalyze/api';
+import * as Api from '@catalyzed/api';
 export type ReadyHandle = () => void;
 export declare class WxApiTransport extends Api.WxApiTransport {
     connect(uri: string): void;

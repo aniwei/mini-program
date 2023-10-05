@@ -12,7 +12,7 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       external: [
-        '@catalyze/worker', 
+        '@catalyzed/worker', 
         'path-browserify',
         'path',
         'bytes',

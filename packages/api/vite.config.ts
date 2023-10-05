@@ -11,8 +11,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        '@catalyze/basic', 
-        '@catalyze/types'
+        '@catalyzed/basic', 
+        '@catalyzed/types'
       ]
     }
   }

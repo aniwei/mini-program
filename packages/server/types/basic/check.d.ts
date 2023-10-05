@@ -1,4 +1,4 @@
-import { EventEmitter } from '@catalyze/basic';
+import { EventEmitter } from '@catalyzed/basic';
 export declare enum WxErrorCodeKind {
     Timeout = 402,
     Cancelled = 403,

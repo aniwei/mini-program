@@ -1,5 +1,5 @@
 
-import { nextTick } from '@catalyze/basic'
+import { nextTick } from '@catalyzed/basic'
 import { ProxyView } from '../../proxy'
 import { WxCapability } from '../../../capability'
 import { InputView, ShowKeyboardPayload, TextAreaView } from './text-view'

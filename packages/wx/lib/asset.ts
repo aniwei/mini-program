@@ -1,6 +1,6 @@
 import { invariant } from 'ts-invariant'
-import { Asset, AssetProcess } from '@catalyze/basic'
-import { WxAssetsBundle } from '@catalyze/asset'
+import { Asset, AssetProcess } from '@catalyzed/basic'
+import { WxAssetsBundle } from '@catalyzed/asset'
 
 
 class AssetJSON extends AssetProcess {

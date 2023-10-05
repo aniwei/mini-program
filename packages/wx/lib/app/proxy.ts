@@ -1,11 +1,11 @@
 import debug from 'debug'
 import { invariant } from 'ts-invariant'
-import { AssetsBundleJSON, PodStatusKind } from '@catalyze/basic'
+import { AssetsBundleJSON, PodStatusKind } from '@catalyzed/basic'
 import { NavigationContainerRef, StackActions } from '@react-navigation/native'
 import { 
   MixinWxAssetsBundle, 
   WxAsset,  
-} from '@catalyze/asset'
+} from '@catalyzed/asset'
 import { WxAppLibs } from './libs'
 import { WxSettings } from '../context'
 import { ProxyView, WxViewEventKind, WxViewInvocationKind } from '../view'
@@ -16,7 +16,7 @@ import { Request } from './capability/proxy/request'
 import { getModuleURL } from '../basic/module'
 
 import '../asset'
-import type { WxAppJSON, WxProj } from '@catalyze/types'
+import type { WxAppJSON, WxProj } from '@catalyzed/types'
 
 const app_debug = debug(`wx:app:proxy`)
 

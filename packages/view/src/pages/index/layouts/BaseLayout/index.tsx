@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import { useProgram, ProgramStateKind } from '@stores/program'
 import { useWx } from '@stores/wx'
-import { WxApiStateKind } from '@catalyze/api'
+import { WxApiStateKind } from '@catalyzed/api'
 import { api } from '@api'
 import { useCallback } from 'react'
 

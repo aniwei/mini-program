@@ -1,6 +1,6 @@
 import debug from 'debug'
 import { invariant } from 'ts-invariant'
-import { ProxyPod, MessageOwner, tryCatch, PodStatusKind, UnimplementError } from '@catalyze/basic'
+import { ProxyPod, MessageOwner, tryCatch, PodStatusKind, UnimplementError } from '@catalyzed/basic'
 
 
 

@@ -1,5 +1,5 @@
 import path from 'path'
-import { MainPod, PodStatusKind, ProxyPod } from '@catalyze/basic'
+import { MainPod, PodStatusKind, ProxyPod } from '@catalyzed/basic'
 
 
 type BuildPayload = {

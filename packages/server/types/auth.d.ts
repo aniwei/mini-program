@@ -1,4 +1,4 @@
-import { WxUser } from '@catalyze/api';
+import { WxUser } from '@catalyzed/api';
 import { WxStore } from './store';
 import { WxScanCheck } from './basic/check';
 export declare class WxAuth extends WxStore {

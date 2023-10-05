@@ -1,9 +1,9 @@
 import { create } from 'zustand'
-import { WxSettings, ProxyApp } from '@catalyze/wx'
+import { WxSettings, ProxyApp } from '@catalyzed/wx'
 import { api } from '../api'
-import { Store } from '@catalyze/wx'
-import { AssetHash, AssetJSON } from '@catalyze/basic'
-import type { WxAppJSON, WxProj } from '@catalyze/types'
+import { Store } from '@catalyzed/wx'
+import { AssetHash, AssetJSON } from '@catalyzed/basic'
+import type { WxAppJSON, WxProj } from '@catalyzed/types'
 
 export interface TabItem {
   route: string,

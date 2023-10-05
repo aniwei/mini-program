@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/fs",
+  "name": "@catalyzed/fs",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -24,7 +24,7 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
-    "@catalyze/basic": "workspace:^",
+    "@catalyzed/basic": "workspace:^",
     "path-browserify": "^1.0.1"
   }
 }

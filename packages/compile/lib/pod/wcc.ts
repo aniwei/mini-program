@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import debug from 'debug'
 import { spawnSync } from 'child_process'
-import { isDarwin, isArm64, isLinux } from '@catalyze/basic'
+import { isDarwin, isArm64, isLinux } from '@catalyzed/basic'
 
 const wcc_debug = debug(`wx:compiler:wcc`)
 const bin = path.resolve(__dirname, '../../bin')

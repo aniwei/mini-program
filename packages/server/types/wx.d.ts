@@ -1,6 +1,6 @@
 import { WxAuth } from './auth';
 import { WxProgram } from './program';
-import type { WxProj } from '@catalyze/types';
+import type { WxProj } from '@catalyzed/types';
 export type AppStartCallback = () => void;
 export interface WxAppOptions {
     port: number;

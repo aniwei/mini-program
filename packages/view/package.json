@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/view",
+  "name": "@catalyzed/view",
   "private": true,
   "version": "0.0.0",
   "main": "./index.js",
@@ -23,11 +23,11 @@
     "@react-navigation/bottom-tabs": "^6.3.17"
   },
   "dependencies": {
-    "@catalyze/api": "workspace:^",
-    "@catalyze/asset": "workspace:^",
-    "@catalyze/basic": "workspace:^",
-    "@catalyze/types": "workspace:^",
-    "@catalyze/wx": "workspace:^",
+    "@catalyzed/api": "workspace:^",
+    "@catalyzed/asset": "workspace:^",
+    "@catalyzed/basic": "workspace:^",
+    "@catalyzed/types": "workspace:^",
+    "@catalyzed/wx": "workspace:^",
     "@react-navigation/bottom-tabs": "6.5.7",
     "@react-navigation/drawer": "6.6.2",
     "@react-navigation/native": "6.1.8",

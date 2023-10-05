@@ -1,4 +1,4 @@
-import { MainPod, ProxyPod } from '@catalyze/basic';
+import { MainPod, ProxyPod } from '@catalyzed/basic';
 export declare enum BuildTypeKind {
     Less = 0,
     Sass = 1,

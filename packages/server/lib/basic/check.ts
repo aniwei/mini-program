@@ -1,6 +1,6 @@
 import Axios from 'axios'
 import debug from 'debug'
-import { EventEmitter } from '@catalyze/basic'
+import { EventEmitter } from '@catalyzed/basic'
 
 const wx_debug = debug(`wx:auth:check`)
 const axios = Axios.create({

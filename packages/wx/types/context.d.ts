@@ -1,4 +1,4 @@
-import { ProxyPod } from '@catalyze/basic';
+import { ProxyPod } from '@catalyzed/basic';
 export interface MessagePayloadParameters extends Iterable<unknown> {
     0: string;
     1: unknown;

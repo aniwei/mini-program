@@ -7,14 +7,14 @@ import {
   WorkPort, 
   defineReadAndWriteProperty, 
   nextTick,
-} from '@catalyze/basic'
-import { MixinWxAssetsBundle, WxAsset, WxAssetSetJSON } from '@catalyze/asset'
+} from '@catalyzed/basic'
+import { MixinWxAssetsBundle, WxAsset, WxAssetSetJSON } from '@catalyzed/asset'
 import { WxInit } from '../context'
 import { WxViewLibs } from './libs'
 import { View } from './capability/view'
 
 import '../asset'
-import { WxProj } from '@catalyze/types'
+import { WxProj } from '@catalyzed/types'
 
 const view_debug = debug('wx:view:iframe')
 

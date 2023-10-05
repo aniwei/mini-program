@@ -2,7 +2,7 @@ import qs from 'qs'
 import Axios from 'axios'
 import debug from 'debug'
 import qrcode from 'qrcode'
-import { WxQRCodeStateKind, WxUser } from '@catalyze/api'
+import { WxQRCodeStateKind, WxUser } from '@catalyzed/api'
 import { WxStore } from './store'
 import { WxScanCheck } from './basic/check'
 

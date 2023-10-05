@@ -7,10 +7,10 @@ import {
   MessageContent, 
   MessageOwner, 
   MessageTransport 
-} from '@catalyze/basic'
-import { WxAssetHash } from '@catalyze/asset'
+} from '@catalyzed/basic'
+import { WxAssetHash } from '@catalyzed/asset'
 import { WxApiTransport } from './transport'
-import { WxProj } from '@catalyze/types'
+import { WxProj } from '@catalyzed/types'
 import WxApiJSON from './api.json'
 
 export enum WxQRCodeStateKind {

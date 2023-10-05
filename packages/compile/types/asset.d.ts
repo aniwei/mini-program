@@ -1,5 +1,5 @@
-import { Asset } from '@catalyze/basic';
-import * as Wx from '@catalyze/asset';
+import { Asset } from '@catalyzed/basic';
+import * as Wx from '@catalyzed/asset';
 declare const WxAssetsBundle_base: (abstract new () => {
     [x: string]: any;
     _root: string | null;
@@ -11,7 +11,7 @@ declare const WxAssetsBundle_base: (abstract new () => {
     readonly pages: Wx.WxAssetSet[];
     put(assets: Wx.WxAsset[]): void;
     mount(): Promise<undefined>;
-    fromAssetsBundleJSON({ root, assets }: import("@catalyze/basic").AssetsBundleJSON): void;
+    fromAssetsBundleJSON({ root, assets }: import("@catalyzed/basic").AssetsBundleJSON): void;
     findSetByFilename(filename: string): Wx.WxAssetSet | null;
     findByFilename(filename: string): Asset | null;
     replaceByFilename(filename: string, asset: Wx.WxAsset): void;
@@ -19,7 +19,7 @@ declare const WxAssetsBundle_base: (abstract new () => {
     findByExt(ext: string): Asset[];
     toJSON(): {
         root: string;
-        assets: import("@catalyze/basic").AssetJSON[];
+        assets: import("@catalyzed/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;

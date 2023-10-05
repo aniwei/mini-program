@@ -7,12 +7,12 @@ import {
   Asset, 
   AssetProcess, 
   AssetStoreKind 
-} from '@catalyze/basic'
+} from '@catalyzed/basic'
 
-import * as Wx from '@catalyze/asset'
+import * as Wx from '@catalyzed/asset'
 import { MainCompilePod } from './pod/proxy'
 import { BuildTypeKind, MainBuilder } from './builder'
-import type { WxAppUsingJSON } from '@catalyze/types'
+import type { WxAppUsingJSON } from '@catalyzed/types'
 
 const createHash = (source: string | Buffer) => {
   const hash = crypto.createHash('md5')

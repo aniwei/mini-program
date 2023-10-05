@@ -1,11 +1,11 @@
 import Koa from 'koa'
 import { Server } from 'http'
 import { invariant } from 'ts-invariant'
-import { createVite } from '@catalyze/view'
+import { createVite } from '@catalyzed/view'
 import { WebSocket, WebSocketServer } from 'ws'
-import { WorkTransport } from '@catalyze/basic'
+import { WorkTransport } from '@catalyzed/basic'
 
-import * as Wx from '@catalyze/api'
+import * as Wx from '@catalyzed/api'
 import type { ViteDevServer } from 'vite'
 
 class WxApi extends Wx.WxApi {}

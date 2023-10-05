@@ -1,5 +1,5 @@
 import { invariant } from 'ts-invariant'
-import { EventEmitter } from '@catalyze/basic'
+import { EventEmitter } from '@catalyzed/basic'
 import { ProxyView } from '../../proxy'
 
 export interface PlaceholderStyle {

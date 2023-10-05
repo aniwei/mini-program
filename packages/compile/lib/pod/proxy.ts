@@ -1,6 +1,6 @@
 import path from 'path'
 import { invariant } from 'ts-invariant'
-import { ProxyPod, MainPod, PodStatusKind, tryCatch } from '@catalyze/basic'
+import { ProxyPod, MainPod, PodStatusKind, tryCatch } from '@catalyzed/basic'
 
 export type CompileType = 'XML' | 'CSS'
 

@@ -4,7 +4,7 @@ import {
   PodStatusKind, 
   WorkPort,
   tryCatch, 
-} from '@catalyze/basic'
+} from '@catalyzed/basic'
 import { ProxyCompile } from './proxy'
 import { WxWCC } from './wcc'
 import { WxWCSC } from './wcsc'

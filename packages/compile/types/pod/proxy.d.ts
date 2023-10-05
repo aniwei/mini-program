@@ -1,4 +1,4 @@
-import { ProxyPod, MainPod } from '@catalyze/basic';
+import { ProxyPod, MainPod } from '@catalyzed/basic';
 export type CompileType = 'XML' | 'CSS';
 export declare abstract class ProxyCompile extends ProxyPod {
     protected _root: string | null;

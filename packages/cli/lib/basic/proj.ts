@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-import type { WxProj } from '@catalyze/types'
+import type { WxProj } from '@catalyzed/types'
 
 export const getWxProj = async (): Promise<WxProj> => {
   const cwd = process.cwd()

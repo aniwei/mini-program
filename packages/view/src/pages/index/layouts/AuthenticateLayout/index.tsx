@@ -1,7 +1,7 @@
 import debug from 'debug'
 import { ReactElement, ReactFragment, useCallback } from 'react'
 import { View, Text } from 'react-native'
-import { WxApiStateKind } from '@catalyze/api'
+import { WxApiStateKind } from '@catalyzed/api'
 import { useWx } from '@stores/wx'
 import { WxQRCode } from '@components/WxQRCode'
 import { api } from '../../api'

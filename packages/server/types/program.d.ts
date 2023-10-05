@@ -1,9 +1,9 @@
 import { FSWatcher } from 'chokidar';
 import { Axios } from 'axios';
-import { WxAssetHash } from '@catalyze/asset';
-import { WxAssetsCompile } from '@catalyze/compile';
-import { Asset, AssetJSON, EventEmitter } from '@catalyze/basic';
-import type { WxProj } from '@catalyze/types';
+import { WxAssetHash } from '@catalyzed/asset';
+import { WxAssetsCompile } from '@catalyzed/compile';
+import { Asset, AssetJSON, EventEmitter } from '@catalyzed/basic';
+import type { WxProj } from '@catalyzed/types';
 declare class MiniAssetsBundle extends WxAssetsCompile {
     search(): Promise<undefined>;
 }

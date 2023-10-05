@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { AssetHash, AssetJSON, EventEmitter } from '@catalyze/basic';
+import { AssetHash, AssetJSON, EventEmitter } from '@catalyzed/basic';
 import type { FSModule } from 'browserfs/dist/node/core/FS';
 declare abstract class FileSystem extends EventEmitter<string> {
     fsModule: FSModule;

@@ -12,7 +12,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        '@catalyze/basic', 
+        '@catalyzed/basic', 
         'debug', 
         'path',
         'ts-invariant',

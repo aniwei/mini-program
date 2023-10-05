@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "@catalyze/server",
+      "name": "@catalyzed/server",
       "program": "${workspaceRoot}/packages/server/src/index",
       "request": "launch",
       "cwd": "${workspaceFolder}/packages/server",
@@ -28,7 +28,7 @@
       "internalConsoleOptions": "neverOpen",
       "port": 9229
     }, {
-      "name": "@catalyze/compile",
+      "name": "@catalyzed/compile",
       "program": "${workspaceRoot}/packages/compile/example/compile",
       "request": "launch",
       "cwd": "${workspaceFolder}/packages/compile",
@@ -51,7 +51,7 @@
       "internalConsoleOptions": "neverOpen",
       "port": 9229
     }, {
-      "name": "@catalyze/cli",
+      "name": "@catalyzed/cli",
       "program": "${workspaceRoot}/packages/cli/lib/cli",
       "request": "launch",
       "cwd": "${workspaceFolder}/packages/cli/examples/weui",
@@ -74,7 +74,7 @@
       "internalConsoleOptions": "neverOpen",
       "port": 9229
     }, {
-      "name": "@catalyze/example",
+      "name": "@catalyzed/example",
       "program": "${workspaceRoot}/packages/cli/src/cli",
       "request": "launch",
       "cwd": "${workspaceFolder}/packages/cli/macau-mini-app",

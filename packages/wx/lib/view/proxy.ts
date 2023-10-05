@@ -1,8 +1,8 @@
 import debug from 'debug'
 import { invariant } from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
-import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyze/basic'
-import { MixinWxAssetsBundle, WxAssetSet } from '@catalyze/asset'
+import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyzed/basic'
+import { MixinWxAssetsBundle, WxAssetSet } from '@catalyzed/asset'
 import { WxViewLibs } from './libs'
 import { getModuleURL } from '../basic/module'
 

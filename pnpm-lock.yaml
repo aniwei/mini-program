@@ -31,15 +31,28 @@ importers:
         specifier: ^4.2.0
         version: 4.2.0
 
+  example:
+    dependencies:
+      '@catalyzed/cli':
+        specifier: workspace:^
+        version: link:../packages/cli
+    devDependencies:
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.3
+      vite:
+        specifier: ^4.3.9
+        version: 4.3.9
+
   packages/api:
     dependencies:
-      '@catalyze/asset':
+      '@catalyzed/asset':
         specifier: workspace:^
         version: link:../asset
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
     devDependencies:
@@ -55,10 +68,10 @@ importers:
 
   packages/asset:
     dependencies:
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
       path-browserify:
@@ -80,10 +93,10 @@ importers:
 
   packages/basic:
     dependencies:
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
-      '@catalyze/worker':
+      '@catalyzed/worker':
         specifier: workspace:^
         version: link:../worker
       bytes:
@@ -123,15 +136,18 @@ importers:
 
   packages/cli:
     dependencies:
-      '@catalyze/server':
+      '@catalyzed/server':
         specifier: workspace:^
         version: link:../server
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
-      '@catalyze/view':
+      '@catalyzed/view':
         specifier: workspace:^
         version: link:../view
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0(debug@4.3.4)
       fs-extra:
         specifier: ^11.1.1
         version: 11.1.1
@@ -166,13 +182,13 @@ importers:
 
   packages/compile:
     dependencies:
-      '@catalyze/asset':
+      '@catalyzed/asset':
         specifier: workspace:^
         version: link:../asset
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
       '@swc/core':
@@ -212,7 +228,7 @@ importers:
 
   packages/fs:
     dependencies:
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
       path-browserify:
@@ -231,22 +247,22 @@ importers:
 
   packages/server:
     dependencies:
-      '@catalyze/api':
+      '@catalyzed/api':
         specifier: workspace:^
         version: link:../api
-      '@catalyze/asset':
+      '@catalyzed/asset':
         specifier: workspace:^
         version: link:../asset
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
-      '@catalyze/compile':
+      '@catalyzed/compile':
         specifier: workspace:^
         version: link:../compile
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
-      '@catalyze/view':
+      '@catalyzed/view':
         specifier: workspace:^
         version: link:../view
       axios:
@@ -313,19 +329,19 @@ importers:
 
   packages/view:
     dependencies:
-      '@catalyze/api':
+      '@catalyzed/api':
         specifier: workspace:^
         version: link:../api
-      '@catalyze/asset':
+      '@catalyzed/asset':
         specifier: workspace:^
         version: link:../asset
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
-      '@catalyze/wx':
+      '@catalyzed/wx':
         specifier: workspace:^
         version: link:../wx
       '@react-navigation/bottom-tabs':
@@ -534,16 +550,16 @@ importers:
 
   packages/wx:
     dependencies:
-      '@catalyze/api':
+      '@catalyzed/api':
         specifier: workspace:^
         version: link:../api
-      '@catalyze/asset':
+      '@catalyzed/asset':
         specifier: workspace:^
         version: link:../asset
-      '@catalyze/basic':
+      '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
-      '@catalyze/types':
+      '@catalyzed/types':
         specifier: workspace:^
         version: link:../types
       '@react-navigation/native':
@@ -7361,6 +7377,9 @@ packages:
       minipass: 6.0.2
     dev: false
 
+  /picocolors@1.0.0:
+    resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
+
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
@@ -7685,7 +7704,7 @@ packages:
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.6
-      picocolors: r2.cnpmjs.org/picocolors@1.0.0
+      picocolors: 1.0.0
       source-map-js: 1.0.2
 
   /prelude-ls@1.2.1:
@@ -9098,6 +9117,38 @@ packages:
       '@babel/core': 7.21.4
       vite: 4.3.9(@types/node@20.2.5)(less@4.2.0)(sass@1.68.0)
     dev: false
+
+  /vite@4.3.9:
+    resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    hasBin: true
+    peerDependencies:
+      '@types/node': '>= 14'
+      less: '*'
+      sass: '*'
+      stylus: '*'
+      sugarss: '*'
+      terser: ^5.4.0
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+      less:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      terser:
+        optional: true
+    dependencies:
+      esbuild: 0.17.19
+      postcss: 8.4.24
+      rollup: 3.23.0
+    optionalDependencies:
+      fsevents: 2.3.2
+    dev: true
 
   /vite@4.3.9(@types/node@20.2.5)(less@4.2.0)(sass@1.68.0):
     resolution: {integrity: sha512-qsTNZjO9NoJNW7KnOrgYwczm0WctJ8m/yqYAMAK9Lxt4SoySUfS5S8ia9K7JHpa3KEeMfyF8LoJ3c5NeBJy6pg==}

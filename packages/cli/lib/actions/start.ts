@@ -1,5 +1,5 @@
 import debug from 'debug'
-import { createWxApplication } from '@catalyze/server'
+import { createWxApplication } from '@catalyzed/server'
 import { getWxProj } from '../basic/proj'
 
 const env = process.env

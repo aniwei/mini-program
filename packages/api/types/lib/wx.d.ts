@@ -1,6 +1,6 @@
-import { AssetsBundleJSON, BaseApi, EventEmitter, MessageContent, MessageOwner, MessageTransport } from '@catalyze/basic';
-import { WxAssetHash } from '@catalyze/asset';
-import { WxProj } from '@catalyze/types';
+import { AssetsBundleJSON, BaseApi, EventEmitter, MessageContent, MessageOwner, MessageTransport } from '@catalyzed/basic';
+import { WxAssetHash } from '@catalyzed/asset';
+import { WxProj } from '@catalyzed/types';
 export declare enum WxQRCodeStateKind {
     Uncreated = "uncreated",
     Created = "created",

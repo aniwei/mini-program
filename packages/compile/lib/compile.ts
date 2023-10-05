@@ -1,5 +1,5 @@
-import { WxAsset } from '@catalyze/asset'
-import { AssetStoreKind, unescape } from '@catalyze/basic'
+import { WxAsset } from '@catalyzed/asset'
+import { AssetStoreKind, unescape } from '@catalyzed/basic'
 import { WxAssetsBundle } from './asset'
 
 export interface WxAssetCompiledFile {

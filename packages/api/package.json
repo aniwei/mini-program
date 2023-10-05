@@ -1,5 +1,5 @@
 {
-  "name": "@catalyze/api",
+  "name": "@catalyzed/api",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -25,8 +25,8 @@
     "ts-invariant": "^0.10.3"
   },
   "dependencies": {
-    "@catalyze/basic": "workspace:^",
-    "@catalyze/asset": "workspace:^",
-    "@catalyze/types": "workspace:^"
+    "@catalyzed/basic": "workspace:^",
+    "@catalyzed/asset": "workspace:^",
+    "@catalyzed/types": "workspace:^"
   }
 }

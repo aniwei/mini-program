@@ -3,10 +3,10 @@ import fs from 'fs-extra'
 import path from 'path'
 import chokidar, { FSWatcher } from 'chokidar'
 import { Axios } from 'axios'
-import { WxAsset, WxAssetHash } from '@catalyze/asset'
-import { WxAssetsCompile } from '@catalyze/compile'
-import { Asset, AssetJSON, AssetStoreKind, EventEmitter, PodStatusKind } from '@catalyze/basic'
-import type { WxProj } from '@catalyze/types'
+import { WxAsset, WxAssetHash } from '@catalyzed/asset'
+import { WxAssetsCompile } from '@catalyzed/compile'
+import { Asset, AssetJSON, AssetStoreKind, EventEmitter, PodStatusKind } from '@catalyzed/basic'
+import type { WxProj } from '@catalyzed/types'
 
 const mini_debug = debug(`wx:program`)
 

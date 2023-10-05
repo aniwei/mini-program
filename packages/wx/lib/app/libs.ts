@@ -1,6 +1,6 @@
 
 import debug from 'debug'
-import { PodStatusKind, defineReadOnlyProperty } from '@catalyze/basic'
+import { PodStatusKind, defineReadOnlyProperty } from '@catalyzed/basic'
 import { WxCapability, WxCapabilityFactory } from '../capability'
 
 import { WxContext } from '../context'

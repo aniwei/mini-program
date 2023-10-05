@@ -1,7 +1,7 @@
 import { invariant } from 'ts-invariant'
 import debug from 'debug'
-import { WorkPort } from '@catalyze/basic'
-import * as Api from '@catalyze/api'
+import { WorkPort } from '@catalyzed/basic'
+import * as Api from '@catalyzed/api'
 
 const api_debug = debug('wx:api')
 

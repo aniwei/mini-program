@@ -4,7 +4,7 @@ import debug from 'debug'
 // @TODO
 // @ts-ignore
 import resolve from 'resolve-dir'
-import { WxUser } from '@catalyze/api'
+import { WxUser } from '@catalyzed/api'
 import { WxBase } from './base'
 
 const store_debug = debug(`wx:store`)

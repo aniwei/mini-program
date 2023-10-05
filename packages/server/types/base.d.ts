@@ -2,8 +2,8 @@
 import Koa from 'koa';
 import { Server } from 'http';
 import { WebSocketServer } from 'ws';
-import { WorkTransport } from '@catalyze/basic';
-import * as Wx from '@catalyze/api';
+import { WorkTransport } from '@catalyzed/basic';
+import * as Wx from '@catalyzed/api';
 import type { ViteDevServer } from 'vite';
 declare class WxApi extends Wx.WxApi {
 }

@@ -11,9 +11,10 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       external: [
-        '@catalyze/server',
-        '@catalyze/types',
-        '@catalyze/view',
+        '@catalyzed/server',
+        '@catalyzed/types',
+        '@catalyzed/view',
+        'axios',
         'fs',
         'fs/promises',
         'url',

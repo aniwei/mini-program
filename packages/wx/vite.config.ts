@@ -14,10 +14,10 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       external: [
-        '@catalyze/api',
-        '@catalyze/basic',
-        '@catalyze/asset',
-        '@catalyze/types',
+        '@catalyzed/api',
+        '@catalyzed/basic',
+        '@catalyzed/asset',
+        '@catalyzed/types',
         '@react-navigation/native',
         'debug',
         'path',
