@@ -41,8 +41,7 @@ export class WxBase extends Koa {
     createVite(port).then(vite => {
       const server = vite.httpServer as Server
   
-      server.on(`upgrade`, (req, socket, head) => {
-        debugger
+      server.on('upgrade', (req, socket, head) => {
         if (req.url === '/api') {
           ws.handleUpgrade(req, socket, head, (socket: WebSocket) => {
             this.api.disconnect()

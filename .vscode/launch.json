@@ -52,9 +52,9 @@
       "port": 9229
     }, {
       "name": "@catalyzed/cli",
-      "program": "${workspaceRoot}/packages/cli/lib/cli",
+      "program": "${workspaceRoot}/packages/cli/dist/cli.js",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/examples/weui",
+      "cwd": "${workspaceFolder}/example/mini-program/weui",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"
