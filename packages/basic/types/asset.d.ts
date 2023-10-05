@@ -23,6 +23,7 @@ export type AssetJSON = {
     hash: string | null;
     source: ArrayBufferView | ArrayBufferLike | string;
     relative: string;
+    sourceMap?: string | null;
 };
 export declare enum AssetStatusKind {
     Created = 0,
@@ -49,6 +50,7 @@ export declare abstract class Asset {
     parsed: ParsedPath;
     absolute: string;
     hash: string | null;
+    sourceMap: string | null;
     /**
      * 构造函数
      * @param {string} file

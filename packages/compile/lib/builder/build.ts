@@ -29,24 +29,19 @@ class Builder extends ProxyBuilder {
     this.command('message::init', () => {
       this.status |= PodStatusKind.Inited
     })
+
     this.command('message::build', async (message: MessageOwner) => {
       const payload = message.payload as unknown as MessagePayload
       const buildTask = payload.parameters[0]
 
       switch (buildTask.type) {
         case BuildTypeKind.Less:
-          // @TODO
-          // @ts-ignore 
           return message.reply(await this.less(buildTask.source))
 
         case BuildTypeKind.Sass:
-          // @TODO
-          // @ts-ignore 
           return message.reply(await this.sass(buildTask.source))
 
         case BuildTypeKind.JS: 
-        // @TODO
-          // @ts-ignore 
           return message.reply(await this.js(buildTask.source))
       }
     })
@@ -54,7 +49,26 @@ class Builder extends ProxyBuilder {
   
   less (source: BuildSource) {
     return new Promise((resolve, reject) => {
-      less.render(source.content, (error: any, output?: Less.RenderOutput) => {
+      const parsed = path.parse(source.name)
+      const dirs = parsed.dir.split(path.sep)
+      const paths: string[] = []
+
+      for (const dir of dirs) {
+        const prefix = paths[paths.length - 1]
+        if (prefix) {
+          paths.push(path.resolve(source.root, prefix + path.sep + dir))
+        } else {
+          paths.push(path.resolve(source.root, dir))
+        }
+      }
+
+
+      less.render(source.content, {
+        sourceMap: {
+          sourceMapFileInline: true
+        },
+        paths: [source.root, ...paths]
+      }, (error: any, output?: Less.RenderOutput) => {
         if (error !== null) {
           reject(error)
         } 
@@ -99,18 +113,11 @@ class Builder extends ProxyBuilder {
     return transform(source.content, {
       filename: source.name,
       jsc: {
-        parser: {
-          syntax: source.ext === '.js' 
-            ? 'ecmascript' 
-            : 'typescript',
-        },
+        parser: { syntax: source.ext === '.js' ? 'ecmascript' : 'typescript' },
         target: 'es5',
       },
-      module: {
-        type: 'commonjs'
-      },
-      sourceMaps: source.sourceMaps,
-      inlineSourcesContent: true
+      module: { type: 'commonjs' },
+      sourceMaps: (source.sourceMaps as boolean | 'inline') ?? 'inline',
     }).then((result: { code: string, map?: string }) => {
       const parsed = path.parse(source.name)
       parsed.base = ''
@@ -125,6 +132,7 @@ class Builder extends ProxyBuilder {
       }
     }).catch((error: any) => {
       builder_debug('编译文件错误 「filename: %s, error: %o」', error)
+      throw error
     })
   }
 }

@@ -23,7 +23,10 @@ class MiniAssetsBundle extends WxAssetsCompile {
       this.put(asset)
     }
 
-    return super.search()
+    return super.search().then((result) => {
+      debugger
+      return result
+    })
   }
 }
 
@@ -82,7 +85,7 @@ export class WxProgram extends WxCached {
   }
 
   async ensure () {
-    mini_debug(`开始读取小程序项目`)
+    mini_debug(`➜ 开始读取小程序项目`)
     await this.read()
     await this.start()
   }

@@ -6,10 +6,11 @@ export declare enum BuildTypeKind {
     TS = 3
 }
 export type BuildSource = {
+    root: string;
     ext: string;
     name: string;
     content: string;
-    sourceMaps: boolean;
+    sourceMaps: boolean | string;
 };
 export type BuildTask = {
     source: BuildSource;
