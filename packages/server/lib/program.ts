@@ -24,7 +24,6 @@ class MiniAssetsBundle extends WxAssetsCompile {
     }
 
     return super.search().then((result) => {
-      debugger
       return result
     })
   }
