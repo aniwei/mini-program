@@ -25,7 +25,6 @@ class Builder extends ProxyBuilder {
   constructor () {
     super()
 
-    
     this.command('message::init', () => {
       this.status |= PodStatusKind.Inited
     })
@@ -33,6 +32,8 @@ class Builder extends ProxyBuilder {
     this.command('message::build', async (message: MessageOwner) => {
       const payload = message.payload as unknown as MessagePayload
       const buildTask = payload.parameters[0]
+
+      builder_debug('编译文件名 「filename: %s」', buildTask.source.name)
 
       switch (buildTask.type) {
         case BuildTypeKind.Less:
@@ -108,8 +109,7 @@ class Builder extends ProxyBuilder {
   }
 
   js (source: BuildSource) {
-    builder_debug('编译文件名 「filename: %s」', source.name)
-
+    
     return transform(source.content, {
       filename: source.name,
       jsc: {
