@@ -6,16 +6,13 @@ export const SideLayout = () => {
     <View style={{
       width: 60,
       paddingBottom: 12,
-      shadowColor: 'rgba(33, 33, 52, 0.1)',
-      shadowRadius: 4,
-      shadowOffset: {
-        width: 0,
-        height: 1
-      },
+      borderRightColor: 'rgb(234, 234, 239)',
+      borderRightWidth: 1,
       flexDirection: 'column',
       justifyContent: 'flex-end',
       backgroundColor: 'rgba(255, 255, 255, 1)',
-      alignItems: 'center'
+      alignItems: 'center',
+      zIndex: 10
     }}>
       <View style={{
         maxWidth: 1920

@@ -9,7 +9,7 @@ const ContentAside = () => {
       minWidth: 232,
       flexDirection: 'column',
       backgroundColor: 'rgb(246, 246, 249)',
-      borderRightColor: 'rgb(220, 220, 228)',
+      borderRightColor: 'rgb(234, 234, 239)',
       borderRightWidth: 1,
     }}>
       <View style={{
@@ -22,7 +22,13 @@ const ContentAside = () => {
           fontSize: 18,
           lineHeight: 22.5,
           color: 'rgb(50, 50, 77)',
-        }}>侧栏</Text>
+        }}>设置</Text>
+        <View style={{
+          marginTop: 16,
+          width: 24,
+          height: 1,
+          backgroundColor: 'rgb(220, 220, 228)'
+        }}></View>
       </View>
     </View>
   )
