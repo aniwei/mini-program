@@ -9,7 +9,7 @@
       "request": "launch",
       "cwd": "${workspaceFolder}/example/mini-program/weui",
       "env": {
-        "PORT": 3000,
+        "PORT": 4001,
         "DEBUG": "wx:*"
       },
       "skipFiles": [
@@ -22,6 +22,7 @@
         "tsconfig-paths/register"
       ],
       "args": ["start", "--watch"],
+      "type": "pwa-node",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "port": 9229
