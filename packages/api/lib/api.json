@@ -88,8 +88,11 @@
         "description": "发布",
         "parameters": [{
           "name": "name",
-          "type": "string",
-          "description": "事件名称"
+          "type": "enum",
+          "description": "事件名称",
+          "enum": [
+            "File.change"
+          ]
         }, {
           "name": "options",
           "type": "object",

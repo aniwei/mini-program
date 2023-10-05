@@ -48,7 +48,7 @@ export declare class ApiSubscribables extends Map<string, Subscribable> {
 }
 export interface BaseApi<T extends string> {
 }
-export declare abstract class BaseApi<T extends string> extends EventEmitter<T> {
+export declare abstract class BaseApi<T extends string> extends EventEmitter<T | string> {
     protected _transport: MessageTransport | null;
     get transport(): MessageTransport | null;
     set transport(transport: MessageTransport | null);

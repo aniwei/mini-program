@@ -3,6 +3,7 @@ import {
   ApiJSON, 
   AssetsBundleJSON, 
   BaseApi, 
+  EventEmitter, 
   MessageContent, 
   MessageOwner, 
   MessageTransport 
@@ -37,9 +38,20 @@ export interface WxLogin {
   state: string
 }
 
-export type WxApiEvent = `Auth.signIn` | `Auth.signOut` | `Auth.initialed` | `Auth.WxQRCodeStateKindChanged`
+export type WxApiEventKind = 
+  `Auth.signIn` | 
+  `Auth.signOut` | 
+  `Auth.initialed` | 
+  `Auth.WxQRCodeStateKindChanged`
 
-export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> {
+export type WxProgramApiEventKind = 
+  `File.change`
+
+export interface WxProgramApiEvent extends EventEmitter<WxProgramApiEventKind> {
+  publish (name: WxProgramApiEventKind, parameters: unknown[]): Promise<void>
+}
+
+export interface WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
   Auth: {
     commands: {
       getUser (): Promise<WxUser>
@@ -60,9 +72,7 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
       login (): Promise<WxLogin>
       createRequestTask (data: unknown): Promise<unknown>
     },
-    events: {
-      publish (name: string, options: unknown, parameters: unknown[]): Promise<void>
-    }
+    events: WxProgramApiEvent
   }
 }
 
@@ -77,7 +87,7 @@ export enum WxApiStateKind {
 
 export type ReadyHandle = () => void
 
-export abstract class WxApiService<T extends string> extends BaseApi<WxApiEvent | T> {
+export abstract class WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
   constructor (transport?: MessageTransport) {
     super(WxApiJSON as ApiJSON, transport ?? null)
   }

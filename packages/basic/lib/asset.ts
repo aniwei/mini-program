@@ -307,9 +307,25 @@ export abstract class AssetsBundle {
     return this.assets.filter(file => file.ext === ext)
   }
 
-  // 根据相对路径查找
+  /**
+   * 根据相对路径查找
+   * @param relative 
+   * @returns 
+   */
   findByFilename (relative: string) {
     return this.assets.find(file => file.relative === relative) ?? null
+  }
+
+  // 替换
+  replaceByFilename (relative: string, asset: Asset) {
+    invariant(asset.mounted)
+    const index = this.assets.findIndex(file => file.relative === relative)
+
+    if (index > -1) {
+      this.assets.splice(index, 1, asset)
+    } else {
+      this.put(asset)
+    }
   }
 
   /**

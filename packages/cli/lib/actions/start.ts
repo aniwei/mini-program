@@ -5,7 +5,7 @@ import { getWxProj } from '../basic/proj'
 const env = process.env
 const start_debug = debug('wx:cli:start')
 
-export const start = async (port: number) => {
+export const start = async (port: number, watch: boolean = false) => {
   port ??= Number(env.PORT) ?? 4001
 
   start_debug(`执行命令 「action: start」`)
@@ -18,9 +18,13 @@ export const start = async (port: number) => {
     console.error(`执行错误，当前路径 「${process.cwd()}」 不存在小程序项目`)
     process.exit(0)
   } else {
-    await createWxApplication({
+    const app = await createWxApplication({
       port,
       proj,
     })
+
+    if (watch) {
+      app.watch()
+    }
   }
 }

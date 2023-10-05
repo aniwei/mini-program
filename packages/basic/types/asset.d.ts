@@ -23,7 +23,7 @@ export type AssetJSON = {
     hash: string | null;
     source: ArrayBufferView | ArrayBufferLike | string;
     relative: string;
-    sourceMap?: string | null;
+    sourceMap: string | null;
 };
 export declare enum AssetStatusKind {
     Created = 0,
@@ -101,7 +101,13 @@ export declare abstract class AssetsBundle {
     mount(): Promise<undefined>;
     exists(filename: string): boolean;
     findByExt(ext: AssetExt): Asset[];
+    /**
+     * 根据相对路径查找
+     * @param relative
+     * @returns
+     */
     findByFilename(relative: string): Asset | null;
+    replaceByFilename(relative: string, asset: Asset): void;
     /**
      * 序列化
      */

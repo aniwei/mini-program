@@ -53,12 +53,12 @@ const checkApiParameters = (args: unknown[], parameters: ApiParameter[]) => {
     const parameter = parameters[i]
     const type = parameter.type
     switch (type.toLowerCase()) {
-      case `array`:
+      case 'array':
         if (!Array.isArray(args[i])) {
           throw new TypeError(`Expected "${type}" type.`)
         }
         break
-      case `enum`:
+      case 'enum':
         if (typeof args[i] !== 'string' || !parameter.enum?.includes(args[i] as string)) {
           throw new TypeError(`Expected "${type}" type.`)
         }
@@ -126,7 +126,7 @@ export class ApiSubscribables extends Map<string, Subscribable> {
 //// => BaseApi
 export interface BaseApi<T extends string> { }
 
-export abstract class BaseApi<T extends string> extends EventEmitter<T> {
+export abstract class BaseApi<T extends string> extends EventEmitter<T | string> {
   // => transport
   protected _transport: MessageTransport | null = null
   public get transport() {
@@ -186,9 +186,15 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
       type: 'Command' | 'Event',
       actions: ApiAction[]
     ) => {
-      const proxy = Object.create({})
+      const proxy = type === 'Command' 
+        ? Object.create({})
+        : Object.create(new EventEmitter())
 
       for (const action of actions) {
+        const name = `${domain.name}.${action.name}`
+        
+        this.on(name, (...rests: unknown[]) => proxy.emit(...rests))
+
         const func = async (...parameters: unknown[]) => {
           checkApiParameters(parameters, action.parameters)
 
@@ -196,7 +202,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T> {
             command: 'message::api',
             payload: {
               type,
-              name: `${domain.name}.${action.name}`,
+              name,
               parameters
             }
           })

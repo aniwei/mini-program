@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { WxSettings, ProxyApp } from '@catalyze/wx'
 import { api } from '../api'
 import { Store } from '@catalyze/wx'
-import { AssetHash } from '@catalyze/basic'
+import { Asset, AssetHash } from '@catalyze/basic'
 import type { WxAppJSON, WxProj } from '@catalyze/types'
 
 export interface TabItem {
@@ -52,6 +52,12 @@ export const useProgram = create<ProgramState>((set) => {
         }) ?? {
           appid: proj.appid,
           assets: []
+        }
+
+        if (proj.settings.watch) {
+          api.Program.events.on('File.change', (asset: Asset) => {
+            console.log(asset)
+          })
         }
 
         store.read(app).then(assets => {

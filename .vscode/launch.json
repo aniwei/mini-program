@@ -68,7 +68,7 @@
         "-r",
         "tsconfig-paths/register"
       ],
-      "args": ["start"],
+      "args": ["start", "--watch"],
       "type": "pwa-node",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

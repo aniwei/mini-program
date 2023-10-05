@@ -24,6 +24,7 @@ export default defineConfig({
         '@catalyze/compile',
         '@catalyze/types',
         '@catalyze/view',
+        'chokidar',
         'ws',
         'koa',
         'http',

@@ -1,6 +1,10 @@
+export interface WxProjSettings {
+    watch: boolean;
+}
 export interface WxProj {
     root: string;
     appid: string;
+    settings: WxProjSettings;
 }
 export interface WxAppWindowJSON {
     navigationBarBackgroundColor?: string;

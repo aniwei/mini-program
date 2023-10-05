@@ -180,6 +180,7 @@ export class Store extends FileSystem {
         return {
           ...asset,
           source: source.toString(),
+          sourceMap: null
         }
       })
     }))

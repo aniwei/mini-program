@@ -1,4 +1,4 @@
-import { AssetsBundleJSON, BaseApi, MessageContent, MessageOwner, MessageTransport } from '@catalyze/basic';
+import { AssetsBundleJSON, BaseApi, EventEmitter, MessageContent, MessageOwner, MessageTransport } from '@catalyze/basic';
 import { WxAssetHash } from '@catalyze/asset';
 import { WxProj } from '@catalyze/types';
 export declare enum WxQRCodeStateKind {
@@ -22,8 +22,12 @@ export interface WxLogin {
     appicon_url: string;
     state: string;
 }
-export type WxApiEvent = `Auth.signIn` | `Auth.signOut` | `Auth.initialed` | `Auth.WxQRCodeStateKindChanged`;
-export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> {
+export type WxApiEventKind = `Auth.signIn` | `Auth.signOut` | `Auth.initialed` | `Auth.WxQRCodeStateKindChanged`;
+export type WxProgramApiEventKind = `File.change`;
+export interface WxProgramApiEvent extends EventEmitter<WxProgramApiEventKind> {
+    publish(name: WxProgramApiEventKind, parameters: unknown[]): Promise<void>;
+}
+export interface WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
     Auth: {
         commands: {
             getUser(): Promise<WxUser>;
@@ -43,9 +47,7 @@ export interface WxApiService<T extends string> extends BaseApi<WxApiEvent | T> 
             login(): Promise<WxLogin>;
             createRequestTask(data: unknown): Promise<unknown>;
         };
-        events: {
-            publish(name: string, options: unknown, parameters: unknown[]): Promise<void>;
-        };
+        events: WxProgramApiEvent;
     };
 }
 export declare enum WxApiStateKind {
@@ -57,7 +59,7 @@ export declare enum WxApiStateKind {
     Error = 32
 }
 export type ReadyHandle = () => void;
-export declare abstract class WxApiService<T extends string> extends BaseApi<WxApiEvent | T> {
+export declare abstract class WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
     constructor(transport?: MessageTransport);
 }
 export type WxApiQueueHandle = () => void;

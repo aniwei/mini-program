@@ -10,5 +10,7 @@ export declare class WxApp extends WxAuth {
     proj: WxProj;
     program: WxProgram;
     constructor(options: WxAppOptions);
+    watch(): Promise<void>;
+    stop(): Promise<void>;
     start(): Promise<void>;
 }
