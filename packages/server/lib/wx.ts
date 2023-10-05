@@ -56,7 +56,10 @@ export class WxApp extends WxAuth {
     await this.program.watch()
     
     this.program.on('change', (asset: Asset) => {
-      this.api.Program.events.publish('File.change', [asset.toJSON()])
+      this.api.Program.events.publish('File.change', [
+        this.proj.appid, 
+        asset.toJSON()
+      ])
     })
   }
 

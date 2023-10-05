@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { WxSettings, ProxyApp } from '@catalyze/wx'
 import { api } from '../api'
 import { Store } from '@catalyze/wx'
-import { Asset, AssetHash } from '@catalyze/basic'
+import { Asset, AssetHash, AssetJSON } from '@catalyze/basic'
 import type { WxAppJSON, WxProj } from '@catalyze/types'
 
 export interface TabItem {
@@ -55,31 +55,18 @@ export const useProgram = create<ProgramState>((set) => {
         }
 
         if (proj.settings.watch) {
-          api.Program.events.on('File.change', (asset: Asset) => {
-            console.log(asset)
+          api.Program.events.on('File.change', (appid: string, asset: AssetJSON) => {
+            store.save(appid, [asset]).then(() => {
+              if (asset.relative === 'app.js') {
+                // 重启
+              }
+            })
           })
         }
 
-        store.read(app).then(assets => {
+        store.read(app).then(() => {
           set({ state: ProgramStateKind.Inited })
           api.Program.commands.getWxAssetsBundle(app.assets).then().then(bundle => { 
-            if (bundle.assets.length > 0) {
-              for (const asset of bundle.assets) {
-                const current = assets.find((current) => {
-                  if (current.relative === asset.relative) {
-                    return current
-                  }
-                }) ?? null
-
-                if (current !== null) {
-                  asset.hash = current.hash
-                  asset.source = current.source
-                } else {
-                  assets.push(asset)
-                }
-              }
-            }
-            
             store.save(proj.appid, bundle.assets).then(() => {
               const wx = ProxyApp.boot()
               const settings = useProgram.getState().settings
@@ -89,7 +76,7 @@ export const useProgram = create<ProgramState>((set) => {
               wx.init({
                 proj,
                 root: bundle.root,
-                assets
+                assets: store.assets
               }, settings).then(() => {
                 const app = wx.findByFilename('app.json')?.data as WxAppJSON
           

@@ -1,14 +1,11 @@
+import { invariant } from 'ts-invariant'
 import { parse, sep } from 'path'
 import { AssetHash, AssetJSON, EventEmitter } from '@catalyze/basic'
 import * as BrowserFS from 'browserfs'
 
 import type { FSModule } from 'browserfs/dist/node/core/FS'
 
-interface App {
-  appid: string,
-  assets: AssetHash[]
-}
-
+//// => FileSystem
 abstract class FileSystem extends EventEmitter<string> {
   public fsModule: FSModule
 
@@ -125,29 +122,24 @@ abstract class FileSystem extends EventEmitter<string> {
   }
 }
 
-export class Store extends FileSystem {
-  static async create (): Promise<Store> {
-    return new Promise((resolve, reject) => {
-      BrowserFS.configure({
-        fs: 'MountableFileSystem',
-        options: {
-          '/': { 
-            fs: 'IndexedDB',
-            options: {
-              storeName: 'mini-program',
-            }
-          }
-        }
-      }, (error: any) => {
-        if (error) {
-          reject(error)
-        } else {
-          resolve(new Store(BrowserFS.BFSRequire('fs')))
-        }
-      })
-    })
-  }
 
+//// => Store
+interface App {
+  appid: string,
+  assets: AssetHash[]
+}
+
+// WxAsset 资源 Store
+export class Store extends FileSystem {
+  // => assets
+  public _assets: AssetJSON[] | null = null
+  public get assets () {
+    invariant(this._assets)
+    return this._assets
+  }
+  public set assets (assets: AssetJSON[]) {
+    this._assets = assets
+  }
 
   async ensure (): Promise<App[]> {
     await this.mkdirpAsync('/apps')
@@ -171,7 +163,29 @@ export class Store extends FileSystem {
     }))
   }
 
-  async read (app: App): Promise<AssetJSON[]> {
+  static async create (): Promise<Store> {
+    return new Promise((resolve, reject) => {
+      BrowserFS.configure({
+        fs: 'MountableFileSystem',
+        options: {
+          '/': { 
+            fs: 'IndexedDB',
+            options: {
+              storeName: 'mini-program',
+            }
+          }
+        }
+      }, (error: any) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(new Store(BrowserFS.BFSRequire('fs')))
+        }
+      })
+    })
+  }
+
+  async read (app: App) {
     const { appid, assets } = app
     
     return Promise.all(assets.map(asset => {
@@ -183,7 +197,9 @@ export class Store extends FileSystem {
           sourceMap: null
         }
       })
-    }))
+    })).then(asssets => {
+      this.assets = asssets
+    })
   }
 
   async save (appid: string, assets: AssetJSON[]): Promise<void> {
@@ -212,7 +228,21 @@ export class Store extends FileSystem {
                 return this.writeFileAsync(`/apps/${appid}/${asset.relative}`, asset.source as Buffer)
               }
             })
-          ])
+          ]).then(() => {
+            for (const asset of assets) {
+              const index = this.assets.findIndex((current) => {
+                if (current.relative === asset.relative) {
+                  return current
+                }
+              }) ?? null
+
+              if (index === -1) {
+                this.assets.push(asset)
+              } else if (index > -1) {
+                this.assets.splice(index, 1, asset)
+              }
+            }
+          })
         }
       })
     }

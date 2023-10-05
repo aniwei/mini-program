@@ -1,10 +1,6 @@
 /// <reference types="node" />
 import { AssetHash, AssetJSON, EventEmitter } from '@catalyze/basic';
 import type { FSModule } from 'browserfs/dist/node/core/FS';
-interface App {
-    appid: string;
-    assets: AssetHash[];
-}
 declare abstract class FileSystem extends EventEmitter<string> {
     fsModule: FSModule;
     constructor(fsModule: FSModule);
@@ -17,10 +13,17 @@ declare abstract class FileSystem extends EventEmitter<string> {
     writeFileAsync(filename: string, data: Buffer | string): Promise<void>;
     removeAsync(path: string): Promise<void>;
 }
+interface App {
+    appid: string;
+    assets: AssetHash[];
+}
 export declare class Store extends FileSystem {
-    static create(): Promise<Store>;
+    _assets: AssetJSON[] | null;
+    get assets(): AssetJSON[];
+    set assets(assets: AssetJSON[]);
     ensure(): Promise<App[]>;
-    read(app: App): Promise<AssetJSON[]>;
+    static create(): Promise<Store>;
+    read(app: App): Promise<void>;
     save(appid: string, assets: AssetJSON[]): Promise<void>;
     clear(): Promise<string[]>;
 }
