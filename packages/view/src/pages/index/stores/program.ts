@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { WxSettings, ProxyApp } from '@catalyze/wx'
 import { api } from '../api'
 import { Store } from '@catalyze/wx'
-import { Asset, AssetHash, AssetJSON } from '@catalyze/basic'
+import { AssetHash, AssetJSON } from '@catalyze/basic'
 import type { WxAppJSON, WxProj } from '@catalyze/types'
 
 export interface TabItem {
@@ -20,6 +20,7 @@ interface App {
 
 export enum ProgramStateKind {
   Init,
+  Error,
   Mount,
   Read,
   Inited,

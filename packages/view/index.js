@@ -1,8 +1,12 @@
-const path = require('path')
-const serve = require('koa-static')
+const { createServer } = require('vite')
 
-const view = () => {
-  return serve(path.resolve(__dirname, `dist`))
+const createVite = (port) => {
+  return createServer({
+    root: __dirname,
+    server: { port },
+  })
 }
 
-module.exports = { view }
+module.exports = {
+  createVite
+} 

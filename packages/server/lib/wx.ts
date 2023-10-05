@@ -2,9 +2,9 @@ import debug from 'debug'
 import { invariant } from 'ts-invariant'
 import { WxAuth } from './auth'
 import { WxProgram } from './program'
-import type { WxProj } from '@catalyze/types'
 import { WxAssetHash } from '@catalyze/asset'
 import { Asset } from '@catalyze/basic'
+import type { WxProj } from '@catalyze/types'
 
 export type AppStartCallback = () => void
 

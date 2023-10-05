@@ -1,44 +1,69 @@
 import Koa from 'koa'
-import debug from 'debug'
 import { Server } from 'http'
+import { invariant } from 'ts-invariant'
+import { createVite } from '@catalyze/view'
 import { WebSocket, WebSocketServer } from 'ws'
 import { WorkTransport } from '@catalyze/basic'
 
 import * as Wx from '@catalyze/api'
-
-const app_debug = debug(`app:base`)
+import type { ViteDevServer } from 'vite'
 
 class WxApi extends Wx.WxApi {}
 
 export class WxBase extends Koa {
-  protected port: number
-  protected server: Server
-  protected ws: WebSocketServer
+  // => server
+  protected _server: Server | null = null
+  public get server () {
+    invariant(this._server)
+    return this._server
+  }
+  public set server (server: Server) {
+    this._server = server
+  }
 
-  protected transport: WorkTransport | null = null
+  
+  
+  protected port: number
+  protected ws: WebSocketServer
+  
   protected api: WxApi = new WxApi()
+  protected vite: ViteDevServer | null = null
+  protected transport: WorkTransport | null = null
 
   constructor (port: number = 3000) {
     super()
 
-    const server = new Server()
     const ws = new WebSocketServer({ noServer: true })
-
-    server.on(`upgrade`, (req, socket, head) => {
-      ws.handleUpgrade(req, socket, head, (socket: WebSocket) => {
-        this.api.disconnect()
-        const transport = new Wx.WxApiTransport()
-        transport.connect(socket)
-        this.api.connect(transport)
-        this.api.state |= Wx.WxApiStateKind.Connected
-        
-        this.emit(`connected`)
-      })
-    })
     
     this.ws = ws
     this.port = port
-    this.server = server
+
+    createVite(port).then(vite => {
+      const server = vite.httpServer as Server
+  
+      server.on(`upgrade`, (req, socket, head) => {
+        debugger
+        if (req.url === '/api') {
+          ws.handleUpgrade(req, socket, head, (socket: WebSocket) => {
+            this.api.disconnect()
+            const transport = new Wx.WxApiTransport()
+            transport.connect(socket)
+            this.api.connect(transport)
+            this.api.state |= Wx.WxApiStateKind.Connected
+            
+            this.emit(`connected`)
+          })
+        }
+
+      })
+
+      // server.on('request', this.callback())
+      
+      this.vite = vite
+      this.server = server
+      
+      this.emit('vite')
+    })
   }
 
   
@@ -84,9 +109,18 @@ export class WxBase extends Koa {
 
   start (): Promise<void> {
     return new Promise((resolve) => {
-      this.server?.on('request', this.callback())
-      this.server?.listen(this.port, () => resolve())
-      app_debug(`启动 HTTP 服务 <port: %s>`, this.port)
+      const listen = () => {
+        this.vite?.listen().then(() => {
+          this.vite?.printUrls()
+          resolve()
+        })
+        
+      }
+      if (this.vite) {
+        listen()
+      } else {
+        this.on('vite', () => listen())
+      }
     })
   }
 
@@ -96,7 +130,6 @@ export class WxBase extends Koa {
     this.ws.close()
     this.ws.removeAllListeners()
 
-    this.server.removeAllListeners()
-    this.server.close()
+    this.vite?.close()
   }
 }

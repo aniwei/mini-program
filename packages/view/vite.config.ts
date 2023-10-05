@@ -9,8 +9,6 @@ export default defineConfig({
   define: {
     global: 'globalThis',
     '__DEV__': true,
-    // 'process.env': {},
-    // 'process.cwd': `function () { return ${process.cwd()}}`,
   },
   server: {
     headers: {
@@ -25,7 +23,10 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['@react-navigation/native', '@react-navigation/drawer'],
+    include: [
+      '@react-navigation/native', 
+      '@react-navigation/drawer',
+    ],
     esbuildOptions: {
       mainFields: ['module', 'main', 'react-native'],
       resolveExtensions: ['.web.ts', '.web.js', '.js', '.ts', '.jsx'],
@@ -40,7 +41,6 @@ export default defineConfig({
     alias: {
       'react-native': 'react-native-web',
       'path': 'path-browserify',
-      'less': 'less/lib/less-node',
       '@api': path.resolve(__dirname, `src/pages/index/api`),
       '@libs': path.resolve(__dirname, `src/pages/index/libs`),
       '@hooks': path.resolve(__dirname, `src/pages/index/hooks`),
@@ -51,9 +51,7 @@ export default defineConfig({
   },
   plugins: [
     inject({
-      process: 'process/browser',
-      // include: ['src/**/*', 'node_modules/path-browserify'],
-      // exclude: ['']
+      process: 'process/browser'
     }), 
     viteCommonjs({
       exclude: ['src']

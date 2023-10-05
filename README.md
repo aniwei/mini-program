@@ -63,12 +63,7 @@ pnpm build
 }
 ```
 
-- 在 packages/view 执行开发命令
-```
-pnpm dev
-```
-
-- 浏览器打开 http://localhost:5173 
+- 浏览器打开 http://localhost:3000 
 
 ### 可能遇到的问题
 - 无法编译微信代码
