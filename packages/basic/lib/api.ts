@@ -187,13 +187,14 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T | string>
       actions: ApiAction[]
     ) => {
       const proxy = type === 'Command' 
-        ? Object.create({})
+        ? Object.create(new ApiSubscribables())
         : Object.create(new EventEmitter())
 
       for (const action of actions) {
         const name = `${domain.name}.${action.name}`
         
         this.on(name, (...rests: unknown[]) => proxy.emit(...rests))
+        this.subscribe(name, (...rests: unknown[]) => proxy.publish(action.name, ...rests))
 
         const func = async (...parameters: unknown[]) => {
           checkApiParameters(parameters, action.parameters)
@@ -210,7 +211,11 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T | string>
           return result?.payload
         }
 
-        defineReadOnlyProperty(proxy, action.name, func)
+        defineReadOnlyProperty(
+          proxy, 
+          action.name, 
+          func
+        )
       }
 
       return proxy
