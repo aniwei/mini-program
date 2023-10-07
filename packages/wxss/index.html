@@ -7,6 +7,17 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module">
+      import { WxssProcess } from '/lib/wxss.ts'
+      debugger
+      WxssProcess.process(`
+        .wxss {
+          font-size: 12rpx
+        }
+        @media (width: 100rpx) {
+
+        }
+      `)
+    </script>
   </body>
 </html>
