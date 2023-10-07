@@ -1,8 +1,8 @@
 # mini-program
 
-一个基于Web调试微信小程序的框架，目前还处理开发阶段，不过已有不错的成功。已经可以允许 vant-app 小程序版本、以及 weui-app 小程序版本。
+一个基于 Web 运行微信小程序的框架，目前还处理开发阶段，不过已有不错的成功。已经可以运行 vant-app 小程序版本、以及 weui-app 小程序版本。
 
-欢迎一起参与开发此开源项目，让我们不再饱受微信开发工具的困扰，随时随地开发调试小程序。感兴趣可以加我「微信二维码」。
+项目还处于早期阶段，上手比较容易，欢迎一起参与开发此开源项目，让我们不再饱受微信开发工具的困扰，随时随地开发调试小程序。感兴趣可以加我「微信二维码」。
 
 #### Vant 小程序
 
@@ -34,11 +34,11 @@ pnpm i
 pnpm build
 ```
 
-- 执行 vscode 调试模式，调试配置选择 「@catalyze/cli」
+- 执行 vscode 调试模式，调试配置选择 「@catalyzed/cli」
 在此之前，如果运行的是 vant，需要下载官方 vant-app 仓库，构建出 dist 目录；而后将 dist 目录复制至 packages/cli/example/vant 目录下
 ```
 {
-  "name": "@catalyze/cli",
+  "name": "@catalyzed/cli",
   "program": "${workspaceRoot}/packages/cli/src/cli",
   "request": "launch",
   "cwd": "${workspaceFolder}/packages/cli/example/vant", // 将 vant 切换为 weui 可运行 weui 项目，切换时候，注意源码启动页
@@ -63,12 +63,7 @@ pnpm build
 }
 ```
 
-- 在 packages/view 执行开发命令
-```
-pnpm dev
-```
-
-- 浏览器打开 http://localhost:5173 
+- 浏览器打开 http://localhost:3000 
 
 ### 可能遇到的问题
 - 无法编译微信代码

@@ -1,35 +1,37 @@
 {
-  "name": "@catalyze/wx",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/commonjs/index.js",
-  "module": "dist/module/index.js",
+  "name": "@catalyzed/wx",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "files": [
-    "dist/"
+    "dist",
+    "index.d.ts"
   ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p tsconfig.json & tsc -p tsconfig.cjs.json",
-    "dev": "tsc --watch -p tsconfig.json & tsc --watch -p tsconfig.cjs.json"
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "types": "./index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
   "devDependencies": {
-    "@types/node": "^20.2.5",
-    "typescript": "^5.0.2"
+    "debug": "^4.3.4",
+    "ts-invariant": "^0.10.3",
+    "typescript": "^5.1.3",
+    "vite": "^4.3.9"
   },
   "dependencies": {
-    "@catalyze/basic": "workspace:^",
-    "@catalyze/wx-api": "workspace:^",
-    "@catalyze/wx-asset": "workspace:^",
-    "@react-navigation/native": "^6.1.7",
-    "@swc/wasm-web": "^1.3.71",
+    "@catalyzed/api": "workspace:^",
+    "@catalyzed/asset": "workspace:^",
+    "@catalyzed/basic": "workspace:^",
+    "@catalyzed/types": "workspace:^",
+    "@react-navigation/native": "6.1.8",
     "browserfs": "^1.4.3",
-    "debug": "^4.3.4",
-    "path": "^0.12.7",
-    "path-browserify": "^1.0.1",
-    "sass.js": "^0.11.1",
-    "ts-invariant": "^0.10.3"
+    "path-browserify": "^1.0.1"
   }
 }

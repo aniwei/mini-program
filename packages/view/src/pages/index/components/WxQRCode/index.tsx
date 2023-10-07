@@ -1,5 +1,5 @@
 import { View, Text, Image } from 'react-native'
-import { WxQRCodeStateKind } from '@catalyze/wx-api'
+import { WxQRCodeStateKind } from '@catalyzed/api'
 
 interface WxQRCodeLiftcycleProps {
   state: WxQRCodeStateKind
@@ -44,7 +44,11 @@ interface WxQRCodeProps extends WxQRCodeLiftcycleProps {
 export const WxQRCode: React.FC<WxQRCodeProps> = ({ uri, state, }) => {
 
   return (
-    <View>
+    <View
+      style={{
+        alignSelf: 'center'
+      }}
+    >
       <View style={{
         shadowColor: `rgba(33, 33, 52, 0.1)`,
         shadowRadius: 4,

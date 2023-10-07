@@ -1,1 +1,0 @@
-export declare type VoidCallback = () => void

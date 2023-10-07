@@ -3,58 +3,11 @@
   // 悬停以查看现有属性的描述。
   // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "@catalyze/server",
-      "program": "${workspaceRoot}/packages/server/src/index",
+  "configurations": [{
+      "name": "@catalyzed/cli",
+      "program": "${workspaceRoot}/packages/cli/dist/cli.js",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/server",
-      "env": {
-        "PORT": 3000,
-        "DEBUG": "wx:*"
-      },
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "runtimeArgs": [
-        "-r",
-        "ts-node/register",
-        "-r",
-        "tsconfig-paths/register",
-        
-      ],
-      "type": "pwa-node",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "port": 9229
-    }, {
-      "name": "@catalyze/compile",
-      "program": "${workspaceRoot}/packages/compile/example/compile",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/compile",
-      "env": {
-        "PORT": 3000,
-        "DEBUG": "*"
-      },
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "runtimeArgs": [
-        "-r",
-        "ts-node/register",
-        "-r",
-        "tsconfig-paths/register"
-      ],
-      "args": ["start"],
-      "type": "pwa-node",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "port": 9229
-    }, {
-      "name": "@catalyze/cli",
-      "program": "${workspaceRoot}/packages/cli/src/cli",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/example/vant",
+      "cwd": "${workspaceFolder}/example/mini-program/weui",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"
@@ -68,30 +21,7 @@
         "-r",
         "tsconfig-paths/register"
       ],
-      "args": ["start"],
-      "type": "pwa-node",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "port": 9229
-    }, {
-      "name": "@catalyze/example",
-      "program": "${workspaceRoot}/packages/cli/src/cli",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/cli/macau-mini-app",
-      "env": {
-        "PORT": 4001,
-        "DEBUG": "wx:*"
-      },
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "runtimeArgs": [
-        "-r",
-        "ts-node/register",
-        "-r",
-        "tsconfig-paths/register",
-      ],
-      "args": ["start"],
+      "args": ["start", "--watch"],
       "type": "pwa-node",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

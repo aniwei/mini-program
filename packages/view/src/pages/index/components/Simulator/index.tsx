@@ -12,6 +12,8 @@ export const Simulator = () => {
       flexDirection: 'column',
       justifyContent: 'center', 
       overflow: 'hidden',
+      borderColor: 'rgb(234, 234, 239)',
+      borderWidth: 1,
       backgroundColor: `rgba(255, 255, 255, 1)`,
       shadowColor: `rgba(33, 33, 52, 0.1)`,
       shadowRadius: 4,
