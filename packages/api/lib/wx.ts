@@ -1,6 +1,7 @@
 import { invariant } from 'ts-invariant'
 import { 
   ApiJSON, 
+  ApiSubscribables, 
   AssetsBundleJSON, 
   BaseApi, 
   EventEmitter, 
@@ -11,6 +12,7 @@ import {
 import { WxAssetHash } from '@catalyzed/asset'
 import { WxApiTransport } from './transport'
 import { WxProj } from '@catalyzed/types'
+
 import WxApiJSON from './api.json'
 
 export enum WxQRCodeStateKind {
@@ -39,39 +41,46 @@ export interface WxLogin {
 }
 
 export type WxApiEventKind = 
-  `Auth.signIn` | 
-  `Auth.signOut` | 
-  `Auth.initialed` | 
-  `Auth.WxQRCodeStateKindChanged`
+  'Auth.signIn' | 
+  'Auth.signOut' | 
+  'Auth.initialed' | 
+  'Auth.WxQRCodeStateKindChanged'
 
 export type WxProgramApiEventKind = 
-  `File.change`
+  'File.change'
+
+export type WxAuthApiEventKind = ''
+
+export interface WxAuthApiEvent extends EventEmitter<WxApiEventKind> {
+  WxQRCodeStateKindChanged (status: WxQRCodeStateKind): Promise<void>,
+  signIn (user: WxUser): Promise<void>
+}
+
+export interface WxAuthApiCommand extends EventEmitter<WxApiEventKind> {
+  WxQRCodeStateKindChanged (status: WxQRCodeStateKind): Promise<void>,
+  signIn (user: WxUser): Promise<void>
+}
 
 export interface WxProgramApiEvent extends EventEmitter<WxProgramApiEventKind> {
   publish (name: WxProgramApiEventKind, parameters: unknown[]): Promise<void>
 }
 
+export interface WxProgramApiCommand extends ApiSubscribables {
+  login (): Promise<WxLogin>
+  current (): Promise<WxProj>,
+  getWxAssetsBundle (assets: WxAssetHash[]): Promise<AssetsBundleJSON>
+  compile (): Promise<string[]>
+  invoke (name: string, data: unknown, id: number): Promise<unknown>
+  createRequestTask (data: unknown): Promise<unknown>
+}
+
 export interface WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
   Auth: {
-    commands: {
-      getUser (): Promise<WxUser>
-      getAuthenticateWxQRCode (): Promise<string>
-    }
-
-    events: {
-      WxQRCodeStateKindChanged (status: WxQRCodeStateKind): Promise<void>,
-      signIn (user: WxUser): Promise<void>
-    }
+    commands: WxAuthApiCommand
+    events: WxAuthApiEvent
   }, 
   Program: {
-    commands: {
-      current (): Promise<WxProj>,
-      getWxAssetsBundle (assets: WxAssetHash[]): Promise<AssetsBundleJSON>
-      compile (): Promise<string[]>
-      invoke (name: string, data: unknown, id: number): Promise<unknown>
-      login (): Promise<WxLogin>
-      createRequestTask (data: unknown): Promise<unknown>
-    },
+    commands: WxProgramApiCommand,
     events: WxProgramApiEvent
   }
 }
@@ -126,7 +135,16 @@ export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'discon
     })
   }
 
+  /**
+   * 连接
+   * @param {unknown} uri 
+   */
   connect (uri: unknown): void
+  /**
+   * 连接
+   * @param {WxApiTransport} transport 
+   * @returns {void}
+   */
   connect (transport: WxApiTransport): void {
     this.state |= WxApiStateKind.Created
 
@@ -146,6 +164,9 @@ export abstract class WxApi extends WxApiService<'ready' | 'connected' | 'discon
     this.transport = transport
   }
 
+  /**
+   * 断开
+   */
   disconnect () {
     this.transport?.close()
   }
