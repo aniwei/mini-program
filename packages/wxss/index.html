@@ -9,15 +9,20 @@
     <div id="app"></div>
     <script type="module">
       import { WxssProcess } from '/lib/wxss.ts'
-      debugger
       WxssProcess.process(`
         .wxss {
           font-size: 12rpx
         }
+
+        div {
+          font-size: 12;
+        }
         @media (width: 100rpx) {
 
         }
-      `)
+      `).then(result => {
+        debugger
+      })
     </script>
   </body>
 </html>

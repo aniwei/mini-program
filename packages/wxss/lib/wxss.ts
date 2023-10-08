@@ -1,59 +1,18 @@
 import postcss from 'postcss'
 import PostcssSelector from 'postcss-selector-parser'
 import PostcssValue, { ParsedValue } from 'postcss-value-parser'
-import { plugin, Node, Root, Declaration, Rule } from 'postcss'
+import { Node, Root, Declaration, Rule, Result } from 'postcss'
 
-export class WxssProcess {
-  static kPluginSymbol = 'wxss'
-  static kWxssPlugin = plugin(WxssProcess.kPluginSymbol, () => (root: Root) => WxssProcess.transform(root))
-
-  static transform (root: Root) {
-    const wxss = new WxssProcess()
-    wxss.transform(root)
+//// => WxssTransformer
+export class WxssTransformer {
+  static create () {
+    return new WxssTransformer()
   }
-
-  static process (content: string) {
-    return postcss([WxssProcess.kWxssPlugin]).process(content)
-  }
-
-  transform (root: Root) {
-    root.walk((node: Node) => {
-      switch (node.type) {
-        case 'rule': {
-
-          const rule = node as Rule
-          if (rule.parent?.first !== node) {
-            rule.raws.before = '\n'
-          }
-
-          rule.raws.after = ' '
-          const selectors = rule.selectors as string[]
-          rule.selectors = selectors.map((selector) => PostcssSelector(this.select).processSync(selector))
-          break
-        }
-        case 'decl': {
-          const declaration = node as Declaration 
-          declaration.raws.before = ' '
-          declaration.raws.between = ': '
-          declaration.value = this.value(declaration.value)
-          break
-        }
-
-        case 'comment':
-          node.remove()
-          break
-
-        case 'atrule': 
-          break
-      }
-    })
-  }
-
-  /**
+   /**
    * 
    * @param selectors 
    */
-  select (selectors: PostcssSelector.Root) {
+   selector (selectors: PostcssSelector.Root) {
     selectors.walkClasses((selector: PostcssSelector.Node) => {
       selector.replaceWith(PostcssSelector.className({
         value: `\x25\x25HERESUFFIX\x25\x25${selector.value}`
@@ -87,7 +46,6 @@ export class WxssProcess {
    */
   value (value: string): string {
     const parsed: ParsedValue = PostcssValue(value)
-  
     parsed.walk((node) => {
       switch (node.type) {
         case 'word':
@@ -108,3 +66,57 @@ export class WxssProcess {
     return parsed.toString()
   }
 }
+
+
+//// => WxssProcess
+
+export class WxssProcess {
+  static PLUGIN = () => WxssProcess.transform
+
+  static transform (root: Root) {
+    const wxss = new WxssProcess()
+    wxss.transform(root)
+  }
+
+  static process (content: string) {    
+    return Promise.resolve(postcss([WxssProcess.PLUGIN()]).process(content)).then(result => {
+
+    })
+  }
+
+  transform (root: Root) {
+    const transformer = WxssTransformer.create()
+
+    root.walk((node: Node) => {
+      switch (node.type) {
+        case 'rule': {
+
+          const rule = node as Rule
+          if (rule.parent?.first !== node) {
+            rule.raws.before = '\n'
+          }
+
+          rule.raws.after = ' '
+          const selectors = rule.selectors as string[]
+          rule.selectors = selectors.map((selector) => PostcssSelector(transformer.selector).processSync(selector))
+          break
+        }
+        case 'decl': {
+          const declaration = node as Declaration 
+          declaration.raws.before = ' '
+          declaration.raws.between = ': '
+          declaration.value = transformer.value(declaration.value)
+          break
+        }
+
+        case 'comment':
+          node.remove()
+          break
+
+        case 'atrule': 
+          break
+      }
+    })
+  }
+}
+
