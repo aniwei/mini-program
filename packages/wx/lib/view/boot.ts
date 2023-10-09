@@ -15,6 +15,7 @@ import { View } from './capability/view'
 
 import '../asset'
 import { WxProj } from '@catalyzed/types'
+import { Utililty } from './capability/utility'
 
 const view_debug = debug('wx:view:iframe')
 
@@ -45,6 +46,7 @@ export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
     const wx = super.create(...rests)
 
     wx.register(View)
+    wx.register(Utililty)
 
     return wx
   }

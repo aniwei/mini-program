@@ -2,8 +2,10 @@ import { WxCapability, WxCapabilityFactory } from '../capability';
 import { WxContext } from '../context';
 import { ProxyView } from './proxy';
 import { View } from './capability/view';
+import { Utililty } from './capability/utility';
 export interface WxViewLibs {
     view: View;
+    utility: Utililty;
 }
 export declare abstract class WxViewLibs extends WxContext {
     capabilities: WxCapability<ProxyView>[];
