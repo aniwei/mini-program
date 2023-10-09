@@ -27,7 +27,7 @@ export type ParsedPath = {
 }
 
 // 文件类型
-export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '.ts' | '.png' | '.jpg' | '.jpeg' | string
+export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '.ts' | '.png' | '.jpg' | '.jpeg' | '.svg' | string
 
 // 文件JSON化结构
 export type AssetJSON = {
@@ -36,7 +36,7 @@ export type AssetJSON = {
   hash: string | null,
   source: ArrayBufferView | ArrayBufferLike | string,
   relative: string,
-  sourceMap: string | null
+  sourceMap: boolean
 }
 
 export enum AssetStatusKind {
@@ -123,7 +123,7 @@ export abstract class Asset {
   // 文件指纹 hash
   public hash: string | null = null
   // sourceMap
-  public sourceMap: string | null = null
+  public sourceMap: boolean = false
   
   /**
    * 构造函数
@@ -211,6 +211,11 @@ export class AssetProcesses {
     }
   }
 
+  /**
+   * 
+   * @param {Asset} asset 
+   * @returns {boolean}
+   */
   exclude (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetProcess
 
@@ -229,8 +234,12 @@ export class AssetProcesses {
     return false
   }
 
-  // 数据转换
   // string -> JSON / base64url / ...
+  /**
+   * 数据转换
+   * @param {Asset} asset 
+   * @returns {JSON | string}
+   */
   decode (asset: Asset) {
     const processor = this.exts.get(asset.ext) ?? this.exts.get('*') as AssetProcess
 
@@ -316,7 +325,11 @@ export abstract class AssetsBundle {
     return this.assets.find(file => file.relative === relative) ?? null
   }
 
-  // 替换
+  /**
+   * 替换
+   * @param {string} relative 
+   * @param {Asset} asset 
+   */
   replaceByFilename (relative: string, asset: Asset) {
     invariant(asset.mounted)
     const index = this.assets.findIndex(file => file.relative === relative)

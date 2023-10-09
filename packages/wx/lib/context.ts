@@ -54,8 +54,8 @@ export abstract class WxJS extends ProxyPod {
     throw new UnimplementError('handleSubscribe')
   }
 
-  eval (code: string) {
-    runScript(code)
+  eval (code: string, sourceURL?: string) {
+    runScript(code + (sourceURL ? `\n//# sourceURL=${sourceURL}` : ''))
   }
 }
 
