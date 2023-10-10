@@ -16,14 +16,14 @@ export type ParsedPath = {
     ext: string;
     name: string;
 };
-export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '.ts' | '.png' | '.jpg' | '.jpeg' | string;
+export type AssetExt = '.xml' | '.scss' | '.css' | '.less' | '.json' | '.js' | '.ts' | '.png' | '.jpg' | '.jpeg' | '.svg' | string;
 export type AssetJSON = {
     ext: string;
     root: string;
     hash: string | null;
     source: ArrayBufferView | ArrayBufferLike | string;
     relative: string;
-    sourceMap: string | null;
+    sourceMap: boolean;
 };
 export declare enum AssetStatusKind {
     Created = 0,
@@ -50,7 +50,7 @@ export declare abstract class Asset {
     parsed: ParsedPath;
     absolute: string;
     hash: string | null;
-    sourceMap: string | null;
+    sourceMap: boolean;
     /**
      * 构造函数
      * @param {string} file
@@ -78,7 +78,17 @@ export declare class AssetProcesses {
     exts: Map<AssetExt, AssetProcess>;
     constructor();
     register(processor: AssetProcess): void;
+    /**
+     *
+     * @param {Asset} asset
+     * @returns {boolean}
+     */
     exclude(asset: Asset): boolean;
+    /**
+     * 数据转换
+     * @param {Asset} asset
+     * @returns {JSON | string}
+     */
     decode(asset: Asset): Promise<void> | undefined;
 }
 export type AssetsBundleJSON = {
@@ -107,6 +117,11 @@ export declare abstract class AssetsBundle {
      * @returns
      */
     findByFilename(relative: string): Asset | null;
+    /**
+     * 替换
+     * @param {string} relative
+     * @param {Asset} asset
+     */
     replaceByFilename(relative: string, asset: Asset): void;
     /**
      * 序列化

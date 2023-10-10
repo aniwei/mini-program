@@ -15,7 +15,7 @@ import {
   MessageReceivers, 
   MessageSender 
 } from './message'
-import { paddingLeft } from './helpers'
+import { paddingLeft } from './utility'
 
 const transport_debug = debug('work')
 

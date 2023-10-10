@@ -34,6 +34,14 @@ export const isSupportSharedArrayBuffer = () => {
   return typeof globalThis.SharedArrayBuffer !== 'undefined'
 }
 
-export function isNative (Constructor: unknown): boolean {
+export const isNative = (Constructor: unknown): boolean => {
   return typeof Constructor === 'function' && /native code/.test(Constructor.toString())
 }
+
+export const isArray = (object: object) => {
+  return isTypeOf(object, 'Array')
+}
+
+export const isObject = (object: object) => {
+  return isTypeOf(object, 'Object')
+} 

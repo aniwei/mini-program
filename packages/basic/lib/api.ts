@@ -1,7 +1,7 @@
 import { EventEmitter } from './events'
 import { SubscribeHandle } from './subscribable'
 import { Subscribable } from './subscribable'
-import { defineReadOnlyProperty } from './helpers'
+import { defineReadOnlyProperty } from './utility'
 import { MessageContent, MessageOwner, MessageTransport } from './transport'
 
 // Api 参数
