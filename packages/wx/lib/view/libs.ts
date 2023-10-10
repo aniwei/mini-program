@@ -6,11 +6,13 @@ import { WxCapability, WxCapabilityFactory } from '../capability'
 import { WxContext } from '../context'
 import { ProxyView } from './proxy'
 import { View } from './capability/view'
+import { Utililty } from './capability/utility'
 
 const libs_debug = debug(`wx:libs`)
 
 export interface WxViewLibs {
-  view: View
+  view: View,
+  utility: Utililty
 }
 
 export abstract class WxViewLibs extends WxContext {

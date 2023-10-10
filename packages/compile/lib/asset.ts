@@ -335,7 +335,7 @@ class AssetImage extends AssetProcess {
     if (asset.source === null) {
       return fs.readFile(asset.absolute).then(source => {
         asset.hash = createHash(source)
-        asset.source = source.toString('base64url')
+        asset.source = source.toString('base64')
         asset.data = asset.source
       })
     } else {

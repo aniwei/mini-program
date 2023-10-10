@@ -67,7 +67,7 @@ export const useProgram = create<ProgramState>((set) => {
 
         store.read(app).then(() => {
           set({ state: ProgramStateKind.Inited })
-          api.Program.commands.getWxAssetsBundle(app.assets).then().then(bundle => { 
+          api.Program.commands.getWxAssetsBundle([]).then().then(bundle => { 
             store.save(proj.appid, bundle.assets).then(() => {
               const wx = ProxyApp.boot()
               const settings = useProgram.getState().settings
