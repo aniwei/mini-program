@@ -1,0 +1,19 @@
+{
+  "targetDefaults": { 
+    "build": { 
+      "dependsOn": ["^build"]
+    },
+     "dev": { 
+      "dependsOn": ["^dev"]
+    }
+  },
+  "tasksRunnerOptions": {
+    "default": { 
+      "runner": "nx/tasks-runners/default", 
+      "options": {
+        "parallel": 5, 
+        "cacheableOperations": ["build", "lint", "test"] 
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "wechat-mini-program",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm --filter @catalyzed/* dev",
+    "build": "nx run-many --target=build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/debug": "^4.1.8",
+    "@types/node": "^20.2.5",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "nx": "16.7.4",
+    "nx-cloud": "latest"
+  },
+  "dependencies": {
+    "@types/jest": "^29.5.2"
+  }
+}

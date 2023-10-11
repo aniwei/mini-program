@@ -1,0 +1,32 @@
+{
+  "name": "@catalyzed/api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    "types": "./index.d.ts",
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3",
+    "vite": "^4.3.9",
+    "ts-invariant": "^0.10.3"
+  },
+  "dependencies": {
+    "@catalyzed/basic": "workspace:^",
+    "@catalyzed/asset": "workspace:^",
+    "@catalyzed/types": "workspace:^"
+  }
+}

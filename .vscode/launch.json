@@ -1,0 +1,31 @@
+{
+  // 使用 IntelliSense 了解相关属性。 
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [{
+      "name": "@catalyzed/cli",
+      "program": "${workspaceRoot}/packages/cli/dist/cli.js",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/example/mini-program/weui",
+      "env": {
+        "PORT": 4001,
+        "DEBUG": "wx:*"
+      },
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register",
+        "-r",
+        "tsconfig-paths/register"
+      ],
+      "args": ["start", "--watch"],
+      "type": "pwa-node",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "port": 9229
+    }
+  ]
+}
