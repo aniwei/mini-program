@@ -7,6 +7,45 @@
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/lib/index.ts"></script>
+    <script type="module">
+      import { WxssTemplate, MixinWxssTemplate, WxssCompile } from '/lib/index.ts'
+
+      const index = WxssTemplate.create('pages/index/index.wxss', '/', `
+        @import "index1.wxss";
+        index-view {
+          width: 100rpx;
+        }
+        .userinfo {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+      `)
+      index.data = index.source
+      const index1 = WxssTemplate.create('pages/index/index1.wxss', '/', `
+        index1-view {
+          width: 100rpx;
+        }
+
+        view, video {
+          width: 100rpx;
+        }
+      `)
+      index1.data = index1.source
+
+      class Owner extends MixinWxssTemplate(class {
+        static create () {
+          return new Owner()
+        }
+      }) {}
+
+      const owner = Owner.create()
+      owner.put([index, index1])
+            
+      const compile = WxssCompile.compile(index)
+
+      console.log(JSON.stringify(index.state.chunks))
+
+    </script>
   </body>
 </html>

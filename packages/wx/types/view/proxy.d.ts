@@ -18,7 +18,7 @@ declare const ProxyView_base: (abstract new () => {
     readonly assets: import("@catalyzed/basic").Asset[];
     readonly components: WxAssetSet[];
     readonly pages: WxAssetSet[];
-    put(assets: import("@catalyzed/asset").WxAsset[]): void;
+    put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): WxAssetSet | null;

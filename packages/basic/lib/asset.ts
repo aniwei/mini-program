@@ -127,12 +127,13 @@ export abstract class Asset {
   // owner
   abstract owner: unknown
   
+  constructor (...rests: unknown[])
   /**
    * 构造函数
    * @param {string} file 
    * @param {string} root 
    */
-  constructor (relative: string, root: string, source?: Buffer | string) {
+  constructor (relative: string, root: string, source?: Buffer | string, ...rests: unknown[]) {
     const absolute = path.resolve(root, relative)
     
     this.root = root
@@ -273,6 +274,15 @@ export abstract class AssetsBundle {
     throw new Error('Method not implemented.')
   }
 
+  // => owner
+  protected _owner: unknown | null = null
+  public get owner (): unknown {
+    return this._owner
+  }
+  public set owner (owner: unknown) {
+    this._owner = owner
+  }
+
   // 包根路径
   public root: string
   // 包文件列表
@@ -301,7 +311,7 @@ export abstract class AssetsBundle {
         this.assets.push(assets)
       }
 
-      assets.owner = this
+      assets.owner = this.owner ?? this
     }
   }
 
@@ -326,6 +336,7 @@ export abstract class AssetsBundle {
    * @returns 
    */
   findByFilename (relative: string) {
+    relative = relative.replace(/^\//g, '')
     return this.assets.find(file => file.relative === relative) ?? null
   }
 

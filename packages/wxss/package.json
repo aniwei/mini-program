@@ -27,10 +27,12 @@
     "@catalyzed/asset": "workspace:^",
     "@catalyzed/basic": "workspace:^",
     "@catalyzed/compile": "workspace:^",
+    "@rollup/plugin-inject": "^5.0.3",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.31",
     "postcss-selector-parser": "^6.0.13",
     "postcss-value-parser": "^4.2.0",
+    "process": "^0.11.10",
     "ts-invariant": "^0.10.3"
   }
 }

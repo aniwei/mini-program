@@ -14,7 +14,7 @@ declare const WxApp_base: (abstract new () => {
     readonly assets: import("@catalyzed/basic").Asset[];
     readonly components: import("@catalyzed/asset").WxAssetSet[];
     readonly pages: import("@catalyzed/asset").WxAssetSet[];
-    put(assets: WxAsset[]): void;
+    put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): import("@catalyzed/asset").WxAssetSet | null;

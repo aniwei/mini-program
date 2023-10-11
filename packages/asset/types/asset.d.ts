@@ -48,7 +48,7 @@ export declare class WxAssetSet extends AssetsBundle {
     get type(): WxAssetSetKind;
     app: WxAsset;
     relative: string;
-    constructor(app: WxAsset, relative: string, root: string);
+    constructor(...rests: unknown[]);
     put(asset: WxAsset): void;
 }
 export declare class WxAssetSets {
@@ -87,6 +87,8 @@ export declare class WxAssetsBundle extends AssetsBundle {
     get components(): WxAssetSet[];
     protected _pages: WxAssetSet[] | null;
     get pages(): WxAssetSet[];
+    get owner(): unknown;
+    set owner(owner: unknown);
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): WxAssetSet | null;
 }
@@ -107,7 +109,7 @@ export declare function MixinWxAssetsBundle(PodContext: any): (abstract new () =
     readonly assets: Asset[];
     readonly components: WxAssetSet[];
     readonly pages: WxAssetSet[];
-    put(assets: WxAsset[]): void;
+    put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): WxAssetSet | null;

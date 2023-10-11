@@ -45,7 +45,7 @@ export class WxssSelectorTransform extends WxssTransform {
       }
 
       case 'attribute': {
-        state.add(`[${node.attribute ?? ''}${node.operator ?? ''}${node.raws.value ?? ''}]`)
+        state.concat(`[${node.attribute ?? ''}${node.operator ?? ''}${node.raws.value ?? ''}]`)
         break
       }
 
@@ -60,19 +60,19 @@ export class WxssSelectorTransform extends WxssTransform {
           (prev?.type === 'tag')
         ) {
            // @TODO
-          state.add('.')
-          state.add([1])
-          state.add(node.value)
+          state.concat('.')
+          state.push([1])
+          state.concat(node.value)
           
           selectorState.origin = true
         } else {
-          state.add(`.${node.value}`)
+          state.concat(`.${node.value}`)
         }
         break
       }
 
       case 'id': {
-        state.add(`#${node.value}`)
+        state.concat(`#${node.value}`)
         if (!selectorState.xcInvalid) {
           const line = selectorState.rule?.source?.start?.line ?? 0
           let column = selectorState.rule?.source?.start?.column ?? 0
@@ -84,7 +84,7 @@ export class WxssSelectorTransform extends WxssTransform {
 
       case 'tag': {
         if (node.parent?.parent?.type === 'pseudo') {
-          state.add(node.value)
+          state.concat(node.value)
         } else {
           if (
             context.kind !== WxssCompileContextKind.ArRule || 
@@ -94,18 +94,18 @@ export class WxssSelectorTransform extends WxssTransform {
             )
           ) {
             if (node.value.toLowerCase() === 'page') {
-              state.add('body')
+              state.concat('body')
               selectorState.origin = true
             } else {
-              if (/^wx\-/g.test(node.value)) {
-                state.add(`wx-${node.value}`)
+              if (!/^wx\-/g.test(node.value)) {
+                state.concat(`wx-${node.value}`)
                 selectorState.origin = true
               } else {
-                state.add(node.value)
+                state.concat(node.value)
               }
             }
           } else {
-            state.add(node.value)
+            state.concat(node.value)
           }
         }
         break
@@ -129,16 +129,13 @@ export class WxssSelectorTransform extends WxssTransform {
     state: WxssTemplateState, 
     context: WxssCompileContext
   ) {
-    return new Promise((resolve, reject) => {
-      for (let i = 0; i < node.selectors.length; i++) {
-        const selector = node.selectors[i]
+    for (let i = 0; i < node.selectors.length; i++) {
+      const selector = node.selectors[i]
 
-        PostcssSelector((selectors: PostcssSelector.Root) => {
-          // @ts-ignore
-          this.walk(selectors, state, {}, context)
-        }).process(selector)
-      }
-    })
+      PostcssSelector((selectors: PostcssSelector.Root) => {
+        this.walk(selectors, state, {}, context)
+      }).processSync(selector)
+    }
   }
 }
 
@@ -167,7 +164,7 @@ export class WxssDeclarationTransform extends WxssTransform {
     switch (node.type) {
       case 'word': {
         if (declarationState.savedResponsivePixel) {
-          state.add(node.value)
+          state.concat(node.value)
         } else {
           const values = node.value.split('-')
           for (let i = 0; i < values.length; i++) {
@@ -179,14 +176,14 @@ export class WxssDeclarationTransform extends WxssTransform {
             if (pair !== null) {
               const unit = pair.unit
               if (unit === 'rpx') {
-                state.add([0, Number(pair.number)])
+                state.push([0, Number(pair.number)])
                 // @TODO
                 declarationState.savedResponsivePixel = true
               } else {
-                state.add(v)
+                state.concat(v)
               }
             } else {
-              state.add(v)
+              state.concat(v)
             }
           }
           
@@ -197,19 +194,19 @@ export class WxssDeclarationTransform extends WxssTransform {
 
       case 'string': {
         node.value = node.value.replace(/\\/g, '\\\\')
-        state.add(`${node.quote}${node.value}${node.quote}`)
+        state.concat(`${node.quote}${node.value}${node.quote}`)
         break
       }
 
       case 'div': {
-        state.add(node.value)
+        state.concat(node.value)
         break
       }
 
       case 'function': {
         if (node.value === 'url') {
           if (node.nodes) {
-            state.add(` ${node.value}(`)
+            state.concat(` ${node.value}(`)
             const url = node.nodes[0] as PostcssValue.Node
             let value = url.value
             if (!isURI(value) && !declarationState.savedResponsivePixel) {
@@ -240,16 +237,16 @@ export class WxssDeclarationTransform extends WxssTransform {
             }
 
             // @TODO
-            state.add(``)
+            state.concat(``)
             // store.preFile = `${store.preFile} ${(urlNode as postcssValueParser.StringNode).quote || ""}${url}${(urlNode as postcssValueParser.StringNode).quote || ""} )`;
           }
         } else {
-          state.add(` ${node.value}(`)
+          state.concat(` ${node.value}(`)
           if (node.nodes) {
             for (let i = 0; i < node.nodes.length; ++i) {
               const child = node.nodes[i]
               if (child.type === 'space') {
-                state.add(' ')
+                state.concat(' ')
                 for (const j = i + 1; j < node.nodes.length; ++i) {
                   if (node.nodes[j].type === 'space') {
                     i++
@@ -263,14 +260,14 @@ export class WxssDeclarationTransform extends WxssTransform {
             }
           }
 
-          state.add(')')
+          state.concat(')')
         }
         break
       }
 
       case 'space': {
         if (state[state.size - 1] !== ' ') {
-          state.add(' ')
+          state.concat(' ')
         }
         break
       }
@@ -300,7 +297,7 @@ export class WxssDeclarationTransform extends WxssTransform {
         const child = root.nodes[i]
 
         if (child.type === 'space') {
-          state.add(' ')
+          state.concat(' ')
           for (const j = i + 1; j < root.nodes.length; ++i) {
             if (root.nodes[j].type === 'space') {
               i++

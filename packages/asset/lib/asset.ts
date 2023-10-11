@@ -178,6 +178,7 @@ export class WxAssetSet extends AssetsBundle {
   // component/test/index
   public relative: string
 
+  constructor (...rests: unknown[])
   constructor (app: WxAsset, relative: string, root: string) {
     super(root)
     this.app = app
@@ -273,7 +274,7 @@ export class WxAssetsBundle extends AssetsBundle {
   static fromJSON (json: AssetsBundleJSON) {
     const bundle = new WxAssetsBundle(json.root)
     bundle.fromAssetsBundleJSON(json)
-
+    
     return bundle
   }
 
@@ -327,6 +328,14 @@ export class WxAssetsBundle extends AssetsBundle {
     return this._pages
   }
 
+  // => owner
+  public get owner (): unknown {
+    return super.owner as unknown
+  }
+  public set owner (owner: unknown) {
+    super.owner = owner
+  }
+
   fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
     this.put(assets.map(asset => WxAsset.create(asset.relative, asset.root, asset.source)))
   }
@@ -369,6 +378,7 @@ export function MixinWxAssetsBundle (PodContext: any) {
       if (this._root !== root) {
         this._root = root
         this.bundle = new WxAssetsBundle(root)
+        this.bundle.owner = this
       }
     }
 
@@ -398,7 +408,8 @@ export function MixinWxAssetsBundle (PodContext: any) {
     }
 
     // 添加 WxAsset
-    put (assets: WxAsset[]) {
+    put (...rests: unknown[]): void
+    put (assets: WxAsset[]): void {
       this.bundle.put(assets)
     }
 

@@ -9,7 +9,7 @@ declare const WxAssetsBundle_base: (abstract new () => {
     readonly assets: Asset[];
     readonly components: Wx.WxAssetSet[];
     readonly pages: Wx.WxAssetSet[];
-    put(assets: Wx.WxAsset[]): void;
+    put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: import("@catalyzed/basic").AssetsBundleJSON): void;
     findSetByFilename(filename: string): Wx.WxAssetSet | null;

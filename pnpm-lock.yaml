@@ -580,6 +580,9 @@ importers:
       '@catalyzed/compile':
         specifier: workspace:^
         version: link:../compile
+      '@rollup/plugin-inject':
+        specifier: ^5.0.3
+        version: 5.0.3
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
@@ -592,6 +595,9 @@ importers:
       postcss-value-parser:
         specifier: ^4.2.0
         version: 4.2.0
+      process:
+        specifier: ^0.11.10
+        version: 0.11.10
       ts-invariant:
         specifier: ^0.10.3
         version: 0.10.3

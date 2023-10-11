@@ -1,3 +1,4 @@
+import inject from '@rollup/plugin-inject'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -12,5 +13,10 @@ export default defineConfig({
     alias: {
       'path': 'path-browserify'
     }
-  }
+  },
+  plugins: [
+    inject({
+      process: 'process/browser'
+    })
+  ],
 })

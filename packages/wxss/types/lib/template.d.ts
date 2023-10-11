@@ -37,14 +37,17 @@ export declare class WxssTemplate extends Wx.WxAsset {
     set owner(owner: WxssTemplateOwner);
     get path(): string;
     get raws(): unknown;
+    _state: WxssTemplateState | null;
+    get state(): WxssTemplateState;
+    set state(state: WxssTemplateState);
     refs: WxssTemplateRef[];
-    state: WxssTemplateState;
+    constructor(...rests: unknown[]);
     /**
      * 加载
      * @param {AtRule} node
      * @returns {void}
      */
-    import(node: postcss.AtRule): string | undefined;
+    import(node: postcss.AtRule): void;
 }
 export interface WxssTemplateOwner {
     findTemplateByPath: (filename: string) => WxssTemplate;

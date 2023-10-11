@@ -1,7 +1,7 @@
 import postcss from 'postcss'
 import path from 'path'
 import { invariant } from 'ts-invariant'
-import { clone } from '@catalyzed/basic'
+import { clone, isArray } from '@catalyzed/basic'
 import { NotFoundError } from './not-found'
 import * as Wx from '@catalyzed/asset'
 
@@ -34,27 +34,28 @@ export class WxssTemplateState {
     return this.chunks.length > 0
   }
 
+  public current: string = ''
   public xcInvalid: string | null = null
   public chunks: Array<string | number[] | WxssTemplateState> = []
 
-  add (chunk: string | number[] | WxssTemplateState) {
-    this.chunks.push(chunk)
-  }
-
-  clear () {
-    this.chunks = []
-    this.xcInvalid = null
-  }
-
-  clone () {
-    const state = WxssTemplateState.create()
-    state.xcInvalid = this.xcInvalid
-
-    for (const data of this.chunks) {
-      state.add(clone(data, true))
+  push (chunk?: string | number[]) {
+    debugger
+    if (chunk) {
+      if (this.current) {
+        this.chunks.push(this.current)
+      }
+      this.chunks.push(chunk)
+    } else {
+      if (this.current) {
+        this.chunks.push(this.current)
+      }
     }
 
-    return state
+    this.current = ''
+  }
+
+  concat (chunk: string) {
+    this.current += chunk
   }
 }
 
@@ -98,46 +99,64 @@ export class WxssTemplate extends Wx.WxAsset {
     return this.data
   }
 
-  public refs: WxssTemplateRef[] = []
-  public state: WxssTemplateState = WxssTemplateState.create()
+  // => state
+  public _state: WxssTemplateState | null = null
+  public get state () {
+    invariant(this._state)
+    return this._state
+  }
+  public set state (state: WxssTemplateState) {
+    if (this._state !== state) {
+      this._state = state
+      state.template = this
+    } 
+  }
 
+  public refs: WxssTemplateRef[] = []
+
+  constructor (...rests: unknown[]) {
+    super(...rests)
+    this.state = WxssTemplateState.create()
+  }
   
   /**
    * 加载
    * @param {AtRule} node 
    * @returns {void}
    */
-  import (node: postcss.AtRule) {
-    const p = node.params.trim()
+  import (node: postcss.AtRule): WxssTemplate | null {
+    const matched = /^"(.+)"$|^'(.+)'$/g.exec(node.params.trim())
 
-    const matched = /^"(.+)"$|^'(.+)'$/g.exec(p)
     if (matched !== null) {
-      return matched[1]
+      const relative = path.resolve(this.parsed.dir, matched[1] as string)
+      const template = this.owner?.findTemplateByPath(relative) ?? null
+
+      if (template !== null) {
+        this.refs.push({
+          import: {
+            end: {
+              column: node?.source?.end?.column ?? 0,
+              line: node?.source?.end?.line ?? 0,
+            },
+            raws: relative,
+            start: {
+              column: node?.source?.start?.column ?? 0,
+              line: node?.source?.start?.line ?? 0,
+            },
+          },
+          index: 0,
+          path: relative
+        })
+  
+        return template
+      } else if (template === null) {
+        throw new NotFoundError(relative, this)
+      }
+    } else {
+      throw new NotFoundError(node.params.trim(), this)
     }
 
-    const relative = path.relative(this.relative, p)
-    const template = this.owner?.findTemplateByPath(relative) ?? null
-
-    if (template !== null) {
-      this.refs.push({
-        import: {
-          end: {
-            column: node?.source?.end?.column ?? 0,
-            line: node?.source?.end?.line ?? 0,
-          },
-          raws: relative,
-          start: {
-            column: node?.source?.start?.column ?? 0,
-            line: node?.source?.start?.line ?? 0,
-          },
-        },
-        index: 0,
-        path: relative
-      })
-
-    } else if (template === null) {
-      throw new NotFoundError(relative, this)
-    }
+    return null
   }
 }
 

@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface AssetHash {
     hash: string;
     ext: string;
@@ -52,12 +51,7 @@ export declare abstract class Asset {
     hash: string | null;
     sourceMap: boolean;
     abstract owner: unknown;
-    /**
-     * 构造函数
-     * @param {string} file
-     * @param {string} root
-     */
-    constructor(relative: string, root: string, source?: Buffer | string);
+    constructor(...rests: unknown[]);
     mount(): Promise<void> | undefined;
     toJSON(): AssetJSON;
 }
@@ -100,6 +94,9 @@ export declare abstract class AssetsBundle {
     static processor: AssetProcesses;
     static decode(asset: Asset): Promise<void> | undefined;
     static fromJSON(bundle: AssetsBundleJSON): void;
+    protected _owner: unknown | null;
+    get owner(): unknown;
+    set owner(owner: unknown);
     root: string;
     assets: Asset[];
     /**
