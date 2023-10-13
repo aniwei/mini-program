@@ -42,9 +42,9 @@
       const owner = Owner.create()
       owner.put([index, index1])
             
-      const compile = WxssCompile.compile(index)
-
-      console.log(JSON.stringify(index.state.chunks))
+      owner.process()
+      debugger
+      owner.css('pages/index/index.wxss')
 
     </script>
   </body>

@@ -347,20 +347,21 @@ export class WxAssetsBundle extends AssetsBundle {
 
 
 //// => WxAssetsBundleOwner
-export interface WxAssetsBundleOwnerFactory {
-  create (...rests: unknown[]): unknown
-  new (...rests: unknown[]): unknown
+export interface WxAssetsBundleOwnerFactory<T> {
+  create (...rests: unknown[]): T
+  new (...rests: unknown[]): T
+
   put (assets: WxAsset[]): void
   findByFilename (filename: string): WxAsset
 }
 
 export interface WxAssetsBundleOwner {
-
+  root: string
 }
 
-export function MixinWxAssetsBundle (PodContext: any) {
+export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAssetsBundleOwner>> (BaseBundle: T) {
   // TODO 类型推断
-  abstract class WxAssetsBundleOwner extends PodContext implements WxAssetsBundleOwner {
+  abstract class AssetsBundleOwner extends BaseBundle implements WxAssetsBundleOwner {
     static create (...rests: unknown[]) {
       const wx =  super.create(...rests)
       const root = rests[rests.length - 1]
@@ -454,5 +455,5 @@ export function MixinWxAssetsBundle (PodContext: any) {
     }
   }
 
-  return WxAssetsBundleOwner
+  return AssetsBundleOwner as WxAssetsBundleOwner
 }

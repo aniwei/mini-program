@@ -1,10 +1,10 @@
 import postcss from 'postcss'
 import path from 'path'
 import { invariant } from 'ts-invariant'
-import { NotFoundError } from './not-found'
-import * as Wx from '@catalyzed/asset'
-import { WxssCompile } from '.'
 import { isArray } from '@catalyzed/basic'
+import { NotFoundError } from './not-found'
+import { WxssCompile } from './compile'
+import * as Wx from '@catalyzed/asset'
 
 //// => WxssTemplateState
 // Wxss 文件编译状态
@@ -68,6 +68,7 @@ export class WxssTemplateState {
 }
 
 //// => WxssTemplate
+// Wxss 模板引用数据结构
 export type WxssTemplateRef = {
   path: string
   import: {
@@ -83,21 +84,20 @@ export type WxssTemplateRef = {
   }
 }
 
+// Wxss 模板被引用数据结构
 export type WxssTemplateRefed = {
   path: string
 }
 
-export type WxssTemplateSize = {
-  width: number,
-  height: number
-}
-
+// 填充样式数据类型
 export enum WxssTemplateModelKind {
-  Pixel = 0,
-  Suffix = 1,
-  MakeUp = 2
+  Pixel = 0, // rpx to px
+  Suffix = 1, // class suffix
+  Assemble = 2 // artrul
 }
 
+///// => WxssTemplate
+// 模版资源
 export class WxssTemplate extends Wx.WxAsset {
   // => owner
   public get owner (): WxssTemplateOwner {
@@ -143,7 +143,7 @@ export class WxssTemplate extends Wx.WxAsset {
   }
   
   /**
-   * 加载
+   * 引用绑定
    * @param {AtRule} node 
    * @returns {void}
    */
@@ -184,14 +184,11 @@ export class WxssTemplate extends Wx.WxAsset {
 
     return null
   }
-
-  render () {
-    
-  }
 }
 
 //// => WxssTemplateOwnerStyleManager 
-export class WxssTemplateStyleOwner extends Map<string, WxssTemplateMakeUpper> {
+// 模板样式 owner
+export class WxssTemplateStyleOwner extends Map<string, WxssTemplateAssembler> {
   static BASE_DEVICE_WIDTH = 750
   static EPS = 1e-4
 
@@ -217,37 +214,205 @@ export class WxssTemplateStyleOwner extends Map<string, WxssTemplateMakeUpper> {
     return WxssTemplateStyleOwner._SETTINGS
   }
 
+  static create (owner: WxssTemplateOwner, suffix: string) {
+    return new WxssTemplateStyleOwner(owner, suffix)
+  }
+
   // => settings
   public get settings () {
     return WxssTemplateStyleOwner.SETTINGS
   }
 
+  public suffix: string
   public owner: WxssTemplateOwner
   
-
-  constructor (owner: WxssTemplateOwner) {
+  /**
+   * 
+   * @param {WxssTemplateOwner} owner 
+   * @param {string} suffix 
+   */
+  constructor (owner: WxssTemplateOwner, suffix: string = '') {
     super()
 
     this.owner = owner
-  }
-
-  css (template: WxssTemplate) {
-    let makeupper: WxssTemplateMakeUpper | null = this.get(template.path) ?? null
-
-    if (makeupper === null) {
-      makeupper = new WxssTemplateMakeUpper(this, template)
-      this.set(template.path, makeupper)
-    }
-
-    makeupper.rewritor()
+    this.suffix = suffix
   }
 
   /**
-     * rpx 转换
-     * @param {number} rpx 
-     * @param {number} width 
-     * @returns {number}
-     */
+   * 重新计算
+   * @param {number} width 
+   */
+  recalculate (width: number) {
+    for (const [key, assembler] of this) {
+      assembler.recalculate(width)
+    }
+  }
+
+  /**
+   * 渲染样式
+   * @param {WxssTemplate} template 
+   * @param {string} suffix 
+   */
+  css (template: WxssTemplate, suffix: string = '') {
+    let assembler: WxssTemplateAssembler | null = this.get(template.path) ?? null
+
+    if (assembler === null) {
+      assembler = WxssTemplateAssembler.create(
+        this, 
+        template,
+        suffix,
+      )
+
+      this.set(template.path, assembler)
+    }
+
+    assembler.write()
+  }
+}
+
+export type WxssRecalculatorHandle = (width: number) => void
+
+//// => WxssTemplateAssembler
+// 样式组装
+export class WxssTemplateAssembler {
+  static create (
+    owner: WxssTemplateStyleOwner, 
+    template: WxssTemplate,
+    suffix: string = ''
+  ) {
+    return new WxssTemplateAssembler(
+      owner, 
+      template, 
+      suffix
+    )
+  }
+
+  // => 
+  public get path () {
+    return this.template.path
+  }
+
+  // => state
+  public get state () {
+    return this.template.state
+  }
+  
+  // => independent
+  public get independent () {
+    return this.template.independent
+  }
+
+  // => style
+  public _style: HTMLStyleElement | null = null
+  public get style () {
+    if (this._style === null) {
+      const style = document.createElement('style')
+      style.setAttribute('wxss-path', this.path)
+      document.head.appendChild(style)
+
+      this._style = style
+    }
+
+    return this._style
+  }
+
+  public owner: WxssTemplateStyleOwner
+  public template: WxssTemplate
+  public assembled: boolean = false
+  public suffix: string = ''
+  public width: number 
+
+  /**
+   * 
+   * @param {WxssTemplateStyleOwner} owner 
+   * @param {WxssTemplate} template 
+   */
+  constructor (
+    owner: WxssTemplateStyleOwner, 
+    template: WxssTemplate,
+    suffix: string = '',
+  ) {
+    this.owner = owner
+    this.template = template
+    this.suffix = suffix
+    this.width = owner.settings.width
+  }
+
+  /**
+   * 组装数据
+   * @returns 
+   */
+  assemble () {
+    const chunks = this.state.chunks
+    const isString = typeof chunks === 'string'
+
+    // 如果是共享样式
+    if (isString && this.independent && this.assembled) {
+      return ''
+    }
+
+    this.assembled = true
+
+    const owner = this.owner as WxssTemplateStyleOwner
+    let result: Array<string | number> = []
+
+    for (const chunk of chunks) {
+      if (isArray(chunk as object)) {
+        const current = chunk as number[]
+        const kind = current[0]
+        switch (kind) {
+          case WxssTemplateModelKind.Pixel: {
+            result.push(this.rpx(current[1], owner.settings.width))
+            result.push('px')
+            break
+          }
+
+          case WxssTemplateModelKind.Suffix: {
+            result.push(this.suffix)
+            break
+          }
+
+          case WxssTemplateModelKind.Assemble: {
+            // TODO
+            // result.push(this.assemble())
+            result.push('')
+            break
+          }
+        }
+      } else if (typeof chunk === 'string') {
+        result.push(chunk)
+      }
+    }
+
+    return result.join('')
+  }
+
+  recalculate (width: number) {
+    this.width ??= width
+    this.rewrite()
+  }
+
+  rewrite () {
+    this.write()
+  }
+
+  write () {
+    const css = this.assemble()
+    
+    if (this.style.childNodes.length === 0) {
+      const text = document.createTextNode(css)
+      this.style.appendChild(text)
+    } else {
+      this.style.childNodes[0].nodeValue = css
+    }
+  }
+
+  /**
+   * rpx 转换
+   * @param {number} rpx 
+   * @param {number} width 
+   * @returns {number}
+   */
   rpx (
     rpx: number, 
     width: number
@@ -263,8 +428,8 @@ export class WxssTemplateStyleOwner extends Map<string, WxssTemplateMakeUpper> {
 
     if (value === 0) {
       if (
-        this.settings.devicePixelRatio === 1 || 
-        this.settings.platform === 'ios'
+        WxssTemplateStyleOwner.SETTINGS.devicePixelRatio === 1 || 
+        WxssTemplateStyleOwner.SETTINGS.platform === 'ios'
       ) {
         return 1
       } else {
@@ -276,90 +441,8 @@ export class WxssTemplateStyleOwner extends Map<string, WxssTemplateMakeUpper> {
   }
 }
 
-export type WxssrecalculatorHandle = (size: WxssTemplateSize) => void
-
-//// => WxssTemplateMakeUpper
-export class WxssTemplateMakeUpper {
-  // => state
-  public get state () {
-    return this.template.state
-  }
-  
-  public owner: WxssTemplateStyleOwner
-  public template: WxssTemplate
-
-
-  constructor (owner: WxssTemplateStyleOwner, template: WxssTemplate) {
-    this.owner = owner
-    this.template = template
-  }
-
-  makeup () {
-    const chunks = this.state.chunks
-    const isString = typeof chunks === 'string'
-
-    if (isString) {
-      return ''
-    }
-
-    const owner = this.owner as WxssTemplateStyleOwner
-    let result: Array<string | number> = []
-
-    for (const chunk of chunks) {
-      if (isArray(chunk as object)) {
-        const current = chunk as number[]
-        const kind = current[0]
-        switch (kind) {
-          case WxssTemplateModelKind.Pixel: {
-            result.push(owner.rpx(current[0], owner.settings.width))
-            result.push('px')
-            break
-          }
-
-          case WxssTemplateModelKind.Suffix: {
-            break
-          }
-
-          case WxssTemplateModelKind.MakeUp: {
-            result.push(this.makeup())
-          }
-        }
-      } else if (typeof chunk === 'string') {
-        result.push(chunk)
-      }
-    }
-
-    return result.join('')
-  }
-
-  rewritor (
-    suffix: string, 
-    options?: {
-      allowIllegalSelector?: boolean
-    }
-  ) {
-    suffix = suffix || ''
-    const css = this.makeup()
-
-    const owner = this.owner
-
-    if (owner.sheets) {
-      const key = `${this.path}-${suffix}` 
-      owner.sheets.set(key, css)
-
-      owner.recalculations.push((size: WxssTemplateSize) => {
-        this.rewritor(suffix, {
-          allowIllegalSelector: false
-        })
-      })
-    
-
-    }
-
-  }
-}
-
 //// => WxssTemplateOwner
+// 模板渲染配置
 export interface WxssTemplateOwnerSettings {
   platform: string,
   width: number,
@@ -367,21 +450,45 @@ export interface WxssTemplateOwnerSettings {
   devicePixelRatio: number
 }
 
-export interface WxssTemplateOwner {
-  findTemplateByPath: (filename: string) => WxssTemplate
+// 类结构
+export interface MixinWxssTemplateFactory<T> {
+  new (...rests: unknown[]): T
+  create (...rests: unknown[]) : T
 }
 
-export function MixinWxssTemplate (PodContext: any): WxssTemplateOwner {
-  abstract class TemplateOwner extends Wx.MixinWxAssetsBundle(PodContext)  {
+// 模板 owner
+export interface WxssTemplateOwner {
+  findTemplateByPath: (filename: string) => WxssTemplate
+  process: () => void,
+  css: (filename: string) => void
+}
+
+export function MixinWxssTemplate <T extends MixinWxssTemplateFactory<WxssTemplateOwner>> (BaseBundle: T): WxssTemplateOwner {
+  abstract class TemplateOwner extends Wx.MixinWxAssetsBundle(BaseBundle)  {
     // => templates
     public get templates () {
       return this.findByExt('.wxss')
     }
 
-    findTemplateByPath (filename: string) {
-      return this.findByFilename(filename)
+    public style: WxssTemplateStyleOwner
+
+    constructor (...rests: unknown[]) {
+      const suffix = rests.pop() as string
+      super(...rests)
+
+      this.style = WxssTemplateStyleOwner.create(
+        this as unknown as WxssTemplateOwner, 
+        suffix
+      )
     }
 
+    findTemplateByPath (filename: string): WxssTemplate {
+      return this.findByFilename(filename) as WxssTemplate
+    }
+
+    /**
+     * 编译 Wxss 模板
+     */
     process () {
       const templates = this.templates as WxssTemplate[]
       for (const template of templates) {
@@ -431,6 +538,14 @@ export function MixinWxssTemplate (PodContext: any): WxssTemplateOwner {
         } else {
           dep.independent = dep.data ? false : true
         }
+      }
+    }
+
+    css (filename: string) {
+      const template = this.findTemplateByPath(filename) ?? null
+
+      if (template !== null) {
+        this.style.css(template as WxssTemplate)
       }
     }
   }
