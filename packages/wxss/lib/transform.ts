@@ -2,11 +2,23 @@ import postcss from 'postcss'
 import PostcssSelector from 'postcss-selector-parser'
 import PostcssValue from 'postcss-value-parser'
 import { isURI } from './is'
+import { WxssCompileContextKind } from './compile'
+import type { WxssCompileContext } from './compile'
 import type { WxssTemplateState } from './template'
-import { WxssCompileContextKind, type WxssCompileContext } from './compile'
 
 export abstract class WxssTransform {
+  static process (...rests: unknown[]) {
+    const Factory = this as unknown as { new (...rests: unknown[]): WxssTransform }
+    const transform = new Factory(...rests)
+    transform.process(...rests)
+    return process
+  }
+
+  constructor (...rests: unknown[]) { }
+
   abstract walk (node: unknown, state: WxssTemplateState, ...rests: unknown[]): void
+  
+  abstract process (...rests: unknown[]): void
   abstract process (node: postcss.Node, state: WxssTemplateState, ...rests: unknown[]): void
 }
 
@@ -16,6 +28,7 @@ export type SelectorTransformState = {
   origin: boolean,
   xcInvalid: string | null
 }
+
 
 export class WxssSelectorTransform extends WxssTransform {
   /**
@@ -53,18 +66,12 @@ export class WxssSelectorTransform extends WxssTransform {
         const prev = node.prev() ?? null
         if (
           (node === node.parent?.first) || 
-          (
-            prev?.type === 'combinator' && 
-            prev?.value === ' '
-          ) || 
-          (prev?.type === 'tag')
+          prev?.type === 'combinator' && prev?.value === ' ' || 
+          prev?.type === 'tag'
         ) {
-           // @TODO
           state.concat('.')
-          state.push([1])
-          state.concat(node.value)
-          
-          selectorState.origin = true
+          state.end([1])
+          state.concat(node.value)          
         } else {
           state.concat(`.${node.value}`)
         }
@@ -77,7 +84,7 @@ export class WxssSelectorTransform extends WxssTransform {
           const line = selectorState.rule?.source?.start?.line ?? 0
           let column = selectorState.rule?.source?.start?.column ?? 0
           column = selectorState.rule.selector.indexOf(node.value || '') - 1 + column
-          state.xcInvalid = `Some selectors are not allowed in component wxss, including tag name selectors, ID selectors, and attribute selectors.(${state.template.path}:${line}:${column})`
+          console.warn(`Some selectors are not allowed in component wxss, including tag name selectors, ID selectors, and attribute selectors.(${state.template.path}: ${line},${column})`)
         }
         break
       }
@@ -88,18 +95,13 @@ export class WxssSelectorTransform extends WxssTransform {
         } else {
           if (
             context.kind !== WxssCompileContextKind.ArRule || 
-            (
-              context.kind === WxssCompileContextKind.ArRule && 
-              context.name === 'media'
-            )
+            context.kind === WxssCompileContextKind.ArRule && context.name === 'media'
           ) {
             if (node.value.toLowerCase() === 'page') {
               state.concat('body')
-              selectorState.origin = true
             } else {
               if (!/^wx\-/g.test(node.value)) {
                 state.concat(`wx-${node.value}`)
-                selectorState.origin = true
               } else {
                 state.concat(node.value)
               }
@@ -112,6 +114,29 @@ export class WxssSelectorTransform extends WxssTransform {
       }
 
       case 'pseudo': {
+        state.concat(node.value)
+        
+        if (node.first || node.last || node.nodes.length > 0) {
+          state.concat('(')
+        }
+
+        for (const n of node.nodes) {
+          WxssSelectorTransform.process(n, state, selectorState)
+        }
+
+        if (node.first || node.last || node.nodes.length > 0) {
+          state.concat(')')
+        }
+        break
+      }
+
+      case 'universal': {
+        state.concat(node.value)
+        break
+      }
+
+      case 'combinator': {
+        state.concat(node.value)
         break
       }
     }
@@ -133,7 +158,11 @@ export class WxssSelectorTransform extends WxssTransform {
       const selector = node.selectors[i]
 
       PostcssSelector((selectors: PostcssSelector.Root) => {
-        this.walk(selectors, state, {}, context)
+        this.walk(selectors, state, {
+          rule: node,
+          origin: false,
+          xcInvalid: null
+        }, context)
       }).processSync(selector)
     }
   }
@@ -176,8 +205,7 @@ export class WxssDeclarationTransform extends WxssTransform {
             if (pair !== null) {
               const unit = pair.unit
               if (unit === 'rpx') {
-                state.push([0, Number(pair.number)])
-                // @TODO
+                state.end([0, Number(pair.number)])
                 declarationState.savedResponsivePixel = true
               } else {
                 state.concat(v)
@@ -205,10 +233,11 @@ export class WxssDeclarationTransform extends WxssTransform {
 
       case 'function': {
         if (node.value === 'url') {
-          if (node.nodes) {
+          if (node.nodes.length > 0) {
             state.concat(` ${node.value}(`)
             const url = node.nodes[0] as PostcssValue.Node
             let value = url.value
+
             if (!isURI(value) && !declarationState.savedResponsivePixel) {
               const between = declarationState.declaration.raws.between
               const path = state.template.path
@@ -222,6 +251,7 @@ export class WxssDeclarationTransform extends WxssTransform {
                 line = declarationState.declaration.source.start.line
                 column = declarationState.declaration.source.start.column
               }
+
               column = column + declarationState.declaration.prop.length
 
               if (between) {
@@ -233,18 +263,18 @@ export class WxssDeclarationTransform extends WxssTransform {
                 }
               }
 
-              value = `${url}-do-not-use-local-path-${path}&${line}&${column}`
+              console.warn(`Do not use local path (${path}: ${line}, ${column}).`)
             }
 
-            // @TODO
-            state.concat(``)
-            // store.preFile = `${store.preFile} ${(urlNode as postcssValueParser.StringNode).quote || ""}${url}${(urlNode as postcssValueParser.StringNode).quote || ""} )`;
+            const quote = (url as PostcssValue.StringNode).quote
+            state.concat(` ${quote}${value}${quote}`)
           }
         } else {
           state.concat(` ${node.value}(`)
-          if (node.nodes) {
+          if (node.nodes.length > 0) {
             for (let i = 0; i < node.nodes.length; ++i) {
               const child = node.nodes[i]
+
               if (child.type === 'space') {
                 state.concat(' ')
                 for (const j = i + 1; j < node.nodes.length; ++i) {
@@ -266,7 +296,7 @@ export class WxssDeclarationTransform extends WxssTransform {
       }
 
       case 'space': {
-        if (state[state.size - 1] !== ' ') {
+        if (!state.current.endsWith(' ')) {
           state.concat(' ')
         }
         break

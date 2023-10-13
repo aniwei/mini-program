@@ -1,9 +1,10 @@
 import postcss from 'postcss'
 import path from 'path'
 import { invariant } from 'ts-invariant'
-import { clone, isArray } from '@catalyzed/basic'
 import { NotFoundError } from './not-found'
 import * as Wx from '@catalyzed/asset'
+import { WxssCompile } from '.'
+import { isArray } from '@catalyzed/basic'
 
 //// => WxssTemplateState
 // Wxss 文件编译状态
@@ -38,8 +39,11 @@ export class WxssTemplateState {
   public xcInvalid: string | null = null
   public chunks: Array<string | number[] | WxssTemplateState> = []
 
-  push (chunk?: string | number[]) {
-    debugger
+  /**
+   * 结束
+   * @param {string | number[] | undefined} chunk 
+   */
+  end (chunk?: string | number[]) {
     if (chunk) {
       if (this.current) {
         this.chunks.push(this.current)
@@ -54,6 +58,10 @@ export class WxssTemplateState {
     this.current = ''
   }
 
+  /**
+   * 收集
+   * @param {string} chunk 
+   */
   concat (chunk: string) {
     this.current += chunk
   }
@@ -61,7 +69,6 @@ export class WxssTemplateState {
 
 export type WxssTemplateRef = {
   path: string
-  index: number
   import: {
     start: {
       column: number,
@@ -76,8 +83,13 @@ export type WxssTemplateRef = {
 }
 
 export type WxssTemplateRefed = {
-  path: string,
-  index: number
+  path: string
+}
+
+export enum WxssTemplateModelKind {
+  Pixel = 0,
+  Suffix = 1,
+  MakeUp = 2
 }
 
 export class WxssTemplate extends Wx.WxAsset {
@@ -112,7 +124,12 @@ export class WxssTemplate extends Wx.WxAsset {
     } 
   }
 
+  // 是否独立打包
+  public independent: boolean = false
+  // 引用
   public refs: WxssTemplateRef[] = []
+  // 被引用
+  public refeds: WxssTemplateRefed[] = []
 
   constructor (...rests: unknown[]) {
     super(...rests)
@@ -134,18 +151,21 @@ export class WxssTemplate extends Wx.WxAsset {
       if (template !== null) {
         this.refs.push({
           import: {
-            end: {
-              column: node?.source?.end?.column ?? 0,
-              line: node?.source?.end?.line ?? 0,
-            },
             raws: relative,
             start: {
               column: node?.source?.start?.column ?? 0,
               line: node?.source?.start?.line ?? 0,
             },
+            end: {
+              column: node?.source?.end?.column ?? 0,
+              line: node?.source?.end?.line ?? 0,
+            }
           },
-          index: 0,
           path: relative
+        })
+
+        template.refeds.push({
+          path: this.path
         })
   
         return template
@@ -158,16 +178,216 @@ export class WxssTemplate extends Wx.WxAsset {
 
     return null
   }
+
+  makeup () {
+    const chunks = this.state.chunks
+    const isString = typeof chunks === 'string'
+
+    if (isString) {
+      return ''
+    }
+
+    const owner = this.owner as WxssTemplateOwner
+    let result: Array<string | number> = []
+
+    for (const chunk of chunks) {
+      if (isArray(chunk as object)) {
+        const current = chunk as number[]
+        const kind = current[0]
+        switch (kind) {
+          case WxssTemplateModelKind.Pixel: {
+            result.push(owner.rpx(current[0], owner.settings.width))
+            result.push('px')
+            break
+          }
+
+          case WxssTemplateModelKind.Suffix: {
+            break
+          }
+
+          case WxssTemplateModelKind.MakeUp: {
+            result.push(this.makeup())
+          }
+        }
+      } else if (typeof chunk === 'string') {
+        result.push(chunk)
+      }
+    }
+
+    return result.join('')
+  }
+
+  rewritor (
+    suffix: string, 
+    options?: {
+      allowIllegalSelector?: boolean
+    }
+  ) {
+    suffix = suffix || ''
+    const cssText = this.makeup()
+  }
+
+  render () {
+    
+  }
+}
+
+//// => WxssTemplateOwner
+export interface WxssTemplateOwnerSettings {
+  platform: string,
+  width: number,
+  height: number,
+  devicePixelRatio: number
+}
+
+export type RecalculationHandle = () => void
+
+export interface WxssStyleSheets {
+  [key: string]: Array<string | number[]>
 }
 
 export interface WxssTemplateOwner {
+  settings: WxssTemplateOwnerSettings,
   findTemplateByPath: (filename: string) => WxssTemplate
+  rpx: (value: number, width: number) => number
 }
 
 export function MixinWxssTemplate (PodContext: any): WxssTemplateOwner {
   abstract class TemplateOwner extends Wx.MixinWxAssetsBundle(PodContext)  {
+    static BASE_DEVICE_WIDTH = 750
+    static EPS = 1e-4
+
+    // => settings
+    static _SETTINGS: WxssTemplateOwnerSettings | null = null
+    static get SETTINGS () {
+      if (TemplateOwner._SETTINGS === null) {
+        const settings = {
+          platform: navigator.userAgent.match('iPhont') ? 'ios' : 'android',
+          width: window.screen.width ?? 375,
+          height: window.screen.height ?? 375,
+          devicePixelRatio: window.devicePixelRatio ?? 2,
+        }
+
+        if (/^landscape/.test(window.screen.orientation.type ?? '')) {
+          settings.width = settings.height
+        }
+
+        TemplateOwner._SETTINGS = settings
+      }
+
+      invariant(TemplateOwner._SETTINGS)
+      return TemplateOwner._SETTINGS
+    }
+
+    // => settings
+    public get settings () {
+      return TemplateOwner.SETTINGS
+    }
+
+    // => templates
+    public get templates () {
+      return this.findByExt('.wxss')
+    }
+
+    // => sheets
+    protected _sheets: WxssStyleSheets | null = null
+    public get sheets () {
+      if (this._sheets === null) {
+
+      }
+
+      return this._sheets
+    }
+
+    public recalculations: RecalculationHandle[] = []
+
     findTemplateByPath (filename: string) {
       return this.findByFilename(filename)
+    }
+
+    process () {
+      const templates = this.templates as WxssTemplate[]
+      for (const template of templates) {
+        WxssCompile.compile(template as WxssTemplate)
+      }
+
+      const unvisited: WxssTemplate[] = []
+      const independent: WxssTemplate[] = []
+
+      for (const template of templates) {
+        unvisited.push(template)
+        if (template.refeds.length === 0) {
+          independent.push(template)
+        }
+      }
+
+      const dfs = (refs: WxssTemplate[], dep: WxssTemplate) => {
+        // 循环引用判断
+        if (refs.includes(dep)) {
+          throw new ReferenceError(dep.path)
+        }
+  
+        refs.push(dep)
+        const index = unvisited.findIndex(tpl => tpl === dep)
+        if (index > -1) {
+          unvisited.splice(index, 1)
+        }
+
+        for (const ref of dep.refs) {
+          dfs(refs, this.findTemplateByPath(ref.path) as WxssTemplate)
+        }
+
+        refs.pop()
+      }
+
+      for (const dep of independent) {
+        dfs([], dep)
+      }
+
+      while (unvisited.length > 0) {
+        dfs([], unvisited[0])
+      }
+
+      for (const dep of independent) {
+        if (dep.path !== './app.wxss') {
+          dep.independent = true
+        } else {
+          dep.independent = dep.data ? false : true
+        }
+      }
+    }
+
+    /**
+     * rpx 转换
+     * @param {number} rpx 
+     * @param {number} width 
+     * @returns {number}
+     */
+    rpx (
+      rpx: number, 
+      width: number
+    ) {
+      if (rpx === 0) {
+        return rpx
+      }
+
+      const value = Math.floor(
+        rpx / TemplateOwner.BASE_DEVICE_WIDTH * width + 
+        TemplateOwner.EPS
+      )
+
+      if (value === 0) {
+        if (
+          TemplateOwner.SETTINGS.devicePixelRatio === 1 || 
+          TemplateOwner.SETTINGS.platform === 'ios'
+        ) {
+          return 1
+        } else {
+          return 0
+        }
+      }
+
+      return value
     }
   }
 

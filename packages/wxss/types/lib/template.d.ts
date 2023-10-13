@@ -7,11 +7,11 @@ export declare class WxssTemplateState {
     set template(template: WxssTemplate);
     get size(): number;
     get hasContent(): boolean;
+    current: string;
     xcInvalid: string | null;
     chunks: Array<string | number[] | WxssTemplateState>;
-    add(chunk: string | number[] | WxssTemplateState): void;
-    clear(): void;
-    clone(): WxssTemplateState;
+    push(chunk?: string | number[]): void;
+    concat(chunk: string): void;
 }
 export type WxssTemplateRef = {
     path: string;
@@ -47,7 +47,7 @@ export declare class WxssTemplate extends Wx.WxAsset {
      * @param {AtRule} node
      * @returns {void}
      */
-    import(node: postcss.AtRule): void;
+    import(node: postcss.AtRule): WxssTemplate | null;
 }
 export interface WxssTemplateOwner {
     findTemplateByPath: (filename: string) => WxssTemplate;

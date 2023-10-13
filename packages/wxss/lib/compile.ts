@@ -29,6 +29,11 @@ export class WxssCompile {
     return wxss.compile(tpl)
   }
 
+  /**
+   * 
+   * @param {WxssTemplate} tpl 
+   * @returns 
+   */
   compile (tpl: WxssTemplate) {
     return new Promise((resolve, reject) => {
       try {
@@ -44,6 +49,12 @@ export class WxssCompile {
     })
   }
 
+  /**
+   * 处理过程
+   * @param {postcss.Node} node 
+   * @param {WxssTemplateState} state 
+   * @param {WxssCompileContext} context 
+   */
   process (
     node: postcss.Node, 
     state: WxssTemplateState, 
@@ -59,7 +70,7 @@ export class WxssCompile {
           }
 
           if (state.current) {
-            state.push()
+            state.end()
           }
         }
         break
@@ -68,14 +79,12 @@ export class WxssCompile {
       // => rule
       case 'rule': {
         const rule = node as postcss.Rule
-        const transform = new WxssSelectorTransform()
-        transform.process(rule, state, context)
+        WxssSelectorTransform.process(rule, state, context)
         state.concat('{')
         for (const n of rule.nodes) {
           this.process(n, state, context)
         }
         state.concat('}')
-        debugger
         break
       }
 
@@ -85,41 +94,27 @@ export class WxssCompile {
         state.concat(decl.prop)
         state.concat(node.raws.between ?? ': ')
 
-        const transform = () => {
-          const transformer = new WxssDeclarationTransform()
-          const result: DeclarationTransformState = transformer.process(decl, state, context)
+        WxssDeclarationTransform.process(decl, state, context)
 
-          if (decl.important) {
-            state.concat(' !important')
-          } else if (node.raws.important) {
-            state.concat(` ${node.raws.important}`)
-          }
-
-          // @TODO
-          // if (result.declaratedResponsivePixel) {
-          //   state.concat(`wxcs_style_${decl.prop}`)
-          //   state.concat(': ')
-          //   result.savedResponsivePixel = true
-          //   transform()
-          // }
+        if (decl.important) {
+          state.concat(' !important')
+        } else if (node.raws.important) {
+          state.concat(` ${node.raws.important}`)
         }
-
-        transform()
+        
+        state.concat(';')
+        
         break
       }
 
       case 'atrule': {
         const atrule = node as postcss.AtRule
+        // => import
         if (atrule.name === 'import') {
           const template = state.template.import(atrule) as WxssTemplate
           if (template.data) {
-            if (state.current !== '') {
-              state.push()
-            }
-            state.push([2, 1])
-          }
-          
-          // state.
+            state.end([2, 1])
+          }          
         } else {
           state.concat(`@${atrule.name} ${atrule.params}`)
 
@@ -128,8 +123,8 @@ export class WxssCompile {
               kind: WxssCompileContextKind.ArRule,
               name: atrule.name
             }
+
             state.concat('{')
-            state
             
             if (isKeyframes(atrule)) {
               context.name = 'keyframes'

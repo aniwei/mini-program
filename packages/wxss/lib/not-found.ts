@@ -5,7 +5,6 @@ export class NotFoundError extends Error {
 
   constructor (path: string, template: WxssTemplate) {
     super(`Path "${path}" not found from "${template.path}".`)
-
     this.path = path
   }
 }

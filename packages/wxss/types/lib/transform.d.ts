@@ -28,7 +28,7 @@ export declare class WxssSelectorTransform extends WxssTransform {
      * @param {WxssCompileContext} context
      * @returns {Promise}
      */
-    process(node: postcss.Rule, state: WxssTemplateState, context: WxssCompileContext): Promise<unknown>;
+    process(node: postcss.Rule, state: WxssTemplateState, context: WxssCompileContext): void;
 }
 export type DeclarationTransformState = {
     declaration: postcss.Declaration;
