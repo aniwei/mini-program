@@ -67,6 +67,7 @@ export class WxssTemplateState {
   }
 }
 
+//// => WxssTemplate
 export type WxssTemplateRef = {
   path: string
   import: {
@@ -84,6 +85,11 @@ export type WxssTemplateRef = {
 
 export type WxssTemplateRefed = {
   path: string
+}
+
+export type WxssTemplateSize = {
+  width: number,
+  height: number
 }
 
 export enum WxssTemplateModelKind {
@@ -179,6 +185,115 @@ export class WxssTemplate extends Wx.WxAsset {
     return null
   }
 
+  render () {
+    
+  }
+}
+
+//// => WxssTemplateOwnerStyleManager 
+export class WxssTemplateStyleOwner extends Map<string, WxssTemplateMakeUpper> {
+  static BASE_DEVICE_WIDTH = 750
+  static EPS = 1e-4
+
+  // => settings
+  static _SETTINGS: WxssTemplateOwnerSettings | null = null
+  static get SETTINGS () {
+    if (WxssTemplateStyleOwner._SETTINGS === null) {
+      const settings = {
+        platform: navigator.userAgent.match('iPhont') ? 'ios' : 'android',
+        width: window.screen.width ?? 375,
+        height: window.screen.height ?? 375,
+        devicePixelRatio: window.devicePixelRatio ?? 2,
+      }
+
+      if (/^landscape/.test(window.screen.orientation.type ?? '')) {
+        settings.width = settings.height
+      }
+
+      WxssTemplateStyleOwner._SETTINGS = settings
+    }
+
+    invariant(WxssTemplateStyleOwner._SETTINGS)
+    return WxssTemplateStyleOwner._SETTINGS
+  }
+
+  // => settings
+  public get settings () {
+    return WxssTemplateStyleOwner.SETTINGS
+  }
+
+  public owner: WxssTemplateOwner
+  
+
+  constructor (owner: WxssTemplateOwner) {
+    super()
+
+    this.owner = owner
+  }
+
+  css (template: WxssTemplate) {
+    let makeupper: WxssTemplateMakeUpper | null = this.get(template.path) ?? null
+
+    if (makeupper === null) {
+      makeupper = new WxssTemplateMakeUpper(this, template)
+      this.set(template.path, makeupper)
+    }
+
+    makeupper.rewritor()
+  }
+
+  /**
+     * rpx 转换
+     * @param {number} rpx 
+     * @param {number} width 
+     * @returns {number}
+     */
+  rpx (
+    rpx: number, 
+    width: number
+  ) {
+    if (rpx === 0) {
+      return rpx
+    }
+
+    const value = Math.floor(
+      rpx / WxssTemplateStyleOwner.BASE_DEVICE_WIDTH * width + 
+      WxssTemplateStyleOwner.EPS
+    )
+
+    if (value === 0) {
+      if (
+        this.settings.devicePixelRatio === 1 || 
+        this.settings.platform === 'ios'
+      ) {
+        return 1
+      } else {
+        return 0
+      }
+    }
+
+    return value
+  }
+}
+
+export type WxssrecalculatorHandle = (size: WxssTemplateSize) => void
+
+//// => WxssTemplateMakeUpper
+export class WxssTemplateMakeUpper {
+  // => state
+  public get state () {
+    return this.template.state
+  }
+  
+  public owner: WxssTemplateStyleOwner
+  public template: WxssTemplate
+
+
+  constructor (owner: WxssTemplateStyleOwner, template: WxssTemplate) {
+    this.owner = owner
+    this.template = template
+  }
+
   makeup () {
     const chunks = this.state.chunks
     const isString = typeof chunks === 'string'
@@ -187,7 +302,7 @@ export class WxssTemplate extends Wx.WxAsset {
       return ''
     }
 
-    const owner = this.owner as WxssTemplateOwner
+    const owner = this.owner as WxssTemplateStyleOwner
     let result: Array<string | number> = []
 
     for (const chunk of chunks) {
@@ -224,11 +339,23 @@ export class WxssTemplate extends Wx.WxAsset {
     }
   ) {
     suffix = suffix || ''
-    const cssText = this.makeup()
-  }
+    const css = this.makeup()
 
-  render () {
+    const owner = this.owner
+
+    if (owner.sheets) {
+      const key = `${this.path}-${suffix}` 
+      owner.sheets.set(key, css)
+
+      owner.recalculations.push((size: WxssTemplateSize) => {
+        this.rewritor(suffix, {
+          allowIllegalSelector: false
+        })
+      })
     
+
+    }
+
   }
 }
 
@@ -240,66 +367,16 @@ export interface WxssTemplateOwnerSettings {
   devicePixelRatio: number
 }
 
-export type RecalculationHandle = () => void
-
-export interface WxssStyleSheets {
-  [key: string]: Array<string | number[]>
-}
-
 export interface WxssTemplateOwner {
-  settings: WxssTemplateOwnerSettings,
   findTemplateByPath: (filename: string) => WxssTemplate
-  rpx: (value: number, width: number) => number
 }
 
 export function MixinWxssTemplate (PodContext: any): WxssTemplateOwner {
   abstract class TemplateOwner extends Wx.MixinWxAssetsBundle(PodContext)  {
-    static BASE_DEVICE_WIDTH = 750
-    static EPS = 1e-4
-
-    // => settings
-    static _SETTINGS: WxssTemplateOwnerSettings | null = null
-    static get SETTINGS () {
-      if (TemplateOwner._SETTINGS === null) {
-        const settings = {
-          platform: navigator.userAgent.match('iPhont') ? 'ios' : 'android',
-          width: window.screen.width ?? 375,
-          height: window.screen.height ?? 375,
-          devicePixelRatio: window.devicePixelRatio ?? 2,
-        }
-
-        if (/^landscape/.test(window.screen.orientation.type ?? '')) {
-          settings.width = settings.height
-        }
-
-        TemplateOwner._SETTINGS = settings
-      }
-
-      invariant(TemplateOwner._SETTINGS)
-      return TemplateOwner._SETTINGS
-    }
-
-    // => settings
-    public get settings () {
-      return TemplateOwner.SETTINGS
-    }
-
     // => templates
     public get templates () {
       return this.findByExt('.wxss')
     }
-
-    // => sheets
-    protected _sheets: WxssStyleSheets | null = null
-    public get sheets () {
-      if (this._sheets === null) {
-
-      }
-
-      return this._sheets
-    }
-
-    public recalculations: RecalculationHandle[] = []
 
     findTemplateByPath (filename: string) {
       return this.findByFilename(filename)
@@ -355,39 +432,6 @@ export function MixinWxssTemplate (PodContext: any): WxssTemplateOwner {
           dep.independent = dep.data ? false : true
         }
       }
-    }
-
-    /**
-     * rpx 转换
-     * @param {number} rpx 
-     * @param {number} width 
-     * @returns {number}
-     */
-    rpx (
-      rpx: number, 
-      width: number
-    ) {
-      if (rpx === 0) {
-        return rpx
-      }
-
-      const value = Math.floor(
-        rpx / TemplateOwner.BASE_DEVICE_WIDTH * width + 
-        TemplateOwner.EPS
-      )
-
-      if (value === 0) {
-        if (
-          TemplateOwner.SETTINGS.devicePixelRatio === 1 || 
-          TemplateOwner.SETTINGS.platform === 'ios'
-        ) {
-          return 1
-        } else {
-          return 0
-        }
-      }
-
-      return value
     }
   }
 
