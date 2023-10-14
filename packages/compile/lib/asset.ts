@@ -8,9 +8,9 @@ import {
   AssetProcess, 
   AssetStoreKind 
 } from '@catalyzed/basic'
-
-import * as Wx from '@catalyzed/asset'
-import { MainCompilePod, MainCompilePodOwner } from './pod/proxy'
+import { WxAsset, WxAssetSetJSON, WxAssetSetKind, WxAssetsBundle } from '@catalyzed/asset'
+import { MixinWxssTemplate } from '@catalyzed/wxss'
+import { MainCompilePod } from './pod/proxy'
 import { BuildTypeKind, MainBuilder } from './builder'
 import type { WxAppUsingJSON } from '@catalyzed/types'
 
@@ -25,7 +25,7 @@ const createHash = (source: string | Buffer) => {
   return hash.digest('hex')
 }
 
-export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(MainCompilePod) {
+export class WxAssetsBundleOwner extends MixinWxssTemplate(MainCompilePod) {
   /**
    * 根据文件后缀名搜索文件
    * @param {string} root 
@@ -54,8 +54,8 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(
         invariant(file.json !== null)
         invariant(file.wxml !== null)
 
-        if ((file.json.data as Wx.WxAssetSetJSON).usingComponents) {
-          const using = Object.keys((file.json.data as Wx.WxAssetSetJSON).usingComponents as WxAppUsingJSON)
+        if ((file.json.data as WxAssetSetJSON).usingComponents) {
+          const using = Object.keys((file.json.data as WxAssetSetJSON).usingComponents as WxAppUsingJSON)
           args.push(file.wxml.relative)
           args.push(using.length)
           args.concat(using)
@@ -100,7 +100,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(
           args.unshift(file.relative)
         } else if (
           set &&
-          set.type !== Wx.WxAssetSetKind.Unknown
+          set.type !== WxAssetSetKind.Unknown
         ) {
           count++
           args.unshift(file.relative)
@@ -126,9 +126,9 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(
     }
   }
 
-  put (assets: Wx.WxAsset): void
-  put (assets: Wx.WxAsset[]): void
-  put (assets: Wx.WxAsset[] | Wx.WxAsset): void {
+  put (assets: WxAsset): void
+  put (assets: WxAsset[]): void
+  put (assets: WxAsset[] | WxAsset): void {
     this.bundle.put(assets)
   }
 
@@ -143,14 +143,14 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(
     less.builder = builder
     scss.builder = builder
 
-    Wx.WxAssetsBundle.processor.register(js)
-    Wx.WxAssetsBundle.processor.register(less)
-    Wx.WxAssetsBundle.processor.register(scss)
-    Wx.WxAssetsBundle.processor.register(AssetDefault.create())
-    Wx.WxAssetsBundle.processor.register(AssetJSON.create())
-    Wx.WxAssetsBundle.processor.register(AssetImage.create())
+    WxAssetsBundle.processor.register(js)
+    WxAssetsBundle.processor.register(less)
+    WxAssetsBundle.processor.register(scss)
+    WxAssetsBundle.processor.register(AssetDefault.create())
+    WxAssetsBundle.processor.register(AssetJSON.create())
+    WxAssetsBundle.processor.register(AssetImage.create())
 
-    return builder.init().then(() => WxAssetsBundle.searchByExts(this.root, [ 
+    return builder.init().then(() => WxAssetsBundleOwner.searchByExts(this.root, [ 
       'js', 
       'ts', 
       'wxml', 
@@ -165,7 +165,7 @@ export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(
       'svg'
     ]).then((files) => {
       
-      this.put(files.map(filename => Wx.WxAsset.create(filename, this.root)))
+      this.put(files.map(filename => WxAsset.create(filename, this.root)))
       return this.mount()
     }))
   }
@@ -234,16 +234,22 @@ class AssetJS extends AssetBuilder {
         content: asset.source,
         sourceMaps: 'inline'
       }, BuildTypeKind.JS).then((result) => {
+        const owner = asset.owner as WxAssetsBundleOwner
+        // 如果是 typescript 则增加 WxAsset
         if (asset.ext === '.ts') {
-          const parsed = path.parse(asset.relative)
-          parsed.base = ''
-          parsed.ext = '.js'
-          asset.relative = path.format(parsed)
-        }
+          const ts = WxAsset.create(
+            asset.relative,
+            asset.root,
+            result as string
+          ) 
 
-        // 需要注意顺序，source 资源 status 会设置为未解析
-        asset.source = result as string
-        asset.data = result
+          ts.data = ts.source
+          owner.put(ts)
+        } else {
+          // 需要注意顺序，source 资源 status 会设置为未解析
+          asset.source = result as string
+          asset.data = result
+        }
       })
     })
   }

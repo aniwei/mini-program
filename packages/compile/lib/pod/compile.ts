@@ -7,7 +7,6 @@ import {
 } from '@catalyzed/basic'
 import { ProxyCompile } from './proxy'
 import { WxWCC } from './wcc'
-import { WxWCSC } from './wcsc'
 
 type MessagePayload = {
   parameters: string[],
@@ -26,17 +25,6 @@ class WorkerCompilePod extends ProxyCompile {
     this.isContextReady()
   }
 
-  // => wcsc
-  protected _wcsc: WxWCSC | null = null
-  protected get wcsc () {
-    invariant(this._wcsc !== null)
-    return this._wcsc
-  }
-  protected set wcsc (wcsc: WxWCSC) {
-    this._wcsc = wcsc
-    this.isContextReady()
-  }
-
   constructor () {
     super()
 
@@ -47,7 +35,6 @@ class WorkerCompilePod extends ProxyCompile {
       
       this.root = root
       this.wcc = new WxWCC(this.root)  
-      this.wcsc = new WxWCSC(this.root)
     })
 
     this.command('message::compile', async (message: MessageOwner) => {
@@ -71,8 +58,7 @@ class WorkerCompilePod extends ProxyCompile {
     if (tryCatch<boolean>(() => {
       return (
         this.root !== null &&
-        this.wcc !== null &&
-        this.wcsc !== null 
+        this.wcc !== null 
       )
     })) {
       this.status |= PodStatusKind.Inited
@@ -80,10 +66,10 @@ class WorkerCompilePod extends ProxyCompile {
   }
 
   runTask<T> (...rests: unknown[]): Promise<T>
-  runTask<T> (parameters: string[], type: 'XML' | 'CSS' = 'XML'): Promise<T> {
+  runTask<T> (parameters: string[], type: 'XML' = 'XML'): Promise<T> {
     switch (type) {
-      case 'CSS':
-        return this.wcsc.compile(parameters) as Promise<T>
+      // case 'CSS':
+      //   return this.wcsc.compile(parameters) as Promise<T>
 
       case 'XML':
         return this.wcc.compile(parameters) as Promise<T>

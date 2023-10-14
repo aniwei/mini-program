@@ -1,6 +1,6 @@
 import { WxAsset } from '@catalyzed/asset'
 import { AssetStoreKind, unescape } from '@catalyzed/basic'
-import { WxAssetsBundle } from './asset'
+import { WxAssetsBundleOwner } from './asset'
 
 export interface WxAssetCompiledFile {
   filename: string,
@@ -13,7 +13,7 @@ export enum WxWxssAssetKind {
   IgnoreAppWXSS = './app.wxss'
 }
 
-export class WxAssetsCompile extends WxAssetsBundle {
+export class WxAssetsCompile extends WxAssetsBundleOwner {
   unescape (wxss: string) {
     const wxsses = wxss.split('=')
     const files: WxAssetCompiledFile[] = []

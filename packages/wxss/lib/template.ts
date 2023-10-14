@@ -480,8 +480,8 @@ export interface WxssTemplateOwner extends Wx.WxAssetsBundleOwner {
   css: (filename: string) => void
 }
 
-export function MixinWxssTemplate <T> (BaseBundle: MixinWxssTemplateFactory<WxssTemplateOwner>): WxssTemplateOwner {
-  abstract class TemplateOwner extends Wx.MixinWxAssetsBundle(BaseBundle)  {
+export function MixinWxssTemplate <T> (Extension: MixinWxssTemplateFactory<T>) {
+  abstract class TemplateOwner extends Wx.MixinWxAssetsBundle<T>(Extension)  {
     // => templates
     public get templates () {
       return this.findByExt('.wxss')
@@ -580,5 +580,5 @@ export function MixinWxssTemplate <T> (BaseBundle: MixinWxssTemplateFactory<Wxss
     }
   }
 
-  return TemplateOwner as unknown as  WxssTemplateOwner
+  return TemplateOwner
 }

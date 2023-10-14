@@ -150,4 +150,44 @@ export interface WxssTemplateOwner extends Wx.WxAssetsBundleOwner {
     process: () => void;
     css: (filename: string) => void;
 }
-export declare function MixinWxssTemplate<T>(BaseBundle: MixinWxssTemplateFactory<WxssTemplateOwner>): WxssTemplateOwner;
+export declare function MixinWxssTemplate<T>(Extension: MixinWxssTemplateFactory<T>): (abstract new (...rests: unknown[]) => {
+    [x: string]: any;
+    readonly templates: Wx.WxAsset[];
+    style: WxssTemplateStyleOwner;
+    /**
+     * 根据路径查找模板
+     * @param {string} filename
+     * @returns {WxssTemplate | null}
+     */
+    findTemplateByPath(filename: string): WxssTemplate;
+    /**
+     * 编译 Wxss 模板
+     */
+    process(): void;
+    /**
+     * 计算样式
+     * @param {string} filename
+     */
+    css(filename: string): void;
+    _root: string | null;
+    root: string;
+    _bundle: Wx.WxAssetsBundle | null;
+    bundle: Wx.WxAssetsBundle;
+    readonly assets: Wx.WxAsset[];
+    readonly components: Wx.WxAssetSet[];
+    readonly pages: Wx.WxAssetSet[];
+    put(...rests: unknown[]): void;
+    mount(): Promise<undefined>;
+    fromAssetsBundleJSON({ root, assets }: import("@catalyzed/basic").AssetsBundleJSON): void;
+    findSetByFilename(filename: string): Wx.WxAssetSet | null;
+    findByFilename(filename: string): Wx.WxAsset | null;
+    replaceByFilename(filename: string, asset: Wx.WxAsset): void;
+    exists(filename: string): boolean;
+    findByExt(ext: string): Wx.WxAsset[];
+    toJSON(): {
+        root: string;
+        assets: import("@catalyzed/basic").AssetJSON[];
+    };
+}) & {
+    create(...rests: unknown[]): T & Wx.WxAssetsBundleOwner;
+};
