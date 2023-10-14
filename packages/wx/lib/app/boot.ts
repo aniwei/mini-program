@@ -49,18 +49,18 @@ interface WxAppInit extends AssetsBundleJSON {
 const worker_debug = debug('wx:app:worker')
 
 // 
-export class WxApp extends MixinWxAssetsBundle(WxAppLibs) {
+export class WxApp extends MixinWxAssetsBundle<WxAppLibs>(WxAppLibs) {
   static create (...rests: unknown[]) {
     const wx = super.create(...rests)
 
     wx.register(FS as unknown as WxCapabilityFactory<ProxyApp>, {})
-    wx.register(Network)
-    wx.register(System)
-    wx.register(Storage)
-    wx.register(User)
-    wx.register(Controller)
-    wx.register(Request)
-    wx.register(UI)
+    wx.register(Network as unknown as WxCapabilityFactory<ProxyApp>)
+    wx.register(System as unknown as WxCapabilityFactory<ProxyApp>)
+    wx.register(Storage as unknown as WxCapabilityFactory<ProxyApp>)
+    wx.register(User as unknown as WxCapabilityFactory<ProxyApp>)
+    wx.register(Controller as unknown as WxCapabilityFactory<ProxyApp>)
+    wx.register(Request as unknown as WxCapabilityFactory<ProxyApp>)
+    wx.register(UI as unknown as WxCapabilityFactory<ProxyApp>)
 
     return wx
   }

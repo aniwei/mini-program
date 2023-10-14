@@ -22,6 +22,9 @@ export declare class ProxyCompilePod extends ProxyCompile {
      */
     runTask<T>(...rests: unknown[]): Promise<T>;
 }
+export interface MainCompilePodOwner {
+    runTask<R>(...parameters: unknown[]): Promise<R>;
+}
 export declare class MainCompilePod extends MainPod<ProxyCompilePod> {
-    static create(...rests: unknown[]): unknown;
+    static create(...rests: unknown[]): MainCompilePodOwner;
 }

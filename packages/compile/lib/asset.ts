@@ -10,17 +10,22 @@ import {
 } from '@catalyzed/basic'
 
 import * as Wx from '@catalyzed/asset'
-import { MainCompilePod } from './pod/proxy'
+import { MainCompilePod, MainCompilePodOwner } from './pod/proxy'
 import { BuildTypeKind, MainBuilder } from './builder'
 import type { WxAppUsingJSON } from '@catalyzed/types'
 
+/**
+ * 创建资源 Hash
+ * @param {string | Buffer} source 
+ * @returns {string}
+ */
 const createHash = (source: string | Buffer) => {
   const hash = crypto.createHash('md5')
   hash.update(source)
   return hash.digest('hex')
 }
 
-export class WxAssetsBundle extends Wx.MixinWxAssetsBundle(MainCompilePod) {
+export class WxAssetsBundle extends Wx.MixinWxAssetsBundle<MainCompilePodOwner>(MainCompilePod) {
   /**
    * 根据文件后缀名搜索文件
    * @param {string} root 

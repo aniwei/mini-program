@@ -1,10 +1,14 @@
+/// <reference types="node" />
 import postcss from 'postcss';
 import PostcssSelector from 'postcss-selector-parser';
 import PostcssValue from 'postcss-value-parser';
+import type { WxssCompileContext } from './compile';
 import type { WxssTemplateState } from './template';
-import { type WxssCompileContext } from './compile';
 export declare abstract class WxssTransform {
+    static process(...rests: unknown[]): NodeJS.Process;
+    constructor(...rests: unknown[]);
     abstract walk(node: unknown, state: WxssTemplateState, ...rests: unknown[]): void;
+    abstract process(...rests: unknown[]): void;
     abstract process(node: postcss.Node, state: WxssTemplateState, ...rests: unknown[]): void;
 }
 export type SelectorTransformState = {

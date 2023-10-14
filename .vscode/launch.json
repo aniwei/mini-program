@@ -7,7 +7,7 @@
       "name": "@catalyzed/cli",
       "program": "${workspaceRoot}/packages/cli/dist/cli.js",
       "request": "launch",
-      "cwd": "${workspaceFolder}/example/mini-program/weui",
+      "cwd": "${workspaceFolder}/example/mini-program/ts",
       "env": {
         "PORT": 4001,
         "DEBUG": "wx:*"

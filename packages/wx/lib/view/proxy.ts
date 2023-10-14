@@ -1,7 +1,7 @@
 import debug from 'debug'
 import { invariant } from 'ts-invariant'
 import { NavigationProp } from '@react-navigation/native'
-import { AssetsBundleJSON, PodStatusKind, WorkPort } from '@catalyzed/basic'
+import { AssetsBundleJSON, Passage, PodStatusKind, WorkPort } from '@catalyzed/basic'
 import { MixinWxAssetsBundle, WxAssetSet } from '@catalyzed/asset'
 import { WxViewLibs } from './libs'
 import { getModuleURL } from '../basic/module'
@@ -19,7 +19,7 @@ export enum WxViewInvocationKind {
 
 export type NavigationEventSubscriber = () => void
 
-export class ProxyView extends MixinWxAssetsBundle(WxViewLibs) {
+export class ProxyView extends MixinWxAssetsBundle<WxViewLibs>(WxViewLibs) {
   /**
    * 启动 View 渲染层
    * @param {string} root 
@@ -44,9 +44,9 @@ export class ProxyView extends MixinWxAssetsBundle(WxViewLibs) {
       iframe.contentWindow.postMessage({ type: 'connection', port: port2 }, `http://${location.host}/view.html`, [port2])
     }
     document.head.appendChild(script)
-    pod.passage = window
+    pod.passage = window as unknown as  Passage
     
-    return pod as ProxyView
+    return pod as unknown as ProxyView
   }
 
   // => navigation

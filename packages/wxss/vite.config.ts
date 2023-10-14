@@ -6,7 +6,19 @@ export default defineConfig({
     lib: {
       entry: './lib/index.ts',
       name: 'index',
-      fileName: 'index'
+      fileName: 'index',
+      formats: ['cjs', 'es']
+    },
+    rollupOptions: {
+      external: [
+        '@catalyzed/asset',
+        '@catalyzed/basic',
+        'postcss',
+        'path-browserify',
+        'postcss-selector-parser',
+        'postcss-value-parser',
+        'process'
+      ]
     }
   },
   resolve: {

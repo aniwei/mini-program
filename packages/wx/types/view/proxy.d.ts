@@ -9,30 +9,30 @@ export declare enum WxViewInvocationKind {
     InsertTextArea = "insertTextArea"
 }
 export type NavigationEventSubscriber = () => void;
-declare const ProxyView_base: (abstract new () => {
+declare const ProxyView_base: (abstract new (...rests: any[]) => {
     [x: string]: any;
     _root: string | null;
     root: string;
     _bundle: import("@catalyzed/asset").WxAssetsBundle | null;
     bundle: import("@catalyzed/asset").WxAssetsBundle;
-    readonly assets: import("@catalyzed/basic").Asset[];
+    readonly assets: import("@catalyzed/asset").WxAsset[];
     readonly components: WxAssetSet[];
     readonly pages: WxAssetSet[];
     put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): WxAssetSet | null;
-    findByFilename(filename: string): import("@catalyzed/basic").Asset | null;
+    findByFilename(filename: string): import("@catalyzed/asset").WxAsset | null;
     replaceByFilename(filename: string, asset: import("@catalyzed/asset").WxAsset): void;
     exists(filename: string): boolean;
-    findByExt(ext: string): import("@catalyzed/basic").Asset[];
+    findByExt(ext: string): import("@catalyzed/asset").WxAsset[];
     toJSON(): {
         root: string;
         assets: import("@catalyzed/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;
-    create(...rests: unknown[]): any;
+    create(...rests: unknown[]): import("@catalyzed/basic").Pod & import("@catalyzed/asset").WxAssetsBundleOwner;
 };
 export declare class ProxyView extends ProxyView_base {
     /**

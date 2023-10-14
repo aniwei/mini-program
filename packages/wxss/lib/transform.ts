@@ -164,6 +164,10 @@ export class WxssSelectorTransform extends WxssTransform {
           xcInvalid: null
         }, context)
       }).processSync(selector)
+
+      if (i < node.selectors.length - 1) {
+        state.concat(', ')
+      }
     }
   }
 }

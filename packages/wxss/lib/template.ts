@@ -37,13 +37,13 @@ export class WxssTemplateState {
 
   public current: string = ''
   public xcInvalid: string | null = null
-  public chunks: Array<string | number[] | WxssTemplateState> = []
+  public chunks: Array<string | Array<number | string> | WxssTemplateState> = []
 
   /**
    * 结束
    * @param {string | number[] | undefined} chunk 
    */
-  end (chunk?: string | number[]) {
+  end (chunk?: string | Array<string | number>) {
     if (chunk) {
       if (this.current) {
         this.chunks.push(this.current)
@@ -101,7 +101,7 @@ export enum WxssTemplateModelKind {
 export class WxssTemplate extends Wx.WxAsset {
   // => owner
   public get owner (): WxssTemplateOwner {
-    return super.owner as WxssTemplateOwner
+    return super.owner as unknown as WxssTemplateOwner
   }
   public set owner (owner: WxssTemplateOwner) {
     super.owner = owner
@@ -151,7 +151,7 @@ export class WxssTemplate extends Wx.WxAsset {
     const matched = /^"(.+)"$|^'(.+)'$/g.exec(node.params.trim())
 
     if (matched !== null) {
-      const relative = path.resolve(this.parsed.dir, matched[1] as string)
+      const relative = path.resolve(this.parsed.dir, matched[1] ?? matched[2] as string)
       const template = this.owner?.findTemplateByPath(relative) ?? null
 
       if (template !== null) {
@@ -239,11 +239,40 @@ export class WxssTemplateStyleOwner extends Map<string, WxssTemplateAssembler> {
   }
 
   /**
+   * 
+   * @param {string} path 
+   * @returns {WxssTemplate}
+   */
+  findTemplateByPath (path: string) {
+    return this.owner.findTemplateByPath(path)
+  }
+
+  /**
+   * 
+   * @param {WxssTemplate} template 
+   * @returns {WxssTemplateAssembler}
+   */
+  findAssemblerByTemplate (template: WxssTemplate) {
+    let assembler: WxssTemplateAssembler | null = this.get(template.path) ?? null
+    if (assembler === null) {
+      assembler = WxssTemplateAssembler.create(
+        this, 
+        template,
+        this.suffix,
+      )
+
+      this.set(template.path, assembler)
+    }
+
+    return assembler
+  }
+
+  /**
    * 重新计算
    * @param {number} width 
    */
   recalculate (width: number) {
-    for (const [key, assembler] of this) {
+    for (const [,assembler] of this) {
       assembler.recalculate(width)
     }
   }
@@ -251,21 +280,9 @@ export class WxssTemplateStyleOwner extends Map<string, WxssTemplateAssembler> {
   /**
    * 渲染样式
    * @param {WxssTemplate} template 
-   * @param {string} suffix 
    */
-  css (template: WxssTemplate, suffix: string = '') {
-    let assembler: WxssTemplateAssembler | null = this.get(template.path) ?? null
-
-    if (assembler === null) {
-      assembler = WxssTemplateAssembler.create(
-        this, 
-        template,
-        suffix,
-      )
-
-      this.set(template.path, assembler)
-    }
-
+  css (template: WxssTemplate) {
+    const assembler = this.findAssemblerByTemplate(template) ?? null
     assembler.write()
   }
 }
@@ -316,11 +333,11 @@ export class WxssTemplateAssembler {
     return this._style
   }
 
-  public owner: WxssTemplateStyleOwner
-  public template: WxssTemplate
-  public assembled: boolean = false
-  public suffix: string = ''
   public width: number 
+  public template: WxssTemplate
+  public owner: WxssTemplateStyleOwner
+  public suffix: string = ''
+  public refs: string[] = []
 
   /**
    * 
@@ -344,43 +361,43 @@ export class WxssTemplateAssembler {
    */
   assemble () {
     const chunks = this.state.chunks
-    const isString = typeof chunks === 'string'
-
-    // 如果是共享样式
-    if (isString && this.independent && this.assembled) {
-      return ''
-    }
-
-    this.assembled = true
 
     const owner = this.owner as WxssTemplateStyleOwner
     let result: Array<string | number> = []
 
-    for (const chunk of chunks) {
+    for (let i = chunks.length - 1; i >= 0; i--) {
+      const chunk = chunks[i]
       if (isArray(chunk as object)) {
-        const current = chunk as number[]
-        const kind = current[0]
+        const current = chunk as (number | string)[]
+        const kind = current[0] as number
         switch (kind) {
           case WxssTemplateModelKind.Pixel: {
-            result.push(this.rpx(current[1], owner.settings.width))
-            result.push('px')
+            result.unshift('px')
+            result.unshift(this.rpx(current[1] as number, owner.settings.width))
             break
           }
 
           case WxssTemplateModelKind.Suffix: {
-            result.push(this.suffix)
+            result.unshift(this.suffix)
             break
           }
 
           case WxssTemplateModelKind.Assemble: {
-            // TODO
-            // result.push(this.assemble())
-            result.push('')
+            if (!this.refs.includes(current[1] as string)) {
+              const template = this.owner.findTemplateByPath(current[1] as string) ?? null
+              
+              if (template === null) {
+                throw new NotFoundError(current[1] as string, template)
+              }
+              this.refs.push(current[1] as string)
+              const assembler = this.owner.findAssemblerByTemplate(template)
+              result.unshift(assembler.assemble())
+            }
             break
           }
         }
       } else if (typeof chunk === 'string') {
-        result.push(chunk)
+        result.unshift(chunk)
       }
     }
 
@@ -451,19 +468,19 @@ export interface WxssTemplateOwnerSettings {
 }
 
 // 类结构
-export interface MixinWxssTemplateFactory<T> {
+export interface MixinWxssTemplateFactory<T> extends Wx.ExtensionsFactory<T> {
   new (...rests: unknown[]): T
   create (...rests: unknown[]) : T
 }
 
 // 模板 owner
-export interface WxssTemplateOwner {
+export interface WxssTemplateOwner extends Wx.WxAssetsBundleOwner {
   findTemplateByPath: (filename: string) => WxssTemplate
   process: () => void,
   css: (filename: string) => void
 }
 
-export function MixinWxssTemplate <T extends MixinWxssTemplateFactory<WxssTemplateOwner>> (BaseBundle: T): WxssTemplateOwner {
+export function MixinWxssTemplate <T> (BaseBundle: MixinWxssTemplateFactory<WxssTemplateOwner>): WxssTemplateOwner {
   abstract class TemplateOwner extends Wx.MixinWxAssetsBundle(BaseBundle)  {
     // => templates
     public get templates () {
@@ -472,6 +489,10 @@ export function MixinWxssTemplate <T extends MixinWxssTemplateFactory<WxssTempla
 
     public style: WxssTemplateStyleOwner
 
+    /**
+     * 构造函数
+     * @param {unknown[]} rests 
+     */
     constructor (...rests: unknown[]) {
       const suffix = rests.pop() as string
       super(...rests)
@@ -482,15 +503,20 @@ export function MixinWxssTemplate <T extends MixinWxssTemplateFactory<WxssTempla
       )
     }
 
+    /**
+     * 根据路径查找模板
+     * @param {string} filename 
+     * @returns {WxssTemplate | null} 
+     */
     findTemplateByPath (filename: string): WxssTemplate {
-      return this.findByFilename(filename) as WxssTemplate
+      return this.findByFilename(filename) as unknown as WxssTemplate
     }
 
     /**
      * 编译 Wxss 模板
      */
     process () {
-      const templates = this.templates as WxssTemplate[]
+      const templates = this.templates as unknown as WxssTemplate[]
       for (const template of templates) {
         WxssCompile.compile(template as WxssTemplate)
       }
@@ -541,6 +567,10 @@ export function MixinWxssTemplate <T extends MixinWxssTemplateFactory<WxssTempla
       }
     }
 
+    /**
+     * 计算样式
+     * @param {string} filename 
+     */
     css (filename: string) {
       const template = this.findTemplateByPath(filename) ?? null
 

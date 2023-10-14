@@ -69,9 +69,13 @@ export class ProxyCompilePod extends ProxyCompile {
   }  
 }
 
+export interface MainCompilePodOwner {
+  runTask<R>(...parameters: unknown[]): Promise<R>
+}
+
 export class MainCompilePod extends MainPod<ProxyCompilePod> {
-  static create (...rests: unknown[]): unknown
-  static create (count: number = 2, root: string) {
+  static create (...rests: unknown[]): MainCompilePodOwner
+  static create (count: number = 2, root: string): MainCompilePodOwner {
     const proxies: ProxyCompilePod[] = []
     const uri = path.resolve(__dirname, 'pod/compile.cjs')
 
@@ -81,6 +85,6 @@ export class MainCompilePod extends MainPod<ProxyCompilePod> {
     }
 
     const main = super.create(proxies)
-    return main
+    return main as MainCompilePodOwner
   }
 }

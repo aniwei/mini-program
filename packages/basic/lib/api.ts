@@ -144,6 +144,7 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T | string>
             })
           case 'Event':
             this.emit(payload.name as T, ...payload.parameters)
+            break
         }
       })
 
@@ -187,14 +188,14 @@ export abstract class BaseApi<T extends string> extends EventEmitter<T | string>
       actions: ApiAction[]
     ) => {
       const proxy = type === 'Command' 
-        ? Object.create(new ApiSubscribables())
-        : Object.create(new EventEmitter())
+        ? new ApiSubscribables()
+        : new EventEmitter<string>()
 
       for (const action of actions) {
         const name = `${domain.name}.${action.name}`
         
-        this.on(name, (...rests: unknown[]) => proxy.emit(...rests))
-        this.subscribe(name, (...rests: unknown[]) => proxy.publish(action.name, ...rests))
+        this.on(name, (...rests: unknown[]) => (proxy as EventEmitter<string>).emit(action.name, ...rests))
+        this.subscribe(name, (...rests: unknown[]) => (proxy as ApiSubscribables).publish(action.name, ...rests))
 
         const func = async (...parameters: unknown[]) => {
           checkApiParameters(parameters, action.parameters)

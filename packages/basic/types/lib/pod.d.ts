@@ -1,6 +1,7 @@
+/// <reference types="node" />
 import { EventEmitter } from './events';
 import { WorkTransport } from './work';
-export type Passage = Worker & HTMLIFrameElement;
+export type Passage = Worker & HTMLIFrameElement & Window & Global;
 export declare enum PodStatusKind {
     Created = 1,
     Connected = 2,

@@ -1,4 +1,4 @@
-import { AssetsBundleJSON, BaseApi, EventEmitter, MessageContent, MessageOwner, MessageTransport } from '@catalyzed/basic';
+import { ApiSubscribables, AssetsBundleJSON, BaseApi, EventEmitter, MessageContent, MessageOwner, MessageTransport } from '@catalyzed/basic';
 import { WxAssetHash } from '@catalyzed/asset';
 import { WxProj } from '@catalyzed/types';
 export declare enum WxQRCodeStateKind {
@@ -27,26 +27,29 @@ export type WxProgramApiEventKind = `File.change`;
 export interface WxProgramApiEvent extends EventEmitter<WxProgramApiEventKind> {
     publish(name: WxProgramApiEventKind, parameters: unknown[]): Promise<void>;
 }
+export interface WxProgramApiCommand extends ApiSubscribables {
+    current(): Promise<WxProj>;
+    getWxAssetsBundle(assets: WxAssetHash[]): Promise<AssetsBundleJSON>;
+    compile(): Promise<string[]>;
+    invoke(name: string, data: unknown, id: number): Promise<unknown>;
+    login(): Promise<WxLogin>;
+    createRequestTask(data: unknown): Promise<unknown>;
+}
+export interface WxAuthApiEvent extends EventEmitter<WxApiEventKind> {
+    WxQRCodeStateKindChanged(status: WxQRCodeStateKind): Promise<void>;
+    signIn(user: WxUser): Promise<void>;
+}
+export interface WxAuthApiCommand extends ApiSubscribables {
+    getUser(): Promise<WxUser>;
+    getAuthenticateWxQRCode(): Promise<string>;
+}
 export interface WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
     Auth: {
-        commands: {
-            getUser(): Promise<WxUser>;
-            getAuthenticateWxQRCode(): Promise<string>;
-        };
-        events: {
-            WxQRCodeStateKindChanged(status: WxQRCodeStateKind): Promise<void>;
-            signIn(user: WxUser): Promise<void>;
-        };
+        commands: WxAuthApiCommand;
+        events: WxAuthApiEvent;
     };
     Program: {
-        commands: {
-            current(): Promise<WxProj>;
-            getWxAssetsBundle(assets: WxAssetHash[]): Promise<AssetsBundleJSON>;
-            compile(): Promise<string[]>;
-            invoke(name: string, data: unknown, id: number): Promise<unknown>;
-            login(): Promise<WxLogin>;
-            createRequestTask(data: unknown): Promise<unknown>;
-        };
+        commands: WxProgramApiCommand;
         events: WxProgramApiEvent;
     };
 }

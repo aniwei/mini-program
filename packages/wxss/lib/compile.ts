@@ -1,6 +1,5 @@
 import postcss from 'postcss'
 import { 
-  DeclarationTransformState, 
   WxssDeclarationTransform, 
   WxssSelectorTransform 
 } from './transform'
@@ -80,11 +79,11 @@ export class WxssCompile {
       case 'rule': {
         const rule = node as postcss.Rule
         WxssSelectorTransform.process(rule, state, context)
-        state.concat('{')
+        state.concat(' {')
         for (const n of rule.nodes) {
           this.process(n, state, context)
         }
-        state.concat('}')
+        state.concat('}\n')
         break
       }
 
@@ -113,7 +112,7 @@ export class WxssCompile {
         if (atrule.name === 'import') {
           const template = state.template.import(atrule) as WxssTemplate
           if (template.data) {
-            state.end([2, 1])
+            state.end([2, template.path])
           }          
         } else {
           state.concat(`@${atrule.name} ${atrule.params}`)
@@ -124,7 +123,7 @@ export class WxssCompile {
               name: atrule.name
             }
 
-            state.concat('{')
+            state.concat(' {')
             
             if (isKeyframes(atrule)) {
               context.name = 'keyframes'
@@ -140,7 +139,7 @@ export class WxssCompile {
             // state.concat(` ;wxcs_fileinfo: ${state.template.path} ${line} ${column};`)
           }
 
-          state.concat('}')
+          state.concat('}\n')
         }
         break
       }

@@ -24,30 +24,30 @@ export interface ProxyApp {
 export interface ProxyAppInit extends AssetsBundleJSON {
     proj: WxProj;
 }
-declare const ProxyApp_base: (abstract new () => {
+declare const ProxyApp_base: (abstract new (...rests: any[]) => {
     [x: string]: any;
     _root: string | null;
     root: string;
     _bundle: import("@catalyzed/asset").WxAssetsBundle | null;
     bundle: import("@catalyzed/asset").WxAssetsBundle;
-    readonly assets: import("@catalyzed/basic").Asset[];
+    readonly assets: WxAsset[];
     readonly components: import("@catalyzed/asset").WxAssetSet[];
     readonly pages: import("@catalyzed/asset").WxAssetSet[];
     put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): import("@catalyzed/asset").WxAssetSet | null;
-    findByFilename(filename: string): import("@catalyzed/basic").Asset | null;
+    findByFilename(filename: string): WxAsset | null;
     replaceByFilename(filename: string, asset: WxAsset): void;
     exists(filename: string): boolean;
-    findByExt(ext: string): import("@catalyzed/basic").Asset[];
+    findByExt(ext: string): WxAsset[];
     toJSON(): {
         root: string;
         assets: import("@catalyzed/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;
-    create(...rests: unknown[]): any;
+    create(...rests: unknown[]): import("@catalyzed/basic").Pod & import("@catalyzed/asset").WxAssetsBundleOwner;
 };
 /**
  * View 创建及持有类

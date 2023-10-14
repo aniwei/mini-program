@@ -9,7 +9,7 @@ export declare class EventEmitter<T extends string> {
     eventNames(): string[];
     listeners(event: T): Listener[];
     listenerCount(event: T): number;
-    emit(event: T, ...args: unknown[]): boolean;
+    emit(...args: unknown[]): boolean;
     on(event: T, handler: ListenerHandler, context?: unknown): this;
     once(event: T, handler: ListenerHandler, context?: unknown): this;
     off(event: T, handler?: ListenerHandler, context?: unknown): this;

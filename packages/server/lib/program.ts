@@ -102,7 +102,7 @@ export class WxProgram extends WxCached {
     this.root = options.root
     this.appid = options.appid
     this.bundle = MiniAssetsBundle.create(4, options.root)
-    this.axios = new Axios({ baseURL: `https://servicewechat.com` })
+    this.axios = new Axios({ baseURL: 'https://servicewechat.com' })
   }
 
   async ensure () {

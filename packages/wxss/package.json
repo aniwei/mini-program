@@ -1,5 +1,5 @@
 {
-  "name": "wxss",
+  "name": "@catalyzed/wxss",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,13 +7,13 @@
     "dist",
     "index.d.ts"
   ],
-  "main": "./dist/counter.umd.cjs",
-  "module": "./dist/counter.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./index.d.ts",
   "exports": {
     "types": "./index.d.ts",
-    "import": "./dist/counter.js",
-    "require": "./dist/counter.umd.cjs"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
   "scripts": {
     "dev": "vite",
@@ -21,18 +21,17 @@
   },
   "devDependencies": {
     "typescript": "^5.1.3",
-    "vite": "^4.3.9"
+    "vite": "^4.3.9",
+    "ts-invariant": "^0.10.3"
   },
   "dependencies": {
     "@catalyzed/asset": "workspace:^",
     "@catalyzed/basic": "workspace:^",
-    "@catalyzed/compile": "workspace:^",
     "@rollup/plugin-inject": "^5.0.3",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.31",
     "postcss-selector-parser": "^6.0.13",
     "postcss-value-parser": "^4.2.0",
-    "process": "^0.11.10",
-    "ts-invariant": "^0.10.3"
+    "process": "^0.11.10"
   }
 }

@@ -15,7 +15,7 @@ export interface WxViewLibs {
   utility: Utililty
 }
 
-export abstract class WxViewLibs extends WxContext {
+export class WxViewLibs extends WxContext {
   public capabilities: WxCapability<ProxyView>[] = []
   public deps: number = 0
 

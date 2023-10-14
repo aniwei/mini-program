@@ -21,12 +21,12 @@ export class EventEmitter<T extends string> {
     return listeners.length
   }
 
-  emit (event: T, ...args: unknown[]) {
+  emit (...args: unknown[]): boolean
+  emit (event: T, ...args: unknown[]): boolean {
     if (this.events.has(event)) {
       const listeners = this.events.get(event)?.slice()
 
       if (listeners) {
-
         for (const listener of listeners) {
           if (listener.once) {
             this.removeListener(event, listener.handler, undefined, true)

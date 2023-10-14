@@ -20,18 +20,62 @@
           flex-direction: column;
           align-items: center;
         }
+
+        .userinfo-avatar {
+          width: 128rpx;
+          height: 128rpx;
+          margin: 20% 10rpx 80rpx 10px;
+          border-radius: 50%;
+        }
+
+        .userinfo-nickname {
+          color: #aaa;
+        }
+
+        .usermotto, #dfsdfsd, view {
+          margin-top: 200px;
+        }
+
+        video {
+          margin-top: 200rpx;
+        }
       `)
       index.data = index.source
       const index1 = WxssTemplate.create('pages/index/index1.wxss', '/', `
+        @import 'index3.wxss';
+
         index1-view {
           width: 100rpx;
         }
+
+        @import 'index2.wxss';
 
         view, video {
           width: 100rpx;
         }
       `)
       index1.data = index1.source
+
+      const index2 = WxssTemplate.create('pages/index/index2.wxss', '/', `
+        @import "index3.wxss";
+        index2-view {
+          width: 100rpx;
+        }
+        view2, video2 {
+          width: 100rpx;
+        }
+      `)
+      index2.data = index2.source
+
+      const index3 = WxssTemplate.create('pages/index/index3.wxss', '/', `
+        index3-view {
+          width: 100rpx;
+        }
+        view3, video3 {
+          width: 100rpx;
+        }
+      `)
+      index3.data = index3.source
 
       class Owner extends MixinWxssTemplate(class {
         static create () {
@@ -40,12 +84,11 @@
       }) {}
 
       const owner = Owner.create()
-      owner.put([index, index1])
+      owner.put([index, index1, index2, index3])
             
       owner.process()
-      debugger
       owner.css('pages/index/index.wxss')
-
+      owner.css('pages/index/index2.wxss')
     </script>
   </body>
 </html>

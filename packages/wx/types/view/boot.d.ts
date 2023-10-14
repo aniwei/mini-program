@@ -1,33 +1,33 @@
 import { AssetsBundleJSON } from '@catalyzed/basic';
 import { WxAsset } from '@catalyzed/asset';
 import '../asset';
-declare const WxView_base: (abstract new () => {
+declare const WxView_base: (abstract new (...rests: any[]) => {
     [x: string]: any;
     _root: string | null;
     root: string;
     _bundle: import("@catalyzed/asset").WxAssetsBundle | null;
     bundle: import("@catalyzed/asset").WxAssetsBundle;
-    readonly assets: import("@catalyzed/basic").Asset[];
+    readonly assets: WxAsset[];
     readonly components: import("@catalyzed/asset").WxAssetSet[];
     readonly pages: import("@catalyzed/asset").WxAssetSet[];
     put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: AssetsBundleJSON): void;
     findSetByFilename(filename: string): import("@catalyzed/asset").WxAssetSet | null;
-    findByFilename(filename: string): import("@catalyzed/basic").Asset | null;
+    findByFilename(filename: string): WxAsset | null;
     replaceByFilename(filename: string, asset: WxAsset): void;
     exists(filename: string): boolean;
-    findByExt(ext: string): import("@catalyzed/basic").Asset[];
+    findByExt(ext: string): WxAsset[];
     toJSON(): {
         root: string;
         assets: import("@catalyzed/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;
-    create(...rests: unknown[]): any;
+    create(...rests: unknown[]): import("@catalyzed/basic").Pod & import("@catalyzed/asset").WxAssetsBundleOwner;
 };
 export declare class WxView extends WxView_base {
-    static create(...rests: unknown[]): any;
+    static create(...rests: unknown[]): import("@catalyzed/basic").Pod & import("@catalyzed/asset").WxAssetsBundleOwner;
     constructor();
     handleSubscribe(...rest: unknown[]): void;
     invokeHandler(name: string, data: string, id: string): any;

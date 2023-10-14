@@ -8,7 +8,7 @@ import { nextTick } from './microtask'
 
 const pod_debug = debug('basic:pod')
 
-export type Passage = Worker & HTMLIFrameElement
+export type Passage = Worker & HTMLIFrameElement & Window & Global
 
 // Worker 运行状态
 export enum PodStatusKind {

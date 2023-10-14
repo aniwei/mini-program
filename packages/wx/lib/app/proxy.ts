@@ -42,7 +42,7 @@ export interface ProxyAppInit extends AssetsBundleJSON {
 /**
  * View 创建及持有类
  */
-export abstract class ProxyApp extends MixinWxAssetsBundle(WxAppLibs) {
+export abstract class ProxyApp extends MixinWxAssetsBundle<WxAppLibs>(WxAppLibs) {
   static proxyId: number = 1
   static boot (...rests: unknown[]): ProxyApp {
     /* @__PURE__ */

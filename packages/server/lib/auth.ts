@@ -26,14 +26,15 @@ export class WxAuth extends WxStore {
   constructor () {
     super()
 
-    this.api
-      .subscribe(`Auth.getUser`, () => {
-        if (this.user !== null) {
-          return this.user
-        }
+    this.api.Auth.commands.subscribe(`getUser`, () => {
+      if (this.user !== null) {
+        return this.user
+      }
 
-        return null
-      }).subscribe(`Auth.getAuthenticateWxQRCode`, async () => this.getAuthenticateWxQRCode().then(code => qrcode.toDataURL(`https://open.weixin.qq.com/connect/confirm?uuid=${code}`)))
+      return null
+    })
+    
+    this.api.Auth.commands.subscribe('getAuthenticateWxQRCode', async () => this.getAuthenticateWxQRCode().then(code => qrcode.toDataURL(`https://open.weixin.qq.com/connect/confirm?uuid=${code}`)))
   }
 
   /**

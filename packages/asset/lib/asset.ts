@@ -1,15 +1,25 @@
 import path from 'path'
 import { invariant } from 'ts-invariant'
+import { 
+  Asset, 
+  AssetHash, 
+  AssetJSON, 
+  AssetsBundle, 
+  AssetsBundleJSON 
+} from '@catalyzed/basic'
+import { 
+  WxAppJSON, 
+  WxAppUsingJSON, 
+  WxAppWindowJSON 
+} from '@catalyzed/types'
 
-import { Asset, AssetHash, AssetJSON, AssetsBundle, AssetsBundleJSON } from '@catalyzed/basic'
-import { WxAppJSON, WxAppUsingJSON, WxAppWindowJSON } from '@catalyzed/types'
-
+// => WxAssetHash
 export interface WxAssetHash extends AssetHash {
   hash: string,
   relative: string
 }
 
-// component / page .json
+// => component / page .json
 export interface WxAssetSetJSON extends WxAppWindowJSON {
   component?: boolean,
   usingComponents?: WxAppUsingJSON,
@@ -20,11 +30,14 @@ export interface WxAssetProjJSON {
   appid: string
 }
 
+// => WxAssetFactory<T>
 // 微信资源类类型
 export interface WxAssetFactory<T> {
   create <T> (filename: string, root: string, source?: Buffer | string): T
   new (filename: string, root: string, source?: Buffer | string): T
 }
+
+//// => WxAsset
 // 微信资源对象
 // index.js 
 // index.wxml
@@ -185,6 +198,10 @@ export class WxAssetSet extends AssetsBundle {
     this.relative = relative
   }
 
+  /**
+   * 加入 Asset
+   * @param {WxAsset} asset 
+   */
   put (asset: WxAsset) {
     const { dir, name } = path.parse(asset.relative)
     const relative = dir ? `${dir}/${name}` : name
@@ -195,7 +212,7 @@ export class WxAssetSet extends AssetsBundle {
   }
 }
 
-// WxAssetSets 
+//// => WxAssetSets 
 // key: 相对路径
 // value: WxAsset
 export class WxAssetSets {
@@ -254,7 +271,7 @@ export class WxAssetSets {
   }
 
   /**
-   * 
+   * 加入 asset
    * @param {WxAsset} asset 
    */
   put (asset: WxAsset) {
@@ -269,8 +286,14 @@ export class WxAssetSets {
   }
 }
 
+//// => WxAssetsBundle
 // 微信资源包类
 export class WxAssetsBundle extends AssetsBundle {
+  /**
+   * 
+   * @param {AssetsBundleJSON} json 
+   * @returns {WxAssetsBundle}
+   */
   static fromJSON (json: AssetsBundleJSON) {
     const bundle = new WxAssetsBundle(json.root)
     bundle.fromAssetsBundleJSON(json)
@@ -336,10 +359,19 @@ export class WxAssetsBundle extends AssetsBundle {
     super.owner = owner
   }
 
+  /**
+   * 从 JSON 加载 Assets
+   * @param {AssetsBundleJSON} param
+   */
   fromAssetsBundleJSON ({ root, assets }: AssetsBundleJSON) {
     this.put(assets.map(asset => WxAsset.create(asset.relative, asset.root, asset.source)))
   }
 
+  /**
+   * 
+   * @param {string} filename 
+   * @returns {WxAssetSet}
+   */
   findSetByFilename (filename: string) {
     return this.sets.findByFilename(filename)
   }
@@ -347,26 +379,36 @@ export class WxAssetsBundle extends AssetsBundle {
 
 
 //// => WxAssetsBundleOwner
-export interface WxAssetsBundleOwnerFactory<T> {
+export interface ExtensionsFactory<T> {
   create (...rests: unknown[]): T
   new (...rests: unknown[]): T
-
-  put (assets: WxAsset[]): void
-  findByFilename (filename: string): WxAsset
+  new (...rests: any[]): T
 }
 
 export interface WxAssetsBundleOwner {
   root: string
+  bundle: WxAssetsBundle
+  assets: WxAsset[],
+  components: WxAssetSet[]
+  pages: WxAssetSet[]
+  put (...rests: unknown[]): void
+  put (assets: WxAsset[]): void
+  mount (): Promise<void>
+  exists (filename: string): boolean
+  findByExt (ext: string): WxAsset[]
+  findSetByFilename (filename: string): WxAssetSet | null
+  findByFilename (filename: string): WxAsset | null
+  replaceByFilename (filename: string, asset: WxAsset): void
+  toJSON(): { root: string, assets: AssetJSON[] }
 }
 
-export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAssetsBundleOwner>> (BaseBundle: T) {
-  // TODO 类型推断
-  abstract class AssetsBundleOwner extends BaseBundle implements WxAssetsBundleOwner {
+export function MixinWxAssetsBundle <T> (Extension: ExtensionsFactory<T>) {
+  abstract class AssetsBundleOwner extends (Extension as any) implements WxAssetsBundleOwner {
     static create (...rests: unknown[]) {
-      const wx =  super.create(...rests)
+      const wx =  super.create(...rests) as T & WxAssetsBundleOwner
       const root = rests[rests.length - 1]
       wx.root = root as string
-      return wx 
+      return wx as T & WxAssetsBundleOwner
     }
 
     // => root
@@ -395,7 +437,7 @@ export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAsse
 
     // => assets
     public get assets () {
-      return this.bundle.assets
+      return this.bundle.assets as WxAsset[]
     }
 
     // => components
@@ -406,6 +448,11 @@ export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAsse
     // => pages
     public get pages () {
       return this.bundle.pages
+    }
+
+    constructor (...rests: any[])
+    constructor (...rests: unknown[]) {
+      super(...rests)
     }
 
     // 添加 WxAsset
@@ -432,7 +479,7 @@ export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAsse
 
     // 根据文件名查找 WxAsset
     findByFilename (filename: string) {
-      return this.bundle.findByFilename(filename)
+      return this.bundle.findByFilename(filename) as WxAsset | null
     }
 
     // 根据文件名替换 WxAsset
@@ -447,7 +494,7 @@ export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAsse
 
     // 根据后缀名查找
     findByExt (ext: string) {
-      return this.bundle.findByExt(ext)
+      return this.bundle.findByExt(ext) as WxAsset[]
     }
 
     toJSON () {
@@ -455,5 +502,5 @@ export function MixinWxAssetsBundle <T extends WxAssetsBundleOwnerFactory<WxAsse
     }
   }
 
-  return AssetsBundleOwner as WxAssetsBundleOwner
+  return AssetsBundleOwner
 }

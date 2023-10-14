@@ -1,29 +1,29 @@
-import { Asset } from '@catalyzed/basic';
 import * as Wx from '@catalyzed/asset';
-declare const WxAssetsBundle_base: (abstract new () => {
+import { MainCompilePodOwner } from './pod/proxy';
+declare const WxAssetsBundle_base: (abstract new (...rests: any[]) => {
     [x: string]: any;
     _root: string | null;
     root: string;
     _bundle: Wx.WxAssetsBundle | null;
     bundle: Wx.WxAssetsBundle;
-    readonly assets: Asset[];
+    readonly assets: Wx.WxAsset[];
     readonly components: Wx.WxAssetSet[];
     readonly pages: Wx.WxAssetSet[];
     put(...rests: unknown[]): void;
     mount(): Promise<undefined>;
     fromAssetsBundleJSON({ root, assets }: import("@catalyzed/basic").AssetsBundleJSON): void;
     findSetByFilename(filename: string): Wx.WxAssetSet | null;
-    findByFilename(filename: string): Asset | null;
+    findByFilename(filename: string): Wx.WxAsset | null;
     replaceByFilename(filename: string, asset: Wx.WxAsset): void;
     exists(filename: string): boolean;
-    findByExt(ext: string): Asset[];
+    findByExt(ext: string): Wx.WxAsset[];
     toJSON(): {
         root: string;
         assets: import("@catalyzed/basic").AssetJSON[];
     };
 }) & {
     [x: string]: any;
-    create(...rests: unknown[]): any;
+    create(...rests: unknown[]): MainCompilePodOwner & Wx.WxAssetsBundleOwner;
 };
 export declare class WxAssetsBundle extends WxAssetsBundle_base {
     /**

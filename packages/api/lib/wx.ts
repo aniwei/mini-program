@@ -1,6 +1,7 @@
 import { invariant } from 'ts-invariant'
 import { 
   ApiJSON, 
+  ApiSubscribables, 
   AssetsBundleJSON, 
   BaseApi, 
   EventEmitter, 
@@ -47,31 +48,41 @@ export type WxApiEventKind =
 export type WxProgramApiEventKind = 
   `File.change`
 
+
+// => Program.events
 export interface WxProgramApiEvent extends EventEmitter<WxProgramApiEventKind> {
   publish (name: WxProgramApiEventKind, parameters: unknown[]): Promise<void>
 }
 
+// => Program.commands
+export interface WxProgramApiCommand extends ApiSubscribables {
+  current (): Promise<WxProj>,
+  getWxAssetsBundle (assets: WxAssetHash[]): Promise<AssetsBundleJSON>
+  compile (): Promise<string[]>
+  invoke (name: string, data: unknown, id: number): Promise<unknown>
+  login (): Promise<WxLogin>
+  createRequestTask (data: unknown): Promise<unknown>
+}
+
+// => Auth.events
+export interface WxAuthApiEvent extends EventEmitter<WxApiEventKind> {
+  WxQRCodeStateKindChanged (status: WxQRCodeStateKind): Promise<void>,
+  signIn (user: WxUser): Promise<void>
+}
+
+// => Auth.commands
+export interface WxAuthApiCommand extends ApiSubscribables {
+  getUser (): Promise<WxUser>
+  getAuthenticateWxQRCode (): Promise<string>
+}
+
 export interface WxApiService<T extends string> extends BaseApi<WxApiEventKind | T> {
   Auth: {
-    commands: {
-      getUser (): Promise<WxUser>
-      getAuthenticateWxQRCode (): Promise<string>
-    }
-
-    events: {
-      WxQRCodeStateKindChanged (status: WxQRCodeStateKind): Promise<void>,
-      signIn (user: WxUser): Promise<void>
-    }
+    commands: WxAuthApiCommand
+    events: WxAuthApiEvent
   }, 
   Program: {
-    commands: {
-      current (): Promise<WxProj>,
-      getWxAssetsBundle (assets: WxAssetHash[]): Promise<AssetsBundleJSON>
-      compile (): Promise<string[]>
-      invoke (name: string, data: unknown, id: number): Promise<unknown>
-      login (): Promise<WxLogin>
-      createRequestTask (data: unknown): Promise<unknown>
-    },
+    commands: WxProgramApiCommand,
     events: WxProgramApiEvent
   }
 }

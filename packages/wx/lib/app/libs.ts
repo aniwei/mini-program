@@ -25,7 +25,7 @@ export interface WxAppLibs {
   ui: UI
 }
 
-export abstract class WxAppLibs extends WxContext {
+export class WxAppLibs extends WxContext {
   public capabilities: WxCapability<ProxyApp>[] = []
   public deps: number = 0
 

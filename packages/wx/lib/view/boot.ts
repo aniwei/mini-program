@@ -16,6 +16,8 @@ import { View } from './capability/view'
 import '../asset'
 import { WxProj } from '@catalyzed/types'
 import { Utililty } from './capability/utility'
+import { WxCapabilityFactory } from '../capability'
+import { ProxyView } from '.'
 
 const view_debug = debug('wx:view:iframe')
 
@@ -41,12 +43,12 @@ enum ViewPublishEventKind {
   RemoveInputComponent = 'custom_event_removeInputComponent'
 }
 
-export class WxView extends MixinWxAssetsBundle(WxViewLibs) {
+export class WxView extends MixinWxAssetsBundle<WxViewLibs>(WxViewLibs) {
   static create (...rests: unknown[]) {
     const wx = super.create(...rests)
 
-    wx.register(View)
-    wx.register(Utililty)
+    wx.register(View as unknown as WxCapabilityFactory<ProxyView>)
+    wx.register(Utililty as unknown as WxCapabilityFactory<ProxyView>)
 
     return wx
   }
