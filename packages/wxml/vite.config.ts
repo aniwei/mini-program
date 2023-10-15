@@ -7,6 +7,11 @@ export default defineConfig({
       entry: './lib/index.ts',
       name: 'index',
       fileName: 'index'
+    },
+    rollupOptions: {
+      external: [
+        'htmlparser2'
+      ]
     }
   },
   resolve: {
