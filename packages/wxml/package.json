@@ -25,6 +25,7 @@
     "vite": "^4.3.9"
   },
   "dependencies": {
+    "@catalyzed/basic": "workspace:^",
     "entities": "^4.5.0"
   }
 }
