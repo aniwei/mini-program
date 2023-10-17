@@ -21,10 +21,12 @@
   },
   "devDependencies": {
     "@rollup/plugin-inject": "^5.0.3",
+    "ts-invariant": "^0.10.3",
     "typescript": "^5.1.3",
     "vite": "^4.3.9"
   },
   "dependencies": {
+    "@catalyzed/asset": "workspace:^",
     "@catalyzed/basic": "workspace:^",
     "entities": "^4.5.0"
   }

@@ -1,4 +1,4 @@
-import { CharCodes } from './vnode'
+import { CharCodes } from './tokenizer'
 
 export function isWhitespace(c: number): boolean {
   return (

@@ -574,6 +574,9 @@ importers:
 
   packages/wxml:
     dependencies:
+      '@catalyzed/asset':
+        specifier: workspace:^
+        version: link:../asset
       '@catalyzed/basic':
         specifier: workspace:^
         version: link:../basic
@@ -584,6 +587,9 @@ importers:
       '@rollup/plugin-inject':
         specifier: ^5.0.3
         version: 5.0.3
+      ts-invariant:
+        specifier: ^0.10.3
+        version: 0.10.3
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
