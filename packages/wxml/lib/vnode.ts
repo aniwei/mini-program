@@ -1,3 +1,4 @@
+import { invariant } from 'ts-invariant'
 import { TokenizedDetail, Tokenizer } from './tokenizer'
 
 export enum VNodeKind {
@@ -7,8 +8,8 @@ export enum VNodeKind {
 }
 
 export interface VNodeAttr {
-  key: string,
-  value?: string
+  0: string,
+  1: string | null
 }
 
 export interface VNode<T extends VNodeKind> {
@@ -27,10 +28,16 @@ export interface VRoot extends VNode<VNodeKind.Root> {
   children: VNode<VNodeKind>[]
 }
 
-export const createVNode = <T extends VNodeKind> (type: T, name: string, isContainer: boolean = true):  VNode<T> => {
+export interface VText extends VNode<VNodeKind.Text> { }
+
+export const createVNode = <T extends VNodeKind> (
+  type: T, 
+  name: string | null = null, 
+  isContainer: boolean = true
+):  VNode<T> => {
   const vnode: VNode<T> = {
     type,
-    name: null,
+    name,
     value: null,
     attributes: [],
     children: null
@@ -43,71 +50,97 @@ export const createVNode = <T extends VNodeKind> (type: T, name: string, isConta
   return vnode
 }
 
-export const createVNodeAttribute = (key: string, value?: string) => {
-  return {
-    key,
-    value
-  }
+export const createVNodeAttribute = (key: string, value: string | null = null) => {
+  return [key, value]
 }
 
-export class VNodeManager extends Tokenizer {
+export class VNodes extends Array<VNode<VNodeKind>> {
   // => root
   public get root () {
-    return this.vnodes[0]
+    return this[0]
   }
 
   // => current
   public get current () {
-    return this.vnodes[this.vnodes.length - 1]
+    return this[this.length - 1]
   }
 
-  public vnodes: VNode<VNodeKind>[] = []
+  constructor () {
+    super()
 
-  constructor (content: string) {
-    super(content)
+    this.push(createVNode(VNodeKind.Root, 'root'))
+  }
+}
 
-    const root = createVNode(VNodeKind.Root, 'root')
-    this.vnodes.push(root)
-
-    this.on('opentag', this.handleOpenTag)
-    this.on('closetag', this.handleCloseTag)
-    this.on('attributename', this.handleAttributeName)
-    this.on('attributedata', this.handleAttributeData)
+export class VNodeFactory {
+  static process (content: string) {
+    const factory = new VNodeFactory()
+    return factory.process(content)
   }
 
-  handleOpenTag = (detail: TokenizedDetail) => {
-    const current = this.current as VTag
-    const vnode = createVNode(VNodeKind.Tag, detail.value)
-
-    current.children.push(vnode)
-    this.vnodes.push(vnode) 
+  // => root
+  public get root () {
+    return this.vns.root
   }
 
-  handleCloseTag = (detail: TokenizedDetail) => {
-    const current = this.current as VTag
-
-    if (current.name !== detail.value) {
-      throw new Error(``)
-    }
-
-	  this.vnodes.pop()
+  // => current
+  public get current () {
+    return this.vns.current
   }
 
-  handleAttributeName = (detail: TokenizedDetail) => {
-    const current = this.current as VTag
-    const attribute = createVNodeAttribute(detail.value)
+  public vns: VNodes = new VNodes()
 
-    current.attributes.push(attribute)
-  }
+  process (content: string) {
+    const tokenizer = new Tokenizer(content)
+    const vns = new VNodes()
 
-  handleAttributeData = (detail: TokenizedDetail) => {
-    const current = this.current as VTag
-    const attribute = current.attributes[current.attributes.length - 1] as VNodeAttr ?? null
+    tokenizer.on('text', (detail: TokenizedDetail) => {
+      const value = detail.value.trim()
+      if (value !== '') {
+        const current = vns.current
+        const text = createVNode(VNodeKind.Text, null)
+        text.value = value
+        current.children?.push(text)
+      }
+    })
 
-    if (attribute === null) {
-      throw new Error(``)
-    }
+    tokenizer.on('opentag', (detail: TokenizedDetail) => {
+      const current = vns.current as VTag
+      const vnode = createVNode(VNodeKind.Tag, detail.value)
+  
+      current.children.push(vnode)
+      vns.push(vnode) 
+    })
 
-    attribute.value = detail.value
+    tokenizer.on('closetag', (detail: TokenizedDetail) => {
+      const current = vns.current as VTag
+  
+      if (current.name !== detail.value) {
+        throw new Error(``)
+      }
+  
+      vns.pop()
+    })
+
+    tokenizer.on('attributename', (detail: TokenizedDetail) => {
+      const current = vns.current as VTag
+      const attribute = createVNodeAttribute(detail.value)
+      current.attributes.push(attribute)
+    })
+
+    tokenizer.on('attributedata', (detail: TokenizedDetail) => {
+      const current = vns.current as VTag
+      const attribute = current.attributes[current.attributes.length - 1] as VNodeAttr ?? null
+  
+      if (attribute === null) {
+        throw new Error(``)
+      }
+  
+      attribute[1] = detail.value
+    })
+
+    tokenizer.removeAllListeners()
+
+    return vns.root
   }
 }

@@ -1,39 +1,11 @@
 import { invariant } from 'ts-invariant'
 import * as Wx from '@catalyzed/asset'
-
-import { Tokenizer } from './tokenizer'
+import { VNodeFactory, VNodeKind, VRoot, VTag, VText } from './vnode'
 
 
 export class WxmlTemplateState {
   static create () {
     return new WxmlTemplateState()
-  }
-
-  // => running
-  public get running () {
-    return this.tokenizer?.running ?? false
-  }
-
-  // => tokenizer
-  protected _tokenizer: Tokenizer | null = null
-  public get tokenizer () {
-    invariant(this._tokenizer)
-    return this._tokenizer
-  }
-  public set tokenizer (tokenizer: Tokenizer) {
-    if (this._tokenizer === null) {
-      const tokenizer = new Tokenizer(this.template.data as string)
-
-      tokenizer.on('opentag', (start: number, end: number) => {
-        
-      })
-
-      tokenizer.on('attributeend', () => {
-
-      })
-
-      this._tokenizer = tokenizer
-    }
   }
 
   // => template
@@ -48,16 +20,38 @@ export class WxmlTemplateState {
     }
   }
 
-  public current: VNode | null = null
-  public root: VRoot
-
-  constructor () {
-    this.root = new VRoot('root')
-    this.current = this.root
+  public _root: VRoot | null = null
+  public get root () {
+    invariant(this._root)
+    return this._root
+  }
+  public set root (root: VRoot) {
+    this.root = root
   }
 
-  parse () {
-    this.tokenizer
+  process () {
+    const root = VNodeFactory.process(this.template.data as string) as VRoot
+    this.optimize(root, null, root)
+  }
+
+  optimize (
+    root: VRoot, 
+    parent: VTag | null, current: VTag | VRoot | VText
+  ) {
+    switch (current.type) {
+      case VNodeKind.Root: {
+        // Ignore
+        break
+      }
+
+      case VNodeKind.Tag: {
+        break
+      }
+
+      case VNodeKind.Text: {
+        break
+      }
+    }
   }
 }
 

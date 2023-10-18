@@ -115,6 +115,7 @@ export class Tokenizer extends EventEmitter<string> {
   protected state: TokenizerState = TokenizerState.Text
   protected content: string = ''
 
+  protected sequenceIndex: number = 0
   protected start: number = 0
   protected index: number = 0
   
@@ -215,7 +216,6 @@ export class Tokenizer extends EventEmitter<string> {
   handleAfterAttributeName (code: number) {
     // 匹配属性 =
     if (code === CharCodes.Eq) {
-      debugger
       this.state = TokenizerState.BeforeAttributeValue
     // 匹配 > 或者 / eg. <view[>] 或者 <view [/]>
     } else if (code === CharCodes.Slash || code === CharCodes.Gt) {
@@ -285,12 +285,48 @@ export class Tokenizer extends EventEmitter<string> {
     // TODO
   }
 
+  handleBeforeClosingTagName (code: number) {
+    if (isWhitespace(code)) {
+      // Ignore
+    } else if (code === CharCodes.Gt) {
+      this.state = TokenizerState.Text
+    } else {
+      this.state = (
+        this.isXMLMode 
+          ? !isEndOfTagSection(code) 
+          : isASCIIAlpha(code)
+      )
+        ? TokenizerState.InClosingTagName
+        : TokenizerState.InSpecialComment
+      this.start = this.index
+    }
+  }
+
+  handleClosingTagName (code: number) {
+    if (code === CharCodes.Gt || isWhitespace(code)) {
+      this.emit('closetag', this.getTokenizedDetail())
+      this.start = -1
+      this.state = TokenizerState.AfterClosingTagName
+      this.workLoop(code)
+    }
+  }
+
+  handleAfterClosingTagName (code: number) {
+    // Skip everything until ">"
+    if (code === CharCodes.Gt || this.forwardTo(CharCodes.Gt)) {
+      this.state = TokenizerState.Text
+      this.start = this.index + 1
+    }
+  }
+
   beginWork () {
     while (this.shouldTokenize) {
       const code = this.content.charCodeAt(this.index)
       this.workLoop(code)
       this.index++
     }
+
+    this.cleanup()
   }
 
   forwardTo (code: number): boolean {
@@ -364,6 +400,43 @@ export class Tokenizer extends EventEmitter<string> {
       case TokenizerState.InAttributeValueNoQuote: {
         this.handleAttributeValueNoQuote(code)
         break
+      }
+
+      // <view class=xxx><[/]view> | <view [/]>
+      case TokenizerState.BeforeClosingTagName: {
+        this.handleBeforeClosingTagName(code)
+        break
+      }
+
+      // <view class=xxx><[/]view> | <view [/]>
+      case TokenizerState.InClosingTagName: {
+        this.handleClosingTagName(code)
+        break
+      }
+
+      // <view class=xxx></view[>] | <view /[>]
+      case TokenizerState.AfterClosingTagName: {
+        this.handleAfterClosingTagName(code)
+        break
+      }
+    }
+  }
+
+  cleanup () {
+    if (this.running && this.start !== this.index) {
+      if (
+        this.state === TokenizerState.Text ||
+        (this.state === TokenizerState.InSpecialTag && this.sequenceIndex === 0)
+      ) {
+        this.emit('text', this.getTokenizedDetail())
+        this.start = this.index
+      } else if (
+        this.state === TokenizerState.InAttributeValueDoubleQuote ||
+        this.state === TokenizerState.InAttributeValueSingleQuote ||
+        this.state === TokenizerState.InAttributeValueNoQuote
+      ) {
+        this.emit('attributedata', this.getTokenizedDetail())
+        this.start = this.index
       }
     }
   }
