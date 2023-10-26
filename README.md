@@ -17,25 +17,31 @@
 ## 运行 DEMO
 
 ### 环境依赖
+
 ```
-vscode 
-node > 16 
-pnpm 
+vscode
+node > 16
+pnpm
 nx
 ```
+
 ### 开始
+
 - 安装依赖
+
 ```
 pnpm i
 ```
 
 - 构建代码
+
 ```
 pnpm build
 ```
 
 - 执行 vscode 调试模式，调试配置选择 「@catalyzed/cli」
-在此之前，如果运行的是 vant，需要下载官方 vant-app 仓库，构建出 dist 目录；而后将 dist 目录复制至 packages/cli/example/vant 目录下
+  在此之前，如果运行的是 vant，需要下载官方 vant-app 仓库，构建出 dist 目录；而后将 dist 目录复制至 example/mini-program/vant 目录下
+
 ```
 {
   "name": "@catalyzed/cli",
@@ -63,22 +69,27 @@ pnpm build
 }
 ```
 
-- 浏览器打开 http://localhost:3000 
+- 浏览器打开 http://localhost:3000
 
 ### 可能遇到的问题
+
 - 无法编译微信代码
-本项目依赖 「微信代码编译工具 wsc wscc」，苹果 M 系列需要安装 「Rosetta」
+  本项目依赖 「微信代码编译工具 wsc wscc」，苹果 M 系列需要安装 「Rosetta」
 
 ## 架构设计
+
 <img src="https://github.com/aniwei/mini-program/blob/main/mini-program-framework.png" alt="vant" width="50%" height="50%">
 
 ## 模块说明
+
 <img src="https://github.com/aniwei/mini-program/blob/main/package-introduction.png" alt="vant" width="50%" height="50%">
 
 ## 路线图
+
 // TODO
 
 ## 其他
+
 未来还会将 iFrame 层，增加类似 Flutter 的实现，通过定义渲染器切换
 
 ## 微信
@@ -87,8 +98,7 @@ pnpm build
 
 <img src="https://github.com/aniwei/mini-program/blob/main/wechat.jpg" alt="vant" width="30%" height="30%">
 
-
-
 # License
+
 Copyright (c) Aniwei. All rights reserved.
 Licensed under the MIT license.
