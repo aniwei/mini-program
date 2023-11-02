@@ -1,41 +1,35 @@
 import { invariant } from 'ts-invariant'
 import { TokenizedDetail, Tokenizer } from './tokenizer'
 
-export enum VNodeKind {
-  Root,
-  Tag,
+export enum TokenObjectKind {
+  Node,
   Text
 }
 
-export interface VNodeAttr {
+export interface TokenObjectAttr {
   0: string,
   1: string | null
 }
 
-export interface VNode<T extends VNodeKind> {
+export interface TokenObject<T extends TokenObjectKind> {
   type: T,
-  attributes: VNodeAttr[],
+  attributes: TokenObjectAttr[],
   name: string | null,
   value: string | null,
-  children: VNode<VNodeKind>[] | null
+  children: TokenObject<TokenObjectKind>[] | null
 }
 
-export interface VTag extends VNode<VNodeKind.Tag> {
-  children: VNode<VNodeKind>[]
+export interface Node extends TokenObject<TokenObjectKind.Node> {
+  children: TokenObject<TokenObjectKind>[]
 }
 
-export interface VRoot extends VNode<VNodeKind.Root> {
-  children: VNode<VNodeKind>[]
-}
+export interface Text extends TokenObject<TokenObjectKind.Text> { }
 
-export interface VText extends VNode<VNodeKind.Text> { }
-
-export const createVNode = <T extends VNodeKind> (
+export const createTokenObject = <T extends TokenObjectKind> (
   type: T, 
-  name: string | null = null, 
-  isContainer: boolean = true
-):  VNode<T> => {
-  const vnode: VNode<T> = {
+  name: string | null = null
+):  TokenObject<T> => {
+  const vnode: TokenObject<T> = {
     type,
     name,
     value: null,
@@ -43,18 +37,18 @@ export const createVNode = <T extends VNodeKind> (
     children: null
   }
 
-  if (isContainer) {
-    (vnode as VRoot).children = []
-  }
-
   return vnode
+}
+
+export const createTokenObjectAttr = () => {
+
 }
 
 export const createVNodeAttribute = (key: string, value: string | null = null) => {
   return [key, value]
 }
 
-export class VNodes extends Array<VNode<VNodeKind>> {
+export class VNodes extends Array<TokenObject<TokenObjectKind>> {
   // => root
   public get root () {
     return this[0]
@@ -68,7 +62,7 @@ export class VNodes extends Array<VNode<VNodeKind>> {
   constructor () {
     super()
 
-    this.push(createVNode(VNodeKind.Root, 'root'))
+    this.push(createTokenObject(TokenObjectKind.Node, 'root'))
   }
 }
 
@@ -93,6 +87,10 @@ export class VNodeFactory {
   process (content: string) {
     const tokenizer = new Tokenizer(content)
     const vns = new VNodes()
+
+    tokenizer.pipe(() => {
+      
+    })
 
     tokenizer.on('text', (detail: TokenizedDetail) => {
       const value = detail.value.trim()
