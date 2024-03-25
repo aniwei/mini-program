@@ -1,1 +1,0 @@
-/Users/weiyanhai/Desktop/workspace/mini-program/target/debug/ax: /Users/weiyanhai/Desktop/workspace/mini-program/crates/cli/src/bin.rs /Users/weiyanhai/Desktop/workspace/mini-program/crates/cli/src/start.rs
