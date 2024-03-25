@@ -26,6 +26,14 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "port": 9229
+    }, {
+      "name": "(OSX) Launch",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/target/debug/ax",
+      "args": ["start"],
+      "cwd": "${workspaceRoot}/crates/cli",
+      "preLaunchTask": "Build"
     }
   ]
 }

@@ -1,0 +1,11 @@
+/Users/weiyanhai/Desktop/workspace/mini-program/target/debug/deps/libcc-eeaa7d16c638b043.rmeta: /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/lib.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/mod.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/find_tools.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/command_helpers.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/tool.rs
+
+/Users/weiyanhai/Desktop/workspace/mini-program/target/debug/deps/libcc-eeaa7d16c638b043.rlib: /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/lib.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/mod.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/find_tools.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/command_helpers.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/tool.rs
+
+/Users/weiyanhai/Desktop/workspace/mini-program/target/debug/deps/cc-eeaa7d16c638b043.d: /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/lib.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/mod.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/find_tools.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/command_helpers.rs /Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/tool.rs
+
+/Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/lib.rs:
+/Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/mod.rs:
+/Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/windows/find_tools.rs:
+/Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/command_helpers.rs:
+/Users/weiyanhai/.cargo/registry/src/index.crates.io-6f17d22bba15001f/cc-1.0.90/src/tool.rs:
