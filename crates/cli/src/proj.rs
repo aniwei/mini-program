@@ -1,9 +1,5 @@
-use std::default;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::PathBuf;
+use std::path::{PathBuf};
 use std::result::Result::Ok;
-use anyhow::*;
 
 use crate::AxStartCommand;
 
@@ -13,26 +9,22 @@ pub(crate) struct ProjStartArgs {
   pub(crate) root: Box<PathBuf>,
 }
 
-/// 
+/// 启动参数
 impl ProjStartArgs {
   pub fn new() -> Self {
-    let mut projArgs = ProjStartArgs::default();
+    let mut proj_args = ProjStartArgs::default();
 
     // 读取环境变量
     if let Ok(port) = std::env::var("PORT").unwrap_or_default().parse::<u32>() {
-      projArgs.port = port;
+      proj_args.port = port;
     }
 
     // 读取当前路径
     if let Ok(root) = std::env::current_dir() {
-      projArgs.root = Box::new(root);
+      proj_args.root = Box::new(root);
     }
 
-    projArgs
-  }
-
-  fn getWxProj(root: &str) -> Result<ProjStartArgs> {
-    Err(Error::msg("Unimpl."))
+    proj_args
   }
 }
 
@@ -40,18 +32,18 @@ impl From<AxStartCommand> for ProjStartArgs {
   
   fn from(value: AxStartCommand) -> Self {
     
-    let mut projArgs = ProjStartArgs::new();
+    let mut proj_args = ProjStartArgs::new();
 
     // 处理端口
     if let Some(p) = value.port {
-      projArgs.port = p.to_owned();
+      proj_args.port = p.to_owned();
     }
 
     // 处理项目路径
     if let Some(root) = value.root {
-      projArgs.root = Box::new(PathBuf::from(root.to_owned()));
+      proj_args.root = Box::new(PathBuf::from(root.to_owned()));
     }
 
-    projArgs
+    proj_args
   }
 }

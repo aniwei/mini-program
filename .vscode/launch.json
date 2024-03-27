@@ -32,7 +32,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/target/debug/ax",
       "args": ["start"],
-      "cwd": "${workspaceRoot}/crates/cli",
+      "cwd": "${workspaceRoot}/example/mini-program/vant",
       "preLaunchTask": "Build"
     }
   ]

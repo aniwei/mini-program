@@ -10,7 +10,7 @@ Icon
 .Trashes
 ._*
 
-target
+target/**/*
 
 ############################
 # Linux

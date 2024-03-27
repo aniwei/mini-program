@@ -1,9 +1,8 @@
 use color_eyre::eyre::Result;
 use clap::{arg, Parser, Subcommand};
-
-use log::debug;
+use log::info;
 use proj::ProjStartArgs;
-use std::{env, path::PathBuf};
+use wx::proj::Proj;
 
 mod proj;
 
@@ -44,11 +43,24 @@ fn main() -> Result<()>{
   }
 
   // 读取参数
-  if let Some(command) = &args.command {
-    match &command {
+  if let Some(command) = args.command {
+    match command {
       AxCommands::Start(AxStartCommand { port, root, watch }) => {
-        let mut projArgs = ProjStartArgs::default();
-        println!("{:?}", projArgs);
+        let projArgs = ProjStartArgs::from(AxStartCommand {
+          port,
+          root,
+          watch
+        });
+
+        let mut proj = Proj::new(projArgs.root);
+
+        if let Ok(is_wxproj) = proj.is_wxproj() {
+          print!("1111")
+
+          // GOON
+        } else {
+          info!("The current path is not a WeChat MiniProgram project.")
+        }
       }
     }
   }

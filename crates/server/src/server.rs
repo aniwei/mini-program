@@ -1,20 +1,19 @@
 use actix_web::HttpServer;
-use std::Default
 
 #[derive(Debug, Default)]
-pub struct WxApp {
-  pub httpServer: Option<HttpServer>,
+pub struct WxServer {
+  pub httpServer: Option<u16>
 }
 
-impl WxApp {
-  pub fn new() -> WxApp {
-    WxApp {
+impl WxServer {
+  pub fn new() -> WxServer {
+    WxServer {
       httpServer: None,
     }
   }
 }
 
-impl WxApp {
+impl WxServer {
   pub fn start(&self) {
     // Start the HTTP server
   }
