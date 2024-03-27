@@ -15,13 +15,15 @@ pub struct ProgramSetting {
   pages: Vec<String>,
 }
 
-
+/// 小程序执行环境实例
 static mut PROGRAM_INSTANCE: Option<Program> = None;
 
+/// 小程序结构
 pub struct Program {
   root: Box<PathBuf>,
   setting: Option<ProgramSetting>
 }
+
 
 impl Program {
   pub fn new (root: &str) -> Self {
@@ -36,20 +38,17 @@ impl Program {
   // 单例模式
   pub fn share_instance (root: &str) -> &'static Program {
     unsafe {
-      // 使用 Once 来确保初始化操作只执行一次
       INIT.call_once(|| {
-          // 使用单例对象的构造函数创建实例
-          PROGRAM_INSTANCE = Some(Program::new(root));
+        PROGRAM_INSTANCE = Some(Program::new(root));
       });
 
-      // 返回单例对象的引用
       PROGRAM_INSTANCE.as_ref().unwrap()
     }
   }
 
-  pub fn is_exist_wxproj_program (&self) -> Result<bool> {
+  pub fn is_exist_wxproj_program(&self) -> Result<bool> {
     if let Ok(is_exist) = self.get_wxproj_program_setting() {
-
+      return Ok(true)
     }
 
     Ok(false)
