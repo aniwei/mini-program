@@ -288,6 +288,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
 
 [[package]]
+name = "async-trait"
+version = "0.1.79"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a507401cad91ec6a857ed5513a2073c82a9b9048762b885bb98655b306964681"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.55",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -298,12 +309,15 @@ name = "ax-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "clap",
  "color-eyre",
  "log",
  "pretty_env_logger",
+ "semver",
  "serde",
  "serde_json",
+ "tokio",
  "toml",
  "wx",
 ]
@@ -1697,6 +1711,7 @@ name = "wx"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "log",
  "quick-js",
  "serde",
  "serde_json",

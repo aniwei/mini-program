@@ -1,11 +1,22 @@
+mod proj;
+mod doctor;
+
 use color_eyre::eyre::Result;
 use clap::{arg, Parser, Subcommand};
 use log::info;
 use proj::ProjStartArgs;
 use wx::proj::Proj;
 
-mod proj;
+use doctor::*;
 
+/// 命令枚举
+#[derive(Subcommand,Debug)]
+enum AxCommands {
+  Start(AxStartCommand),
+  Doctor(AxDoctorCommand)
+}
+
+/// 命令行结构
 #[derive(Parser, Debug)]
 #[command(author="Aniwei", version, about, long_about = None)]
 struct AxCommandArgs {
@@ -16,11 +27,9 @@ struct AxCommandArgs {
   command: Option<AxCommands>,
 }
 
-#[derive(Subcommand,Debug)]
-enum AxCommands {
-  Start(AxStartCommand)
-}
 
+
+/// start 命令
 #[derive(Parser, Debug)]
 struct AxStartCommand {
   #[arg(short, long)]
@@ -32,6 +41,10 @@ struct AxStartCommand {
   #[arg(short, long)]
   watch: Option<bool>,
 }
+
+/// doctor 命令
+#[derive(Parser, Debug)]
+struct AxDoctorCommand {}
 
 fn main() -> Result<()>{
   color_eyre::install()?;
@@ -60,6 +73,11 @@ fn main() -> Result<()>{
           // GOON
         } else {
           info!("The current path is not a WeChat MiniProgram project.")
+        }
+      },
+      AxCommands::Doctor(AxDoctorCommand{}) => {
+        if let Some(results) = Doctor::validate() {
+
         }
       }
     }

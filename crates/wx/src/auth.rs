@@ -9,6 +9,7 @@ pub enum ErrorCodeKind {
 }
 
 /// checker
+/// 二维码扫描轮训检查
 pub struct ScanChecker {
   
 }
@@ -23,13 +24,18 @@ impl ScanChecker {
   }
 }
 
+///
+struct User {
+
+}
+
 /// 微信授权
 pub struct Auth {
   code: String
 }
 
 impl Auth {
-  pub fn get_user(code: &str) {
+  pub fn get_user(&self, code: &str) -> User {
 
   }
 }

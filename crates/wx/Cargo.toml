@@ -12,4 +12,5 @@ repository.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
+log = { workpsace = true }
 quick-js = "0.4.1"
