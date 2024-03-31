@@ -24,7 +24,6 @@ pub struct Program {
   setting: Option<ProgramSetting>
 }
 
-
 impl Program {
   pub fn new (root: &str) -> Self {
     let path = Path::new(root).to_owned();
@@ -75,3 +74,4 @@ impl Program {
     Ok(false)
   }
 }
+

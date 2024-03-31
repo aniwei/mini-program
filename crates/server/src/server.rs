@@ -11,10 +11,10 @@ impl WxServer {
       httpServer: None,
     }
   }
-}
 
-impl WxServer {
-  pub fn start(&self) {
-    // Start the HTTP server
-  }
+  pub fn start(&mut self) -> Result<()> {
+    self.hpptServer = HttpServer::new(|| {
+      actix_web::App::new()
+    })
+    .bind("127.0.0.1");
 }

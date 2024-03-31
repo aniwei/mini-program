@@ -31,7 +31,7 @@
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceRoot}/target/debug/ax",
-      "args": ["start"],
+      "args": ["--verbase", "start"],
       "cwd": "${workspaceRoot}/example/mini-program/vant",
       "preLaunchTask": "Build"
     }

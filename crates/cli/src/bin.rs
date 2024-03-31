@@ -36,6 +36,9 @@ struct AxStartCommand {
   port: Option<u32>,
 
   #[arg(short, long)]
+  host: Option<String>,
+
+  #[arg(short, long)]
   root: Option<String>,
 
   #[arg(short, long)]
@@ -58,17 +61,23 @@ fn main() -> Result<()>{
   // 读取参数
   if let Some(command) = args.command {
     match command {
-      AxCommands::Start(AxStartCommand { port, root, watch }) => {
-        let projArgs = ProjStartArgs::from(AxStartCommand {
+      AxCommands::Start(AxStartCommand { port, host, root, watch }) => {
+        let proj_args = ProjStartArgs::from(AxStartCommand {
           port,
+          host,
           root,
           watch
         });
 
-        let mut proj = Proj::new(projArgs.root);
+        let mut proj = Proj::new(
+          proj_args.root, 
+          proj_args.port, 
+          proj_args.host,
+          proj_args.watch
+        );
 
         if let Ok(is_wxproj) = proj.is_wxproj() {
-          print!("1111")
+          info!("Starting a WeChat MiniProgram project.")
 
           // GOON
         } else {
@@ -76,9 +85,7 @@ fn main() -> Result<()>{
         }
       },
       AxCommands::Doctor(AxDoctorCommand{}) => {
-        if let Some(results) = Doctor::validate() {
-
-        }
+        print!("Doctor")
       }
     }
   }

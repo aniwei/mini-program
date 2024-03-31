@@ -1,10 +1,10 @@
-enum ValidateResultKind {
+pub enum ValidateResultKind {
   Info,
   Success,
   Error
 }
 
-struct ValidateResult {
+pub struct ValidateResult {
   kind: ValidateResultKind,
   message: Box<str>
 }

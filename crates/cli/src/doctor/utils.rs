@@ -4,24 +4,25 @@ use std::{env, os::unix::fs::PermissionsExt, path::Path, process::Output, str::F
 
 use async_trait::async_trait;
 
+use tokio::process::Command;
+
 
 pub struct ProcessUtils { }
 
 impl ProcessUtils {
-  fn sanitize_executable_path(executable: &str) -> &str {
+  /// Sanitize executable path
+  fn sanitize_executable_path(executable: &str) -> String {
     if executable.is_empty() {
-      return executable
+      return executable.to_string()
     }
 
     if cfg!(target_os = "windows") {
       if executable.contains(" ") && !executable.contains("\"") {
-        format!("\"{}\"", executable)
-      } else {
-        executable.to_string()
+        return format!("\"{}\"", executable)
       }
     }
 
-    executable
+    return executable.to_string()
   }
 
   pub fn get_candidate_paths(
