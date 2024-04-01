@@ -53,8 +53,6 @@ struct AxDoctorCommand {}
 
 #[tokio::main]
 async fn main() -> Result<()>{
-  
-
   let args = AxCommandArgs::parse();
 
   // 初始化日志
