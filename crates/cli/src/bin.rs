@@ -1,11 +1,12 @@
 mod proj;
 mod doctor;
 
-use color_eyre::eyre::Result;
+use anyhow::*;
 use clap::{arg, Parser, Subcommand};
 use log::info;
 use proj::ProjStartArgs;
 use wx::proj::Proj;
+use core::result::Result::Ok;
 
 use doctor::*;
 
@@ -32,16 +33,16 @@ struct AxCommandArgs {
 /// start 命令
 #[derive(Parser, Debug)]
 struct AxStartCommand {
-  #[arg(short, long)]
-  port: Option<u32>,
+  #[arg(long)]
+  port: Option<u16>,
 
-  #[arg(short, long)]
+  #[arg(long)]
   host: Option<String>,
 
-  #[arg(short, long)]
+  #[arg(long)]
   root: Option<String>,
 
-  #[arg(short, long)]
+  #[arg(long)]
   watch: Option<bool>,
 }
 
@@ -49,8 +50,9 @@ struct AxStartCommand {
 #[derive(Parser, Debug)]
 struct AxDoctorCommand {}
 
-fn main() -> Result<()>{
-  color_eyre::install()?;
+#[tokio::main]
+async fn main() -> Result<()>{
+  
 
   let args = AxCommandArgs::parse();
 
@@ -70,18 +72,30 @@ fn main() -> Result<()>{
         });
 
         let mut proj = Proj::new(
-          proj_args.root, 
+          &proj_args.root, 
           proj_args.port, 
           proj_args.host,
           proj_args.watch
         );
 
         if let Ok(is_wxproj) = proj.is_wxproj() {
-          info!("Starting a WeChat MiniProgram project.")
+          info!("Starting a WeChat MiniProgram project.");
 
-          // GOON
+          match proj.start(Some(Box::new(|| {
+            info!("Server started successfully.");
+            Ok(())
+          }))).await {
+            Ok(_) => {
+              // Handle successful start
+              // GOON
+            }
+            Err(err) => {
+              // Handle error
+              // e.g. print error message or return an error
+            }
+          }
         } else {
-          info!("The current path is not a WeChat MiniProgram project.")
+          info!("The current path is not a WeChat MiniProgram project.");
         }
       },
       AxCommands::Doctor(AxDoctorCommand{}) => {

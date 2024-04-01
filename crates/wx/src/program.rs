@@ -1,7 +1,5 @@
-use serde::Deserialize;
-use std::{default, fs};
+use std::{fs};
 use anyhow::*;
-use std::fs::File;
 use std::result::Result::Ok;
 use std::path::{Path, PathBuf};
 use std::sync::Once;
@@ -10,7 +8,7 @@ static INIT: Once = Once::new();
 
 
 /// app.json
-#[derive(Default)]
+#[derive(Debug)]
 pub struct ProgramSetting {
   pages: Vec<String>,
 }
@@ -19,6 +17,7 @@ pub struct ProgramSetting {
 static mut PROGRAM_INSTANCE: Option<Program> = None;
 
 /// 小程序结构
+#[derive(Debug)]
 pub struct Program {
   root: Box<PathBuf>,
   setting: Option<ProgramSetting>

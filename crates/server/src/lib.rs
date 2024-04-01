@@ -3,8 +3,8 @@ pub mod server;
 use std::path::Path;
 use server::WxServer;
 
-pub fn create_wx_application(port: u32, root: &Path, watch: bool) -> WxServer {
-  let app = WxServer::new();
+pub fn create_wx_application(host: &str, port: u16, root: &Path) -> WxServer {
+  let app = WxServer::new(host, port, root);
   app
 }
 
@@ -16,7 +16,10 @@ use super::*;
 
   #[test]
   fn test_create_wx_application() {
-    let app = create_wx_application(3000, Path::new(""), false);
     // Add your assertions here
+    let host = "0.0.0.0";
+    let port = 3000;
+    let root = Path::new(".");
+    let app = create_wx_application(host, port, root);
   }
 }

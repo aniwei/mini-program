@@ -5,9 +5,10 @@ use crate::AxStartCommand;
 
 #[derive(Default, Debug)]
 pub(crate) struct ProjStartArgs {
-  pub(crate) port: u32,
+  pub(crate) port: u16,
   pub(crate) host: String,
   pub(crate) root: Box<PathBuf>,
+  pub(crate) watch: bool
 }
 
 /// 启动参数
@@ -16,8 +17,12 @@ impl ProjStartArgs {
     let mut proj_args = ProjStartArgs::default();
 
     // 读取环境变量
-    if let Ok(port) = std::env::var("PORT").unwrap_or_default().parse::<u32>() {
+    if let Ok(port) = std::env::var("PORT").unwrap_or_default().parse::<u16>() {
       proj_args.port = port;
+    }
+
+    if (proj_args.port == 0) {
+      proj_args.port = 3000;
     }
 
     // 读取当前路径
@@ -35,22 +40,22 @@ impl From<AxStartCommand> for ProjStartArgs {
     
     let mut proj_args = ProjStartArgs::new();
 
-    /// 处理 host
+    // 处理 host
     if let Some(host) = value.host {
       proj_args.host = host.to_owned();
     }
 
-    /// 处理是否监控文件变化
+    // 处理是否监控文件变化
     if let Some(watch) = value.watch {
-      proj_args.root = Box::new(std::env::current_dir().unwrap());
+      proj_args.watch = watch;
     }
 
-    /// 处理端口
+    // 处理端口
     if let Some(p) = value.port {
       proj_args.port = p.to_owned();
     }
 
-    /// 处理项目路径
+    // 处理项目路径
     if let Some(root) = value.root {
       proj_args.root = Box::new(PathBuf::from(root.to_owned()));
     }

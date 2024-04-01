@@ -1,20 +1,55 @@
-use actix_web::HttpServer;
+use std::path::{Path, PathBuf};
 
-#[derive(Debug, Default)]
+use actix_web::{web, App, HttpServer, Responder};
+use anyhow::*;
+use core::result::Result::Ok;
+
+#[derive(Debug)]
 pub struct WxServer {
-  pub httpServer: Option<u16>
+  pub(crate) host: String,
+  pub(crate) port: u16,
+  pub(crate) root: PathBuf
 }
 
+async fn index() -> impl Responder {
+  "hello world"
+}
+
+/// 
 impl WxServer {
-  pub fn new() -> WxServer {
+  pub fn new(
+    host: &str, 
+    port: u16, 
+    root: &Path
+  ) -> WxServer {
     WxServer {
-      httpServer: None,
+      host: host.to_string(),
+      port,
+      root: PathBuf::from(root)
     }
   }
 
-  pub fn start(&mut self) -> Result<()> {
-    self.hpptServer = HttpServer::new(|| {
-      actix_web::App::new()
-    })
-    .bind("127.0.0.1");
+  /// 启动服务
+  /// 
+  pub async fn start(
+    &mut self, 
+    callback: Option<Box<dyn Fn() -> Result<()>>>
+  ) -> Result<()> {
+    let server = HttpServer::new(|| {
+      let http_server = App::new().service(
+        web::scope("/app")
+          .route("/", web::get().to(index)),
+      );
+
+      http_server
+    }).bind((self.host.as_str(), self.port))?;
+
+    if let Some(callback) = callback {
+      callback()?;   
+    }    
+    
+    server.run().await?;
+
+    Ok(())
+  }
 }

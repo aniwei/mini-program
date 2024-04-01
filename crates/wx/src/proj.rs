@@ -24,8 +24,8 @@ pub struct ProjSetting {
 #[derive(Debug)]
 pub struct ProjServiceOptions {
   pub host: String,
-  pub port: u32,
-  pub root: Box<PathBuf>,
+  pub port: u16,
+  pub root: PathBuf,
   pub watch: bool
 }
 
@@ -41,8 +41,8 @@ pub struct Proj<'a> {
 /// 
 impl Proj<'_> {
   pub fn new (
-    root: Box<PathBuf>, 
-    port: u32, 
+    root: &Path, 
+    port: u16, 
     host: String,
     watch: bool
   ) -> Self {
@@ -50,7 +50,7 @@ impl Proj<'_> {
       options: ProjServiceOptions {
         port,
         host,
-        root,
+        root: PathBuf::from(root),
         watch
       },
       server: None,
@@ -105,13 +105,20 @@ impl Proj<'_> {
     Ok(self)
   }
 
-  pub fn start(&mut self) -> Result<()> {
+  /// 启动服务
+  pub async fn start(
+    &mut self, 
+    callback: Option<Box<dyn Fn() -> Result<()>>>
+  ) -> Result<()> {
     self.init_wxproj();
-    let setting = self.get_setting()?;
-    let program = self.get_program()?;
 
-    let server = WxServer::new(setting.appid.clone(), setting.projectname.clone(), program.root.to_string_lossy().into_owned(), self.options.port, self.options.watch);
-    server.start()?;
+    let mut server = WxServer::new(
+      &self.options.host, 
+      self.options.port, 
+      &self.options.root
+    );
+    
+    server.start(callback).await?;
 
     Ok(())
   }
