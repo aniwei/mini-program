@@ -27,11 +27,22 @@
       "internalConsoleOptions": "neverOpen",
       "port": 9229
     }, {
-      "name": "(OSX) Launch",
+      "name": "CLI (start)",
       "type": "lldb",
       "request": "launch",
       "program": "${workspaceRoot}/target/debug/ax",
       "args": ["start", "--port", "4001", "--host", "0.0.0.0"],
+      "env": {
+        "RUST_BACKTRACE": "1"
+      },
+      "cwd": "${workspaceRoot}/example/mini-program/vant",
+      "preLaunchTask": "Build"
+    }, {
+      "name": "CLI (version)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/target/debug/ax",
+      "args": ["--version"],
       "env": {
         "RUST_BACKTRACE": "1"
       },

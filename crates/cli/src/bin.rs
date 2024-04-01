@@ -19,16 +19,17 @@ enum AxCommands {
 
 /// 命令行结构
 #[derive(Parser, Debug)]
-#[command(author="Aniwei", version, about, long_about = None)]
+#[command(author="Aniwei", version)]
 struct AxCommandArgs {
   #[arg(short, long)]
+  version: bool,
+
+  #[arg(long)]
   verbose: bool,
 
   #[command(subcommand)]
   command: Option<AxCommands>,
 }
-
-
 
 /// start 命令
 #[derive(Parser, Debug)]
@@ -56,11 +57,18 @@ async fn main() -> Result<()>{
 
   let args = AxCommandArgs::parse();
 
+  // 初始化日志
   if args.verbose {
     pretty_env_logger::formatted_builder().filter_level(log::LevelFilter::Trace).init();
   }
 
-  // 读取参数
+  // 版本号
+  if args.version {
+    println!("{}", env!("CARGO_PKG_VERSION"));
+    return Ok(());
+  }
+
+  // 处理命令
   if let Some(command) = args.command {
     match command {
       AxCommands::Start(AxStartCommand { port, host, root, watch }) => {
@@ -72,7 +80,7 @@ async fn main() -> Result<()>{
         });
 
         let mut proj = Proj::new(
-          &proj_args.root, 
+          proj_args.root.as_path(), 
           proj_args.port, 
           proj_args.host,
           proj_args.watch
@@ -98,6 +106,7 @@ async fn main() -> Result<()>{
           info!("The current path is not a WeChat MiniProgram project.");
         }
       },
+      // 处理 Doctor 命令
       AxCommands::Doctor(AxDoctorCommand{}) => {
         print!("Doctor")
       }
