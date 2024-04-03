@@ -35,9 +35,7 @@ impl ProjStartArgs {
 }
 
 impl From<AxStartCommand> for ProjStartArgs {
-  
   fn from(value: AxStartCommand) -> Self {
-    
     let mut proj_args = ProjStartArgs::new();
 
     // 处理 host

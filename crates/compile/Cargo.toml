@@ -11,3 +11,6 @@ repository.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
+anyhow = { workspace = true }
+xml = { version = "0.8.20" }
+cssparser = { version = "0.33.0" }
