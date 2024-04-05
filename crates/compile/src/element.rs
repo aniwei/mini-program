@@ -4,8 +4,6 @@ use std::result::Result::Ok;
 use xml::reader::{EventReader, XmlEvent};
 use anyhow::*;
 
-use crate::error::ParseError;
-
 #[derive(Debug)]
 pub enum Node {
   Element(Element),
@@ -14,6 +12,7 @@ pub enum Node {
 
 pub type AttributeMap = HashMap<String, String>;
 
+// 构建 element tree
 fn build(reader: &mut EventReader<&[u8]>, parent: &mut Element) -> Result<()> {
   loop {
     match reader.next() {
@@ -39,7 +38,7 @@ fn build(reader: &mut EventReader<&[u8]>, parent: &mut Element) -> Result<()> {
         if name.local_name == parent.name {
           return Ok(());
         } else {
-          return Err(ParseError::Unexpected);
+          return Err(Error::msg(format!("Unexpected closing tag: {:?}", name)));
         }
       },
       Ok(XmlEvent::Characters(text)) => {
@@ -51,7 +50,7 @@ fn build(reader: &mut EventReader<&[u8]>, parent: &mut Element) -> Result<()> {
         parent.children.push(Node::Text(element));
       },
       Ok(XmlEvent::EndDocument) => return Ok(()),
-      Err(e) => return Err(ParseError::Invalid(e)),
+      Err(e) => return Err(Error::msg("Cannot parse."))
     }
   }
 }
@@ -61,7 +60,7 @@ fn build(reader: &mut EventReader<&[u8]>, parent: &mut Element) -> Result<()> {
 pub struct Element {
   pub name: String,
   pub depth: usize,
-  pub value: Option<String>
+  pub value: Option<String>,
   pub attributes: AttributeMap,
   pub children: Vec<Node>,
 }
@@ -72,11 +71,13 @@ impl Element {
     Element {
       name: name.to_string(),
       depth: depth,
+      value: None,
       attributes: AttributeMap::new(),
       children: Vec::new(),
     }
   }
 
+  // 构建 element tree
   pub fn build(source: &[u8]) -> Self {
     let mut root = Element::new("#root", 0);
     let mut reader = EventReader::new(source);
