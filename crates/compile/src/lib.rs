@@ -1,6 +1,7 @@
 pub mod css;
 pub mod element;
 pub mod prelude;
+pub mod template;
 
 
 #[cfg(test)]
@@ -14,9 +15,9 @@ use super::*;
     // Test your element module here
     // ...
     let source = r#"
-      <div>
-        <p>hello</p>
-      </div>"#;
+      <view class="view">
+        <text>hello</text>
+      </view>"#;
 
     let root = Element::build(source.as_bytes());
     println!("{:?}", root);

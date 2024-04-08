@@ -14,3 +14,4 @@ crate-type = ["cdylib"]
 anyhow = { workspace = true }
 xml = { version = "0.8.20" }
 cssparser = { version = "0.33.0" }
+mustache = { version = "0.9.0" }

@@ -7,7 +7,7 @@ use anyhow::*;
 #[derive(Debug)]
 pub enum Node {
   Element(Element),
-  Text(Element),
+  Text(String),
 }
 
 pub type AttributeMap = HashMap<String, String>;
@@ -34,6 +34,7 @@ fn build(reader: &mut EventReader<&[u8]>, parent: &mut Element) -> Result<()> {
         build(reader, &mut element);
         parent.children.push(Node::Element(element));
       },
+
       Ok(XmlEvent::EndElement { name }) => {
         if name.local_name == parent.name {
           return Ok(());
@@ -41,15 +42,13 @@ fn build(reader: &mut EventReader<&[u8]>, parent: &mut Element) -> Result<()> {
           return Err(Error::msg(format!("Unexpected closing tag: {:?}", name)));
         }
       },
+
       Ok(XmlEvent::Characters(text)) => {
-        let mut element = Element::new(
-          "#text", 
-          parent.depth + 1
-        );
-        element.value = Some(text.clone());
-        parent.children.push(Node::Text(element));
+        parent.children.push(Node::Text(text.clone()));
       },
+
       Ok(XmlEvent::EndDocument) => return Ok(()),
+      
       Err(e) => return Err(Error::msg("Cannot parse."))
     }
   }
