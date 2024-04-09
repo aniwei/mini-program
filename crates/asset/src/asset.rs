@@ -1,100 +1,150 @@
-use std::path::{Path, PathBuf};
+use async_trait::async_trait;
+use anyhow::*;
+use std::result::Result::Ok;
 
-use tokio::fs;
+use crate::{process::AssetProcessorsManager, source::{Source, SourceStateKind}};
 
-pub enum AssetStatusKind {
-  Created = 1,
-  Read = 2,
-  Parsed = 4,
-  Mounted = 8,
-  Error = 16
+#[async_trait]
+pub trait Asset {
+  // 获取索引
+  fn get_index(&self) -> usize {
+    self.get_source().index
+  }
+  // 获取名称
+  fn get_name(&self) -> &str {
+    self.get_source().relative_path.as_str()
+  }
+  fn get_extesions<'a>(&'a self) -> Result<&'a str> {
+    self.get_source().get_extesions()
+  }
+  // 获取状态
+  fn get_state(&self) -> &SourceStateKind {
+    self.get_source().get_state()
+  }
+  // 获取资源对象
+  fn get_source(&self) -> &Source;
+
+  // 获取原始数据
+  fn get_raw(&self) -> Option<&Vec<u8>> {
+    self.get_source().get_raw()
+  }
+  // 加载资源
+  async fn load(&mut self) -> Result<()> {
+    Ok(())
+  }
+  // 处理资源
+  async fn process(&self) -> Result<()> {
+    if let Ok(ext) = self.get_extesions() {
+      AssetProcessorsManager::shared_instance().process(ext).await;
+      return Ok(())
+    } else {
+      return Err(anyhow!("The resource must specify an extension."))
+    }
+  }
+  // 挂载资源
+  async fn mount(&self) -> Result<()> {
+    Ok(())
+  }
 }
 
-pub struct AssetSource {
-  pub base_path: String,
-  pub relative_path: String,
-  pub absolute_path: PathBuf,
-  pub raw: Option<Vec<u8>>,
-  pub index: usize,
-  pub status: AssetStatusKind
+/// 图片资源
+pub struct Image {
+  source: Source
 }
 
-impl AssetSource {
+impl Image {
   pub fn new(
     relative_path: &str,
     base_path: &str,
-    raw: Option<Vec<u8>>,
     index: usize,
   ) -> Self {
-    let absolute_path = Path::new(base_path).join(relative_path);
+    let source = Source::new(
+      relative_path, 
+      base_path, 
+      None, 
+      index
+    );
 
     Self {
-      base_path: base_path.to_string(),
-      relative_path: relative_path.to_string(),
-      absolute_path: absolute_path,
-      raw: raw,
-      index,
-      status: AssetStatusKind::Created
+      source
     }
-  }
-
-  pub fn get_raw(&self) -> Option<&Vec<u8>> {
-    match self.raw.as_ref() {
-      Some(raw) => Some(raw),
-      None => None
-    }
-  }
-
-  pub fn get_status(&self) -> &AssetStatusKind {
-    &self.status
-  }
-
-  pub fn get_index(&self) -> usize {
-    self.index
-  }
-
-  pub fn get_ext(&self) -> anyhow::Result<&str> {
-    if let Some(ext) = self.absolute_path.extension() {
-      if let Some(ext) = ext.to_str() {
-        return Ok(ext)
-      }
-    }
-
-    Err(anyhow::Error::msg("Asset must has extension."))
-  }
-
-  pub fn get_name(&self) -> anyhow::Result<&str> {
-    if let Some(file_name) = self.absolute_path.file_name() {
-      if let Some(file_name) = file_name.to_str() {
-        return Ok(file_name)
-      }
-    }
-
-    Err(anyhow::Error::msg("Asset must has file name."))
   }
 }
 
-
-pub enum Asset {
-  Localization(AssetSource),
-  Remote(AssetSource)
+#[async_trait]
+impl Asset for Image {
+  // 获取资源对象
+  fn get_source(&self) -> &Source {
+    &self.source
+  }
 }
 
-impl Asset {
-  async fn read (&mut self) -> anyhow::Result<()> {
-    match self {
-      Self::Localization(source) => {
-        Ok(())
-      },
-      Self::Remote(source) => {
-        let raw = fs::read(&source.absolute_path).await?;
-        source.raw = Some(raw);
-        Ok(())
-      }
+/// XML 资源
+pub struct XML {
+  source: Source
+}
+
+impl XML {
+  pub fn new(
+    relative_path: &str,
+    base_path: &str,
+    index: usize,
+  ) -> Self {
+    let source = Source::new(
+      relative_path, 
+      base_path, 
+      None, 
+      index
+    );
+
+    Self {
+      source
     }
   }
+}
 
-  async fn write (&mut self) -> anyhow::Result<()> {
-    Ok(())
+#[async_trait]
+impl Asset for XML {
+  // 获取资源对象
+  fn get_source(&self) -> &Source {
+    &self.source
   }
+}
+
+/// CSS 资源
+pub struct CSS {
+  source: Source
+}
+
+impl CSS {
+  pub fn new(
+    relative_path: &str,
+    base_path: &str,
+    index: usize,
+  ) -> Self {
+    let source = Source::new(
+      relative_path, 
+      base_path, 
+      None, 
+      index
+    );
+
+    Self {
+      source
+    }
+  }
+}
+
+#[async_trait]
+impl Asset for CSS {
+  // 获取资源对象
+  fn get_source(&self) -> &Source {
+    &self.source
+  }
+}
+
+pub enum Assets {
+  Image(Image),
+  XML(XML),
+  CSS(CSS)
 }

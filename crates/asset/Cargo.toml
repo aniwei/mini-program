@@ -10,4 +10,5 @@ repository.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }

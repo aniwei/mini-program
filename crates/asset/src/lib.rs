@@ -1,4 +1,7 @@
 pub mod asset;
+pub mod source;
+pub mod process;
+pub mod set;
 
 #[cfg(test)]
 mod tests {

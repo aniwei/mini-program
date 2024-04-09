@@ -1,0 +1,83 @@
+use std::path::{Path, PathBuf};
+
+use anyhow::*;
+
+/// 资源状态
+pub enum SourceStateKind {
+  Created = 1,
+  Read = 2,
+  Parsed = 4,
+  Mounted = 8,
+  Error = 16
+}
+
+/// 资源结构
+pub struct Source {
+  // 基础路径
+  pub base_path: String,
+  // 相对路径
+  pub relative_path: String,
+  // 绝对路径
+  pub absolute_path: PathBuf,
+  // 原始数据
+  pub raw: Option<Vec<u8>>,
+  // 索引
+  pub index: usize,
+  // 状态
+  pub state: SourceStateKind
+}
+
+impl Source {
+  pub fn new(
+    relative_path: &str,
+    base_path: &str,
+    raw: Option<Vec<u8>>,
+    index: usize,
+  ) -> Self {
+    let absolute_path = Path::new(base_path).join(relative_path);
+
+    Self {
+      base_path: base_path.to_string(),
+      relative_path: relative_path.to_string(),
+      absolute_path: absolute_path,
+      raw: raw,
+      index,
+      state: SourceStateKind::Created
+    }
+  }
+
+  pub fn get_raw(&self) -> Option<&Vec<u8>> {
+    match self.raw.as_ref() {
+      Some(raw) => Some(raw),
+      None => None
+    }
+  }
+
+  pub fn get_state(&self) -> &SourceStateKind {
+    &self.state
+  }
+
+  pub fn get_index(&self) -> usize {
+    self.index
+  }
+
+  pub fn get_extesions<'a>(&'a self) -> Result<&'a str> {
+    if let Some(ext) = self.absolute_path.extension() {
+      if let Some(ext) = ext.to_str() {
+        return Ok(ext)
+      }
+    }
+
+    Err(anyhow!("The resource must specify an extension."))
+  }
+
+  pub fn get_name(&self) -> Result<&str> {
+    if let Some(file_name) = self.absolute_path.file_name() {
+      if let Some(file_name) = file_name.to_str() {
+        return Ok(file_name)
+      }
+    }
+
+    Err(anyhow!("The resource must specify a filename."))
+  }
+}
