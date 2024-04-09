@@ -11,8 +11,10 @@ repository.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
+asset = { path = "../asset" }
 anyhow = { workspace = true }
 tokio = { workspace = true }
+async-await = { workspace = true }
 xml = { version = "0.8.20" }
 cssparser = { version = "0.33.0" }
 mustache = { version = "0.9.0" }
