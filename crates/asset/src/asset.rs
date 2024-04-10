@@ -28,14 +28,21 @@ pub trait Asset {
   fn get_raw(&self) -> Option<&Vec<u8>> {
     self.get_source().get_raw()
   }
+
+  fn set_raw(&mut self, raw: Vec<u8>) {
+    self.get_source().raw = Some(raw);
+    self.get_source().state = SourceStateKind::Loaded;
+  }
+
   // 加载资源
   async fn load(&mut self) -> Result<()> {
     Ok(())
   }
   // 处理资源
-  async fn process(&self) -> Result<()> {
+  async fn process(&mut self) -> Result<()> {
     if let Ok(ext) = self.get_extesions() {
       AssetProcessorsManager::shared_instance().process(ext).await;
+      self.get_source().state = SourceStateKind::Processed;
       return Ok(())
     } else {
       return Err(anyhow!("The resource must specify an extension."))
@@ -45,6 +52,16 @@ pub trait Asset {
   async fn mount(&self) -> Result<()> {
     Ok(())
   }
+}
+
+// 内存资源
+pub trait MemoryAsset {
+  fn load(&mut self) -> Result<()>;
+}
+
+// 文件资源
+pub trait FileAsset {
+  fn load(&mut self) -> Result<()>;
 }
 
 /// 图片资源

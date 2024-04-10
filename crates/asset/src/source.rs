@@ -6,7 +6,7 @@ use anyhow::*;
 pub enum SourceStateKind {
   Created = 1,
   Read = 2,
-  Parsed = 4,
+  Processed = 4,
   Mounted = 8,
   Error = 16
 }
