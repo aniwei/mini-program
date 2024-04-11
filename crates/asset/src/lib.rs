@@ -9,7 +9,7 @@ pub mod set;
 use crate::{process::AssetProcessorsManager, source::{Source, SourceStateKind}};
 
 #[async_trait]
-pub trait Asset {
+pub trait Asset: Send + Sync {
   // 获取索引
   fn get_index(&self) -> usize {
     self.get_source().index
@@ -36,9 +36,10 @@ pub trait Asset {
     self.get_source().get_raw()
   }
 
-  // 设置原始数据
+  // 设置原始数据，同时设置状态为已加载
   fn set_raw(&mut self, raw: Vec<u8>) {
     let mut source = self.get_mut_source();
+
     source.raw = Some(raw);
     source.state = source.state | SourceStateKind::Loaded;
   }
@@ -50,8 +51,11 @@ pub trait Asset {
   // 处理资源
   async fn process(&mut self) -> Result<()> {
     if let Ok(ext) = self.get_extesions() {
-      AssetProcessorsManager::shared_instance().process(ext).await;
-      self.get_mut_source().state = SourceStateKind::Processed;
+      AssetProcessorsManager::shared_instance().process(ext, self).await;
+      
+      let source = self.get_mut_source();
+      source.state = source.state | SourceStateKind::Processed;
+      
       return Ok(())
     } else {
       return Err(anyhow!("The resource must specify an extension."))
@@ -97,6 +101,7 @@ impl Image {
   }
 }
 
+/// 实现资源特性
 #[async_trait]
 impl Asset for Image {
   // 获取资源对象

@@ -1,9 +1,9 @@
-use std::{ops::BitOr, path::{Path, PathBuf}};
+use std::{ops::{BitAnd, BitOr}, path::{Path, PathBuf}};
 
 use anyhow::*;
 
 /// 资源状态
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum SourceStateKind {
   Created = 1,
   Loaded = 2,
@@ -12,6 +12,7 @@ pub enum SourceStateKind {
   Error = 16
 }
 
+// 重载位运算符
 impl BitOr for SourceStateKind {
   type Output = Self;
 
@@ -20,10 +21,55 @@ impl BitOr for SourceStateKind {
     state = state as u8;
 
     match state {
+      // Created
       1 => SourceStateKind::Created,
+      // Loaded
       2 => SourceStateKind::Loaded,
+      // Created | Loaded
+      3 => SourceStateKind::Loaded | SourceStateKind::Created,
+      // Processed
       4 => SourceStateKind::Processed,
+      // Created | Processed
+      5 => SourceStateKind::Processed | SourceStateKind::Created,
+      // Created | Loaded | Processed
+      7 => SourceStateKind::Processed | SourceStateKind::Loaded | SourceStateKind::Created,
+      // Mounted
       8 => SourceStateKind::Mounted,
+      // Created | Mounted | Loaded | Processed
+      15 => SourceStateKind::Mounted | SourceStateKind::Processed | SourceStateKind::Loaded | SourceStateKind::Created,
+      // Error
+      16 => SourceStateKind::Error,
+      _ => SourceStateKind::Error
+    }
+  }
+}
+
+// 位与
+impl BitAnd for SourceStateKind {
+  type Output = Self;
+
+  fn bitand(self, rhs: Self) -> Self {
+    let mut state = self as u8 & rhs as u8;
+    state = state as u8;
+
+    match state {
+      // Created
+      1 => SourceStateKind::Created,
+      // Loaded
+      2 => SourceStateKind::Loaded,
+      // Created | Loaded
+      3 => SourceStateKind::Loaded | SourceStateKind::Created,
+      // Processed
+      4 => SourceStateKind::Processed,
+      // Created | Processed
+      5 => SourceStateKind::Processed | SourceStateKind::Created,
+      // Created | Loaded | Processed
+      7 => SourceStateKind::Processed | SourceStateKind::Loaded | SourceStateKind::Created,
+      // Mounted
+      8 => SourceStateKind::Mounted,
+      // Created | Mounted | Loaded | Processed
+      15 => SourceStateKind::Mounted | SourceStateKind::Processed | SourceStateKind::Loaded | SourceStateKind::Created,
+      // Error
       16 => SourceStateKind::Error,
       _ => SourceStateKind::Error
     }
