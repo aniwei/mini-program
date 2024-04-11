@@ -1,14 +1,33 @@
-use std::path::{Path, PathBuf};
+use std::{ops::BitOr, path::{Path, PathBuf}};
 
 use anyhow::*;
 
 /// 资源状态
+#[derive(Debug, PartialEq)]
 pub enum SourceStateKind {
   Created = 1,
-  Read = 2,
+  Loaded = 2,
   Processed = 4,
   Mounted = 8,
   Error = 16
+}
+
+impl BitOr for SourceStateKind {
+  type Output = Self;
+
+  fn bitor(self, rhs: Self) -> Self {
+    let mut state = self as u8 | rhs as u8;
+    state = state as u8;
+
+    match state {
+      1 => SourceStateKind::Created,
+      2 => SourceStateKind::Loaded,
+      4 => SourceStateKind::Processed,
+      8 => SourceStateKind::Mounted,
+      16 => SourceStateKind::Error,
+      _ => SourceStateKind::Error
+    }
+  }
 }
 
 /// 资源结构

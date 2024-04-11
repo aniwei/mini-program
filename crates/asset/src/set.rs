@@ -1,7 +1,7 @@
 use std::{collections::HashMap, rc::Rc};
 use std::result::Result::Ok;
 use anyhow::*;
-use crate::asset::Asset;
+use crate::Asset;
 
 type AssetMap<'a> = HashMap<&'a str, Rc<dyn Asset + 'a>>;
 
