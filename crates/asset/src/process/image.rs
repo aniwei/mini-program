@@ -1,7 +1,8 @@
 use anyhow::*;
 use async_trait::async_trait;
 
-use crate::{process::AssetProcess, Asset};
+use crate::{process::SourceProcess};
+use crate::source::Source;
 
 /// ImageProcessor 处理图片文件
 pub struct ImageProcessor {
@@ -17,12 +18,12 @@ impl ImageProcessor {
 }
 
 #[async_trait]
-impl AssetProcess for ImageProcessor {
+impl SourceProcess for ImageProcessor {
   fn get_extesions(&self) -> &Vec<&'static str> {
     &self.extensions
   }
 
-  async fn process<T: Asset + ?Sized>(&self, asset: &mut T) -> Result<()> {
+  async fn process(&self, source: &mut Source) -> Result<()> {
     Ok(())
   }
 }

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use anyhow::*;
 
-use crate::{process::AssetProcess, Asset};
+use crate::{process::SourceProcess, Source};
 
 /// 资源处理器
 /// XMLProcessor 处理 wxml 文件
@@ -24,12 +24,12 @@ impl XMLProcessor {
 
 // 
 #[async_trait]
-impl AssetProcess for XMLProcessor {
+impl SourceProcess for XMLProcessor {
   fn get_extesions(&self) -> &Vec<&'static str> {
     &self.extensions
   }
 
-  async fn process<T: Asset + ?Sized>(&self, asset: &mut T) -> Result<()> {
+  async fn process(&self, source: &mut Source) -> Result<()> {
     Ok(())
   }
 }

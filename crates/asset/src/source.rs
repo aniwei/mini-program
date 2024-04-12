@@ -7,9 +7,10 @@ use anyhow::*;
 pub enum SourceStateKind {
   Created = 1,
   Loaded = 2,
-  Processed = 4,
-  Mounted = 8,
-  Error = 16
+  Transformed = 4,
+  Processed = 8,
+  Mounted = 16,
+  Error = 32
 }
 
 // 重载位运算符
@@ -77,7 +78,7 @@ impl BitAnd for SourceStateKind {
 }
 
 /// 资源结构
-pub struct Source {
+pub struct Source<T> {
   // 基础路径
   pub base_path: String,
   // 相对路径
@@ -86,13 +87,18 @@ pub struct Source {
   pub absolute_path: PathBuf,
   // 原始数据
   pub raw: Option<Vec<u8>>,
+  // 原始数据
+  pub origin_raw: Option<Vec<u8>>,
+  // 
+  pub data: Option<T>,
   // 索引
   pub index: usize,
   // 状态
   pub state: SourceStateKind
 }
 
-impl Source {
+impl <T> Source<T> {
+  // 创建资源
   pub fn new(
     relative_path: &str,
     base_path: &str,
@@ -106,11 +112,14 @@ impl Source {
       relative_path: relative_path.to_string(),
       absolute_path: absolute_path,
       raw: raw,
+      origin_raw: raw,
+      data: None,
       index,
       state: SourceStateKind::Created
     }
   }
 
+  // 获取原始数据
   pub fn get_raw(&self) -> Option<&Vec<u8>> {
     match self.raw.as_ref() {
       Some(raw) => Some(raw),
@@ -118,15 +127,18 @@ impl Source {
     }
   }
 
+  // 设置原始数据
   pub fn get_state(&self) -> &SourceStateKind {
     &self.state
   }
 
+  // 获取索引
   pub fn get_index(&self) -> usize {
     self.index
   }
 
-  pub fn get_extesions<'a>(&'a self) -> Result<&'a str> {
+  // 获取扩展名
+  pub fn get_extesions(&self) -> Result<&str> {
     if let Some(ext) = self.absolute_path.extension() {
       if let Some(ext) = ext.to_str() {
         return Ok(ext)
@@ -136,6 +148,7 @@ impl Source {
     Err(anyhow!("The resource must specify an extension."))
   }
 
+  // 获取名称
   pub fn get_name(&self) -> Result<&str> {
     if let Some(file_name) = self.absolute_path.file_name() {
       if let Some(file_name) = file_name.to_str() {
@@ -144,5 +157,14 @@ impl Source {
     }
 
     Err(anyhow!("The resource must specify a filename."))
+  }
+
+  pub fn is_loaded (&self) -> bool {
+    self.get_state() & SourceStateKind::Loaded == SourceStateKind::Loaded
+  }
+
+  pub fn is_processed (&self) -> bool {
+    let state = self.get_state() & SourceStateKind::Processed;
+    state == SourceStateKind::Processed
   }
 }
