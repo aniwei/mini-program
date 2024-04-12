@@ -1,14 +1,18 @@
 use std::{collections::HashMap, rc::Rc};
 use std::result::Result::Ok;
 use anyhow::*;
-use crate::asset::Asset;
 
+use crate::Asset;
+
+// 资源映射
 type AssetMap<'a> = HashMap<&'a str, Rc<dyn Asset + 'a>>;
 
+// 资源集合
 pub struct AssetSet<'a> {
   assets: AssetMap<'a>
 }
 
+// 
 impl<'a> AssetSet<'a> {
   pub fn new() -> Self {
     Self {
@@ -16,6 +20,7 @@ impl<'a> AssetSet<'a> {
     }
   }
 
+  // 添加资源
   pub fn add(&mut self, ext: &'a str, asset: Rc<dyn Asset + 'a>) -> Result<bool> {
     if !self.assets.contains_key(ext) {
       return Ok(false)
@@ -25,6 +30,7 @@ impl<'a> AssetSet<'a> {
     Ok(true)
   }
 
+  // 获取资源
   pub fn get(&self, name: &str) -> Option<Rc<dyn Asset + 'a>> {
     match self.assets.get(name) {
       Some(asset) => Some(asset.clone()),
@@ -32,6 +38,7 @@ impl<'a> AssetSet<'a> {
     }
   }
 
+  // 获取资源
   pub fn css(&self) -> Option<Rc<dyn Asset + 'a>> {
     self.get("css")
   }

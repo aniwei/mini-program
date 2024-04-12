@@ -9,8 +9,9 @@ use async_trait::async_trait;
 
 use crate::element::Element;
 
+#[async_trait]
 impl FileAsset for XML {
-  fn load(&mut self) -> Result<()> {
+  async fn load(&mut self) -> anyhow::Result<()> {
     let path = self.get_source().absolute_path.as_path();
     let raw = read(path).await.map_err(|e| anyhow!(e))?;
     
