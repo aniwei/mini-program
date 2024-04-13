@@ -3,7 +3,7 @@ use crate::Asset;
 
 /// CSS 资源
 pub struct CSS {
-  source: Source
+  source: Source<String>
 }
   
 impl CSS {
@@ -27,12 +27,12 @@ impl CSS {
 
 impl Asset for CSS {
   // 获取资源对象
-  fn get_source(&self) -> &Source {
+  fn get_source(&self) -> &Source<String> {
     &self.source
   }
 
   // 获取资源对象
-  fn get_mut_source(&mut self) -> &mut Source {
+  fn get_mut_source(&mut self) -> &mut Source<String> {
     &mut self.source
   }
 }

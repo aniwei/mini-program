@@ -28,10 +28,10 @@ pub trait Asset: Send + Sync {
     self.get_source().get_state()
   }
   // 获取资源对象
-  fn get_source(&self) -> &Source;
+  fn get_source<T>(&self) -> &Source<T>;
 
   // 获取资源对象
-  fn get_mut_source(&mut self) -> &mut Source;
+  fn get_mut_source<T>(&mut self) -> &mut Source<T>;
 
   // 获取原始数据
   fn get_raw(&self) -> Option<&Vec<u8>> {

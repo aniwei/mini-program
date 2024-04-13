@@ -11,6 +11,9 @@ repository.workspace = true
 [dependencies]
 log = { workspace = true }
 anyhow = { workspace = true }
+base64 = { version = "0.22.0" }
+cssparser = { version = "0.33.0" }
+xml = { version = "0.8.20" }
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
 sass-rs = { version = "0.2.2" }

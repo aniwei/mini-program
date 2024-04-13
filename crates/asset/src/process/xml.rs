@@ -29,7 +29,7 @@ impl SourceProcess for XMLProcessor {
     &self.extensions
   }
 
-  async fn process(&self, source: &mut Source) -> Result<()> {
+  async fn process(&self, source: &mut Source<&str>) -> Result<()> {
     Ok(())
   }
 }
