@@ -1,3 +1,5 @@
+
+
 # mini-program
 
 一个基于 Web 运行微信小程序的框架，目前还处理开发阶段，不过已有不错的成功。已经可以运行 vant-app 小程序版本、以及 weui-app 小程序版本。
@@ -47,7 +49,7 @@ pnpm build
   "name": "@catalyzed/cli",
   "program": "${workspaceRoot}/packages/cli/src/cli",
   "request": "launch",
-  "cwd": "${workspaceFolder}/packages/cli/example/vant", // 将 vant 切换为 weui 可运行 weui 项目，切换时候，注意源码启动页
+  "cwd": "${workspaceFolder}/example/mini-program/vant", // 将 vant 切换为 weui 可运行 weui 项目，切换时候，注意源码启动页
   "env": {
   "PORT": 4001,
   "DEBUG": "wx:*"
